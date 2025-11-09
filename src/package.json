@@ -1,11 +1,11 @@
 {
-  "name": "5eentraîneur",
+  "name": "5e-entraineur",
   "version": "1.0.0",
   "description": "Jeu éducatif interactif pour élèves, connecté à MongoDB Atlas.",
-  "main": "server.js",
+  "main": "src/server.js", 
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node src/server.js", 
+    "dev": "nodemon src/server.js"
   },
   "keywords": [],
   "author": "Jean Vuillet",
@@ -18,5 +18,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }

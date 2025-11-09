@@ -2,34 +2,101 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Quiz – Les deux empires</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>5e Entraîneur – Quiz Interactif</title>
   <style>
-    :root{
+    /* --------------------------------- */
+    /* STYLES GÉNÉRAUX ET FORMULAIRE     */
+    /* --------------------------------- */
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --ok: #16a34a;
+      --warn: #ef4444;
+      --text: #111827;
+      --muted: #6b7280;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      
+      /* Variables du Jeu Interactif */
       --arena-h: clamp(180px, 36vh, 320px);
       --char-h: clamp(90px, 26vh, 200px);
       --proj-size: clamp(18px, 3vh, 28px);
     }
     * { box-sizing: border-box; }
     body {
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      background: linear-gradient(#e0f2fe, #f8fafc);
-      color: #222;
       margin: 0;
-      padding: clamp(10px, 3vw, 24px);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(#e0f2fe, var(--bg));
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 14px 18px; background: #fff;
+      box-shadow: var(--shadow); position: sticky; top: 0; z-index: 20;
+    }
+    header h1 { font-size: 18px; margin: 0; }
+    #studentBadge { font-size: 14px; color: var(--muted); }
+    /* STYLE POUR LE BOUTON DE DÉCONNEXION */
+    #logoutBtn { 
+        background: #94a3b8 !important; 
+        color: #fff;
+        padding: 6px 10px !important; 
+        font-size: 14px !important; 
+        width: auto !important; 
+    }
+    #logoutBtn:hover {
+        background: #64748b !important;
     }
     .wrap {
-      margin: 0 auto;
-      max-width: 960px;
-      background: #fff8;
-      backdrop-filter: blur(4px);
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      padding: clamp(12px, 3vw, 24px);
-      overflow: hidden;
+      max-width: 960px; width: 100%; margin: 24px auto; padding: 0 16px; flex: 1;
     }
-    h1, h2 { text-align: center; margin: 4px 0 10px; }
-    h2 { color: #374151; font-size: clamp(16px, 2.8vw, 22px); }
+    .card {
+      background: var(--card); box-shadow: var(--shadow); border-radius: 14px; padding: 20px;
+    }
+    .form {
+      display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px;
+    }
+    label { font-size: 14px; color: var(--muted); }
+    input, select, button {
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db;
+      font-size: 16px; outline: none; transition: box-shadow .2s, transform .02s;
+      background: #fff;
+    }
+    input:focus, select:focus {
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .2); border-color: #93c5fd;
+    }
+    button {
+      background: var(--primary); color: #fff; border: none; cursor: pointer; font-weight: 600;
+    }
+    button:hover { filter: brightness(1.05); }
+    button:active { transform: translateY(1px); }
+    .row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .error { color: var(--warn); font-weight: 600; margin-top: 8px; }
+    .ok { color: var(--ok); font-weight: 600; margin-top: 8px; }
+    #game { display: none; margin-top: 18px; }
+    
+    /* Styles pour le Tableau */
+    #playersTable th { font-weight: 600; padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    #playersTable td { padding: 10px; border-bottom: 1px solid #f1f5f9; }
+    #recentPlayers tr:nth-child(even) { background-color: #f8fafc; }
+
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; }
+    }
+    
+    /* --------------------------------- */
+    /* STYLES DU QUIZ INTERACTIF (Héros vs. Zombie) */
+    /* --------------------------------- */
+    .quiz-container { padding: 0; box-shadow: none; }
+    .quiz-container h1, .quiz-container h2 { text-align: center; margin: 4px 0 10px; }
+    .quiz-container h2 { color: #374151; font-size: clamp(16px, 2.8vw, 22px); }
 
     #lives { display:flex; justify-content:center; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
     .heart {
@@ -79,338 +146,817 @@
       width:var(--proj-size); height:var(--proj-size);
       background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%);
       border-radius:50%; display:none;
+      bottom: calc(var(--char-h) * 0.55); 
     }
 
     #overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:50; color:#fff; text-align:center; padding:20px; }
     #overlay .panel{ background:#0f172a; border-radius:16px; padding:20px; width:min(520px,92%); box-shadow:0 20px 60px rgba(0,0,0,.4); }
     #overlay h3{ margin:0 0 8px; font-size:clamp(18px, 4.6vw, 26px); }
     #overlay button{ margin-top:8px; padding:10px 16px; border:0; border-radius:10px; cursor:pointer; background:#22c55e; color:#fff; }
+    
+    /* Style pour l'overlay de correction */
+    #correctionOverlay {
+        position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); display: none; 
+        align-items: center; justify-content: center; z-index: 60; color: #fff; 
+        text-align: center; padding: 20px;
+    }
+    #correctionOverlay .correction-box {
+        background: #fee2e2; color: #b91c1c; border-radius: 20px; padding: 40px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: min(600px, 95%);
+    }
+    #correctionOverlay h2 {
+        font-size: clamp(24px, 6vw, 40px); margin-bottom: 10px; color: #b91c1c;
+    }
+    #correctionOverlay p {
+        font-size: clamp(18px, 4vw, 30px); font-weight: bold; margin-top: 0;
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Les deux empires 🏰</h1>
-  <h2 id="levelTitle">Niveau 1 : repères</h2>
+  <header>
+    <h1>5e Entraîneur</h1>
+    <div style="display: flex; align-items: center; gap: 12px;"> <div id="studentBadge">Non connecté</div>
+        <button id="logoutBtn" style="display: none;">
+            Se déconnecter
+        </button>
+    </div>
+  </header>
 
-  <div id="lives"></div>
+  <main class="wrap">
+    <section id="registerCard" class="card">
+      <h2>👋 Avant de commencer</h2>
+      <p class="hint">Entre ton **prénom**, **nom** et sélectionne ta **classe**.</p>
 
-  <div id="mainProgress"><div id="mainBar"></div></div>
-  <p id="general" style="text-align:center; margin:4px 0 8px;">Compteur général : 0/0</p>
-  <div id="subBars"></div>
+      <form id="registerForm" class="form" autocomplete="on">
+        <div class="row">
+          <div>
+            <label for="firstName">Prénom</label>
+            <input id="firstName" name="firstName" placeholder="Ex : Jeanne" required />
+          </div>
+          <div>
+            <label for="lastName">Nom</label>
+            <input id="lastName" name="lastName" placeholder="Ex : Martin" required />
+          </div>
+        </div>
 
-  <p id="question"></p>
-  <div id="choices"></div>
-  <div id="freeInputZone">
-    <input type="text" id="answer" placeholder="Écris ta réponse ici" />
-    <br />
-    <button id="submit">Valider</button>
+        <div class="row">
+          <div>
+            <label for="classroom">Classe</label>
+            <select id="classroom" name="classroom" required>
+                <option value="" disabled selected>Choisis ta classe...</option>
+                <option value="6eD">6eD</option>
+                <option value="5eB">5eB</option>
+                <option value="5eC">5eC</option>
+                <option value="2de A">2de A</option>
+                <option value="2d CD">2d CD</option>
+                <option value="Professeur">Professeur</option>
+            </select>
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button id="startBtn" type="submit">Commencer</button>
+          </div>
+        </div>
+
+        <div id="formMsg" class="hint"></div>
+      </form>
+    </section>
+
+    <section id="game">
+      <div class="card quiz-container">
+        <h1>🎮 Quiz – Les deux empires 🏰</h1>
+        <h2 id="levelTitle">Niveau 1 : repères</h2>
+        
+        <p class="hint" id="welcomeText" style="text-align:center;"></p>
+
+        <div id="lives"></div>
+
+        <div id="mainProgress"><div id="mainBar"></div></div>
+        <p id="general" style="text-align:center; margin:4px 0 8px;">Compteur général : 0/0</p>
+        <div id="subBars"></div>
+
+        <p id="question"></p>
+        <div id="choices"></div>
+        <div id="freeInputZone">
+          <input type="text" id="answer" placeholder="Écris ta réponse ici" />
+          <br />
+          <button id="submit">Valider</button>
+        </div>
+        <p id="feedback"></p>
+
+        <div id="arena">
+          <img id="hero" src="img/hero.png" alt="Héros" />
+          <img id="zombie" src="img/zombi.png" alt="Zombie" />
+          <div id="projectile"></div>
+        </div>
+      </div>
+    </section>
+    
+    <section id="recentPlayers" class="card" style="margin-top: 24px; display: none;"> 
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>📈 Tableau des élèves</h2>
+        <button id="groupBtn" style="width: auto; padding: 8px 12px; font-size: 14px;">
+            Regrouper par Classe et Trier
+        </button>
+      </div>
+
+      <table id="playersTable" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Classe</th>
+            <th>Questions Validées</th>
+            <th>Niveaux Validés</th>
+            <th>Inscrit le</th>
+          </tr>
+        </thead>
+        <tbody id="playersBody">
+          <tr><td colspan="6" style="text-align: center; padding: 20px;">Chargement...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <div id="overlay">
+    <div class="panel">
+      <h3>💀 Game Over</h3>
+      <p>Tu n’as plus de cœurs. Recommencer le niveau ?</p>
+      <button id="restartBtn">Recommencer</button>
+    </div>
   </div>
-  <p id="feedback"></p>
-
-  <div id="arena">
-    <img id="hero" src="img/hero.png" alt="Héros" />
-    <img id="zombie" src="img/zombi.png" alt="Zombie" />
-    <div id="projectile"></div>
+  
+  <div id="correctionOverlay">
+    <div class="correction-box">
+        <h2>❌ Erreur ! La bonne réponse était :</h2>
+        <p id="correctionText"></p>
+        <button id="closeCorrectionBtn">Continuer</button>
+    </div>
   </div>
-</div>
 
-<div id="overlay">
-  <div class="panel">
-    <h3>💀 Game Over</h3>
-    <p>Tu n’as plus de cœurs. Recommencer le niveau ?</p>
-    <button id="restartBtn">Recommencer</button>
-  </div>
-</div>
 
-<script>
-/* ===== Données ===== */
-const levels=[{
-  title:"Niveau 1 : repères",
-  placeholder:"Écris la réponse (dernier palier)",
-  requiredPerQuestion:3, startScore:0, wrongPenaltyInput:1,
-  questions:[
-    { q:"Quel empire se trouve à l’Ouest de l’Europe au début du Moyen Âge ?", a:"carolingien", options:["carolingien","byzantin","ottoman","romain d'orient"] },
-    { q:"Quel empire se trouve à l’Est de l’Europe, centré sur Constantinople ?", a:"byzantin", options:["byzantin","carolingien","ottoman","sassanide"] },
-    { q:"Quelle est la capitale de l’Empire carolingien ?", a:"Aix-la-Chapelle", acceptable:["aix la chapelle","aix-la-chapelle","aix la Chapelle"], options:["Aix-la-Chapelle","Aixe-la-chapelle","Rome","Constantinople"] },
-    { q:"Quelle est la capitale de l’Empire byzantin ?", a:"Constantinople", options:["Constantinople","Aix-la-chapelle","Aix-en-provence","Rome"] },
-    { q:"Religion dominante dans l’Empire carolingien ?", a:"catholique", options:["catholique","orthodoxe","islam","arianisme"] },
-    { q:"Religion dominante dans l’Empire byzantin ?", a:"orthodoxe", options:["orthodoxe","catholique","islam","arianisme"] }
-  ]
-}];
+  <script>
+    // --- PARTIE 0 : UTILS ET RÉFÉRENCES UI ---
+    const $ = (sel) => document.querySelector(sel);
+    const studentBadge = $("#studentBadge");
+    const form = $("#registerForm");
+    const formMsg = $("#formMsg");
+    const registerCard = $("#registerCard");
+    const game = $("#game");
+    const startBtn = $("#startBtn");
+    const recentPlayersSection = $("#recentPlayers"); 
+    const playersBody = $("#playersBody");
+    const groupBtn = $("#groupBtn");
+    const logoutBtn = $("#logoutBtn"); // Référence au bouton de déconnexion
 
-/* ===== État ===== */
-let currentLevel=0, localScores=[], general=0, currentIndex=-1;
-let locked=false, zombieInterval=null, zombiePosition=20, projectileInterval=null, zombiePaused=false;
-let lives=4; const MAX_LIVES=4;
-let zombieSpeed = 0.75; // 🐢 vitesse un peu réduite
+    // 🔑 CONSEIL DEV : Décommenter la ligne ci-dessous pour forcer le formulaire 
+    // à s'afficher lors des tests de nouvelle inscription.
+    // localStorage.removeItem("player"); 
 
-/* ===== Refs ===== */
-const levelTitle=document.getElementById("levelTitle");
-const livesWrap=document.getElementById("lives");
-const mainBar=document.getElementById("mainBar");
-const subBarsContainer=document.getElementById("subBars");
-const generalText=document.getElementById("general");
-const qElt=document.getElementById("question");
-const feedback=document.getElementById("feedback");
-const choicesZone=document.getElementById("choices");
-const freeInputZone=document.getElementById("freeInputZone");
-const inputElt=document.getElementById("answer");
-const submitBtn=document.getElementById("submit");
-const arena=document.getElementById("arena");
-const zombieElt=document.getElementById("zombie");
-const heroElt=document.getElementById("hero");
-const projectileElt=document.getElementById("projectile");
-const overlay=document.getElementById("overlay");
-const restartBtn=document.getElementById("restartBtn");
+    const saved = JSON.parse(localStorage.getItem("player") || "null");
+    let currentPlayerId = saved ? saved.id : null; 
 
-/* ===== UI vies ===== */
-function renderLives(){
-  livesWrap.innerHTML="";
-  for(let i=0;i<MAX_LIVES;i++){
-    const h=document.createElement("div");
-    h.className="heart"+(i<lives?"":" off");
-    livesWrap.appendChild(h);
-  }
-}
+    function showStudent(stu) {
+      studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
+      $("#welcomeText").textContent = `Bienvenue ${stu.firstName} ! Passe ton premier niveau !`;
+      logoutBtn.style.display = 'block'; // Affiche le bouton de déconnexion
+    }
 
-/* ===== Setup niveau ===== */
-function setupLevel(idx){
-  const lvl=levels[idx];
-  levelTitle.textContent=lvl.title;
-  inputElt.placeholder=lvl.placeholder;
+    // Fonction: Afficher uniquement le formulaire et masquer le reste
+    function showForm() { 
+        registerCard.style.display = "block";
+        game.style.display = "none";
+        recentPlayersSection.style.display = "none";
+        studentBadge.textContent = "Non connecté";
+        logoutBtn.style.display = 'none'; // Masquer le bouton de déconnexion
+    }
 
-  localScores=new Array(lvl.questions.length).fill(lvl.startScore);
-  general=0; currentIndex=-1;
+    function hideFormShowGame(stu) {
+      registerCard.style.display = "none";
+      recentPlayersSection.style.display = "none"; // S'assurer que le tableau prof est masqué
+      game.style.display = "block";
+    }
+    
+    // 💡 Fonction de Déconnexion
+    function logout() {
+        localStorage.removeItem("player"); // Supprime la session stockée
+        currentPlayerId = null;            // Réinitialise la variable JS
+        window.location.href = '/';      
+    }
+    
+    // Événement pour le bouton de déconnexion
+    logoutBtn.addEventListener('click', logout);
 
-  lives=MAX_LIVES; renderLives();
 
-  subBarsContainer.innerHTML="";
-  lvl.questions.forEach((_,i)=>{
-    const bar=document.createElement("div");
-    bar.className="subProgress";
-    bar.innerHTML=`<div class="subBar" id="subBar${i}"></div><div class="subLabel">${i+1}</div>`;
-    subBarsContainer.appendChild(bar);
-  });
-
-  updateBars();
-  nextQuestion(false); // reset normal au début
-}
-
-function updateBars(){
-  const total=levels[currentLevel].questions.length;
-  mainBar.style.width=(general/total)*100+"%";
-  generalText.textContent=`Compteur général : ${general}/${total}`;
-  const req=levels[currentLevel].requiredPerQuestion;
-  levels[currentLevel].questions.forEach((_,i)=>{
-    const bar=document.getElementById("subBar"+i);
-    const val=Math.max(0,Math.min(localScores[i],req));
-    bar.style.width=(val/req)*100+"%";
-  });
-}
-
-/* ===== Questions ===== */
-/** keepZombie=false -> reset au bord droit
- *  keepZombie=true  -> NE PAS reset, repartir de la position actuelle */
-function nextQuestion(keepZombie){
-  if(!keepZombie){
-    stopZombie();
-    zombiePosition=20;
-    zombieElt.style.right=zombiePosition+"px";
-    zombieElt.style.display="block";
-  }else{
-    // on garde la position et l'affichage actuels
-    stopZombie(); // était en pause, on relancera après le rendu
-  }
-
-  zombiePaused=false;
-  locked=false;
-  feedback.textContent="";
-
-  const lvl=levels[currentLevel];
-  if(general>=lvl.questions.length){
-    qElt.textContent="🎉 Bravo ! Niveau terminé !";
-    choicesZone.innerHTML=""; freeInputZone.style.display="none";
-    return;
-  }
-
-  const nxt=findNextIndex(currentIndex);
-  currentIndex=nxt;
-  renderQuestion();
-  startZombie(); // repart soit du bord, soit de la position courante
-}
-
-function findNextIndex(fromIdx){
-  const lvl=levels[currentLevel], req=lvl.requiredPerQuestion, n=lvl.questions.length;
-  for(let i=fromIdx+1;i<n;i++) if(localScores[i]<req) return i;
-  for(let i=0;i<=fromIdx;i++) if(localScores[i]<req) return i;
-  return null;
-}
-
-function renderQuestion(){
-  const lvl=levels[currentLevel];
-  const q=lvl.questions[currentIndex];
-  const progress=localScores[currentIndex];
-
-  qElt.textContent=q.q;
-  inputElt.value="";
-  choicesZone.innerHTML="";
-  freeInputZone.style.display="none";
-
-  if(progress>=lvl.requiredPerQuestion-1){
-    freeInputZone.style.display="block";
-    inputElt.focus();
-  }else{
-    const shuffled=[...q.options].sort(()=>Math.random()-0.5);
-    shuffled.forEach(opt=>{
-      const c=document.createElement("div");
-      c.className="choice";
-      c.textContent=opt;
-      c.addEventListener("click",()=>onChoiceClick(c,opt,q));
-      choicesZone.appendChild(c);
+    // --- PARTIE 1 : LOGIQUE DE CONNEXION / REDIRECTION ---
+    if (saved && saved.id) {
+        showStudent(saved);
+        if (saved.id === 'prof') {
+            // Logique Professeur Jean Vuillet
+            registerCard.style.display = "none";
+            recentPlayersSection.style.display = "block";
+            fetchPlayers(true);
+        } else {
+            // Élève déjà connecté: afficher le jeu, mais démarrer le quiz après chargement
+            hideFormShowGame(saved);
+        }
+    } else {
+        showForm(); // UTILISE LA NOUVELLE FONCTION pour afficher le formulaire
+    }
+    
+    // Attendre le chargement complet des images et ressources pour démarrer le jeu
+    window.addEventListener("load", () => {
+        if (saved && saved.id && saved.id !== 'prof') {
+            initQuiz();
+        }
     });
-  }
-}
 
-/* ===== Vérifs ===== */
-function normalize(s){return (s||"").toLowerCase().trim();}
-function isCorrectOption(opt,q){return normalize(opt)===normalize(q.a);}
-function isCorrectFreeInput(q,s){
-  s=normalize(s);
-  if(q.acceptable) return q.acceptable.some(v=>normalize(v)===s);
-  return s.includes(normalize(q.a));
-}
 
-/* ===== Réponses ===== */
-function onChoiceClick(elt,opt,q){
-  if(locked) return;
-  const ok=isCorrectOption(opt,q);
-  locked=true;
+    // ==== Soumission du formulaire → POST /api/register (Inscription/Connexion)
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formMsg.textContent = "";
+      startBtn.disabled = true;
 
-  if(ok){
-    elt.classList.add("correct");
-    feedback.textContent="✅ Bonne réponse !";
-    attack();
-    incrementProgress(1);
-    setTimeout(()=>nextQuestion(false),900); // bonne réponse -> nouveau zombie
-  }else{
-    elt.classList.add("wrong");
-    wrongAnswerFlow(q);
-  }
-}
+      const firstName = $("#firstName").value.trim();
+      const lastName = $("#lastName").value.trim();
+      const classroom = $("#classroom").value.trim();
 
-submitBtn.addEventListener("click",()=>{
-  if(locked) return;
-  const q=levels[currentLevel].questions[currentIndex];
-  const ok=isCorrectFreeInput(q,inputElt.value);
-  locked=true;
+      if (!firstName || !lastName || !classroom) {
+        formMsg.textContent = "❗ Tous les champs sont obligatoires.";
+        startBtn.disabled = false;
+        return;
+      }
 
-  if(ok){
-    feedback.textContent="✅ Bonne réponse !";
-    attack();
-    incrementProgress(1,true);
-    setTimeout(()=>nextQuestion(false),900);
-  }else{
-    localScores[currentIndex]=Math.max(0,localScores[currentIndex]-levels[currentLevel].wrongPenaltyInput);
-    updateBars();
-    wrongAnswerFlow(q);
-  }
-});
+      // -----------------------------------------------------------------
+      // LOGIQUE D'ACCÈS PROFESSEUR (Gardée en local)
+      // -----------------------------------------------------------------
+      if (lastName.toLowerCase() === "vuillet" && firstName.toLowerCase() === "jean" && classroom.toLowerCase() === "Professeur".toLowerCase()) {
+          const profInfo = { id: 'prof', firstName, lastName, classroom };
+          localStorage.setItem("player", JSON.stringify(profInfo));
+          currentPlayerId = 'prof'; 
+          
+          showStudent(profInfo);
+          registerCard.style.display = "none";
+          recentPlayersSection.style.display = "block"; 
+          game.style.display = "none"; 
+          formMsg.textContent = "✅ Accès Professeur accordé !";
+          formMsg.className = "ok";
+          fetchPlayers(true); 
+          startBtn.disabled = false;
+          return;
+      }
+      // -----------------------------------------------------------------
+      // LOGIQUE ÉLÈVE : APPEL AU SERVEUR POUR ENREGISTRER/CONNECTER
+      try {
+          // L'URL /api/register est maintenant gérée par le serveur.js corrigé
+          const response = await fetch('/api/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ firstName, lastName, classroom })
+          });
 
-/* === Flux “mauvaise réponse” : pause, affiche, nouvelle question, reprise à la même position === */
-function wrongAnswerFlow(q){
-  stopZombie(); // pause instantanée
-  if(freeInputZone.style.display==="none"){
-    localScores[currentIndex]=Math.max(0,localScores[currentIndex]-1);
-    updateBars();
-  }
-  feedback.textContent=`❌ Mauvaise réponse. Bonne réponse : ${q.a}`;
-  setTimeout(()=>{ nextQuestion(true); }, 1500); // 👉 garde la position du zombie
-}
+          // ATTENTION : La correction de l'erreur JSON est dans server.js, mais 
+          // nous nous assurons ici de gérer la réponse correctement.
+          const data = await response.json();
 
-function incrementProgress(v,final=false){
-  const req=levels[currentLevel].requiredPerQuestion;
-  localScores[currentIndex]=Math.min(req,localScores[currentIndex]+v);
-  if(final||localScores[currentIndex]===req) general++;
-  updateBars();
-}
+          if (!response.ok || !data.ok) {
+              // Si le serveur répond avec un statut 500 ou ok: false (en JSON)
+              throw new Error(data.error || "Erreur d'inscription/connexion.");
+          }
 
-/* ===== Zombie ===== */
-function startZombie(){
-  stopZombie();
-  zombieInterval=setInterval(()=>{
-    if(zombiePaused) return;
-    zombiePosition+=zombieSpeed; // 🐢 vitesse réduite
-    zombieElt.style.right=zombiePosition+"px";
+          const player = { id: data.id, firstName: data.firstName, lastName: data.lastName, classroom: data.classroom };
+          localStorage.setItem("player", JSON.stringify(player));
+          currentPlayerId = player.id; 
 
-    const z=zombieElt.getBoundingClientRect();
-    const h=heroElt.getBoundingClientRect();
-    if(z.left<=h.right-6){ onZombieHitHero(); }
-  },50);
-}
-function stopZombie(){ clearInterval(zombieInterval); zombieInterval=null; }
-function pauseZombie(flag){ zombiePaused=!!flag; }
+          formMsg.textContent = "✅ Connexion/Inscription réussie ! Démarrage du quiz...";
+          formMsg.className = "ok";
+          showStudent(player);
+          hideFormShowGame(player);
+          
+          // Démarrer le quiz après le chargement
+          if (document.readyState === 'complete') {
+              initQuiz(); 
+          } else {
+              window.addEventListener("load", initQuiz, { once: true });
+          }
+          
+          fetchPlayers(false); // Mise à jour de la liste
+      } catch (err) {
+          console.error(err);
+          formMsg.textContent = "❌ Erreur : " + err.message;
+          formMsg.className = "error";
+      } finally {
+          startBtn.disabled = false;
+      }
+    });
 
-/* Collision zombie-héros : -1 vie, respawn au bord (même question) */
-function onZombieHitHero(){
-  stopZombie();
-  if(lives>0) lives--;
-  renderLives();
-  zombieElt.style.display="none";
-  feedback.textContent="💥 Le zombie t’a touché ! (-1 cœur)";
 
-  if(lives<=0){ gameOver(); return; }
+    // --- PARTIE 2 : LOGIQUE DU TABLEAU ET DU TRI (PROFESSEUR) ---
+    const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+    
+    let allPlayersData = []; 
+    let isSorted = false;
 
-  setTimeout(()=>{
-    zombiePosition=20;
-    zombieElt.style.right=zombiePosition+"px";
-    zombieElt.style.display="block";
-    startZombie();
-  },900);
-}
+    function renderPlayers(playersToRender) {
+        playersBody.innerHTML = '';
+        if (playersToRender.length === 0) {
+            playersBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--muted);">Aucun étudiant n'est encore inscrit.</td></tr>`;
+            return;
+        }
 
-/* ===== Tir héros ===== */
-function attack(){
-  const proj=projectileElt;
-  proj.style.display="block";
-  const a=arena.getBoundingClientRect();
-  const h=heroElt.getBoundingClientRect();
-  proj.style.left=(h.right-a.left+8)+"px";
-  proj.style.bottom="calc(var(--char-h) * 0.55)";
+        playersToRender.forEach(player => {
+            // CORRECTION DE L'ERREUR "Invalid time value" : 
+            // On s'assure d'utiliser 'created_at' (du schéma) ou 'createdAt' (si Mongoose le renvoie par défaut)
+            // Si aucune date n'est valide (cas improbable), on utilise la date actuelle.
+            const dateValue = player.created_at || player.createdAt || Date.now();
+            const date = new Date(dateValue); 
+            
+            // Calculer le nombre total de questions pour l'affichage (basé sur le Niveau 1)
+            const totalQuestions = levels[0].questions.length * levels[0].requiredPerQuestion;
+            const validatedQCount = player.validatedQuestions ? player.validatedQuestions.length : 0;
+            const questionSummary = `${validatedQCount}/${totalQuestions}`; 
+            
+            // Formatage des niveaux validés
+            const niveauxValides = player.validatedLevels && player.validatedLevels.length > 0 ? player.validatedLevels.join(', ') : '-';
 
-  let vx=Math.max(12, arena.clientWidth/45);
-  clearInterval(projectileInterval);
-  projectileInterval=setInterval(()=>{
-    const x=(parseFloat(proj.style.left)||0)+vx;
-    proj.style.left=x+"px";
+            const row = `
+                <tr>
+                    <td>${player.firstName}</td>
+                    <td>${player.lastName}</td>
+                    <td>${player.classroom}</td>
+                    <td>${questionSummary}</td>
+                    <td>${niveauxValides}</td>
+                    <td style="font-size: 0.9em; color: var(--muted);">${dateFormatter.format(date)}</td>
+                </tr>
+            `;
+            playersBody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+    
+    async function fetchPlayers(isProfessor) {
+        if (!isProfessor) {
+            return;
+        }
+        
+        playersBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">Chargement des données de la base de données...</td></tr>`;
 
-    const pR=proj.getBoundingClientRect();
-    const zR=zombieElt.getBoundingClientRect();
-    if(pR.right>=zR.left){
-      clearInterval(projectileInterval);
-      proj.style.display="none";
-      zombieElt.style.display="none";
-      stopZombie();
-      setTimeout(()=>{
+        try {
+            const response = await fetch('/api/players'); 
+            
+            if (!response.ok) {
+                // Cette erreur pourrait être Status 404 si /api/players n'est pas trouvé dans server.js
+                throw new Error(`Erreur de réseau ou du serveur (Status: ${response.status}).`);
+            }
+            
+            const playersFromMongo = await response.json(); 
+            allPlayersData = playersFromMongo;
+            renderPlayers(allPlayersData); 
+
+        } catch (error) {
+            console.error("Erreur de récupération des joueurs:", error);
+            playersBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--warn);">❌ Impossible de charger les données: ${error.message}</td></tr>`;
+        }
+    }
+
+
+    groupBtn.addEventListener('click', () => {
+        if (allPlayersData.length === 0) return;
+
+        if (isSorted) {
+             const initialOrder = [...allPlayersData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+             renderPlayers(initialOrder);
+             groupBtn.textContent = "Regrouper par Classe et Trier";
+             isSorted = false;
+             return;
+        }
+        
+        // Logique de tri par Classe, puis Nom, puis Prénom
+        const sortedPlayers = [...allPlayersData].sort((a, b) => {
+            const classA = a.classroom.toUpperCase();
+            const classB = b.classroom.toUpperCase();
+            if (classA < classB) return -1;
+            if (classA > classB) return 1;
+
+            const lastA = a.lastName.toUpperCase();
+            const lastB = b.lastName.toUpperCase();
+            if (lastA < lastB) return -1;
+            if (lastA > lastB) return 1;
+
+            const firstA = a.firstName.toUpperCase();
+            const firstB = b.firstName.toUpperCase();
+            if (firstA < firstB) return -1;
+            if (firstA > firstB) return 1;
+            
+            return 0;
+        });
+
+        renderPlayers(sortedPlayers);
+        groupBtn.textContent = "Retourner à l'ordre par date (Annuler le tri)";
+        isSorted = true;
+    });
+    
+    // Appel initial au chargement
+    if (!saved || saved.id !== 'prof') {
+        fetchPlayers(false); 
+    }
+
+
+    // --- PARTIE 3 : LOGIQUE COMPLÈTE DU QUIZ INTERACTIF ---
+
+    /* ===== Données du Quiz ===== */
+    const levels=[{
+      title:"Niveau 1 : repères",
+      id:"Niveau 1",
+      placeholder:"Écris la réponse (dernier palier)",
+      requiredPerQuestion:3, startScore:0, wrongPenaltyInput:1,
+      questions:[
+        { q:"Quel empire se trouve à l’Ouest de l’Europe au début du Moyen Âge ?", a:"carolingien", options:["carolingien","byzantin","ottoman","romain d'orient"] },
+        { q:"Quel empire se trouve à l’Est de l’Europe, centré sur Constantinople ?", a:"byzantin", options:["byzantin","carolingien","ottoman","sassanide"] },
+        { q:"Quelle est la capitale de l’Empire carolingien ?", a:"Aix-la-Chapelle", acceptable:["aix la chapelle","aix-la-chapelle","aix la Chapelle"], options:["Aix-la-Chapelle","Aixe-la-chapelle","Rome","Constantinople"] },
+        { q:"Quelle est la capitale de l’Empire byzantin ?", a:"Constantinople", options:["Constantinople","Aix-la-chapelle","Aix-en-provence","Rome"] },
+        { q:"Religion dominante dans l’Empire carolingien ?", a:"catholique", options:["catholique","orthodoxe","islam","arianisme"] },
+        { q:"Religion dominante dans l’Empire byzantin ?", a:"orthodoxe", options:["orthodoxe","catholique","islam","arianisme"] }
+      ]
+    }];
+
+    /* ===== État du Jeu et Constantes de Temps ===== */
+    let currentLevel=0, localScores=[], general=0, currentIndex=-1;
+    let locked=false, zombieInterval=null, zombiePosition=20, projectileInterval=null, zombiePaused=false;
+    let lives=4; const MAX_LIVES=4;
+    
+    // NOUVELLES CONSTANTES POUR LE TEMPS DU ZOMBIE
+    const ZOMBIE_TIME_SECS = 25; // Temps de base (25 secondes)
+    const ZOMBIE_TIME_FINAL_SECS = 40; // Temps pour le dernier palier (40 secondes)
+    const INTERVAL_MS = 20; // Fréquence de rafraîchissement (20 millisecondes)
+
+
+    /* ===== Refs du Jeu et Correction ===== */
+    const levelTitle=document.getElementById("levelTitle");
+    const livesWrap=document.getElementById("lives");
+    const mainBar=document.getElementById("mainBar");
+    const subBarsContainer=document.getElementById("subBars");
+    const generalText=document.getElementById("general");
+    const qElt=document.getElementById("question");
+    const feedback=document.getElementById("feedback");
+    const choicesZone=document.getElementById("choices");
+    const freeInputZone=document.getElementById("freeInputZone");
+    const inputElt=document.getElementById("answer");
+    const submitBtn=document.getElementById("submit");
+    const arena=document.getElementById("arena");
+    const zombieElt=document.getElementById("zombie");
+    const heroElt=document.getElementById("hero");
+    const projectileElt=document.getElementById("projectile");
+    const overlay=document.getElementById("overlay");
+    const restartBtn=document.getElementById("restartBtn");
+    const correctionOverlay = $("#correctionOverlay");
+    const correctionText = $("#correctionText");
+    const closeCorrectionBtn = $("#closeCorrectionBtn");
+
+
+    // -----------------------------------------------------------------
+    // LOGIQUE DE SAUVEGARDE DE LA PROGRESSION (APPEL API)
+    // -----------------------------------------------------------------
+
+    async function saveProgress(progressType, value) {
+        if (!currentPlayerId || currentPlayerId === 'prof') return; 
+
+        console.log(`Tentative de sauvegarde : ${progressType} - ${value}`);
+
+        try {
+            const response = await fetch('/api/save-progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerId: currentPlayerId,
+                    progressType: progressType,
+                    value: value
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Erreur serveur (Status ${response.status})`);
+            }
+            
+            const data = await response.json();
+            console.log(`Progression sauvegardée sur MongoDB: ${data.message}`);
+
+            // Après la sauvegarde réussie, mettez à jour la liste des joueurs
+            if (saved && saved.id === 'prof') {
+                 fetchPlayers(true); 
+            }
+
+        } catch (error) {
+            console.error("❌ Échec de la sauvegarde de progression vers le serveur:", error);
+        }
+    }
+
+
+    /* ===== Fonctions du Quiz ===== */
+
+    function initQuiz() {
+      setupLevel(0);
+    }
+    
+    function renderLives(){
+      livesWrap.innerHTML="";
+      for(let i=0;i<MAX_LIVES;i++){
+        const h=document.createElement("div");
+        h.className="heart"+(i<lives?"":" off");
+        livesWrap.appendChild(h);
+      }
+    }
+
+    function setupLevel(idx){
+      const lvl=levels[idx];
+      levelTitle.textContent=lvl.title;
+      inputElt.placeholder=lvl.placeholder;
+
+      localScores=new Array(lvl.questions.length).fill(lvl.startScore);
+      general=0; currentIndex=-1;
+
+      lives=MAX_LIVES; renderLives();
+
+      subBarsContainer.innerHTML="";
+      lvl.questions.forEach((_,i)=>{
+        const bar=document.createElement("div");
+        bar.className="subProgress";
+        bar.innerHTML=`<div class="subBar" id="subBar${i}"></div><div class="subLabel">${i+1}</div>`;
+        subBarsContainer.appendChild(bar);
+      });
+
+      updateBars();
+      nextQuestion(false); 
+    }
+
+    function updateBars(){
+      const total=levels[currentLevel].questions.length;
+      mainBar.style.width=(general/total)*100+"%";
+      generalText.textContent=`Compteur général : ${general}/${total}`;
+      const req=levels[currentLevel].requiredPerQuestion;
+      levels[currentLevel].questions.forEach((_,i)=>{
+        const bar=document.getElementById("subBar"+i);
+        const val=Math.max(0,Math.min(localScores[i],req));
+        bar.style.width=(val/req)*100+"%";
+      });
+    }
+
+    function findNextIndex(fromIdx){
+      const lvl=levels[currentLevel], req=lvl.requiredPerQuestion, n=lvl.questions.length;
+      for(let i=fromIdx+1;i<n;i++) if(localScores[i]<req) return i;
+      for(let i=0;i<=fromIdx;i++) if(localScores[i]<req) return i;
+      return null;
+    }
+
+    function nextQuestion(keepZombie){
+      if(!keepZombie){
+        stopZombie();
         zombiePosition=20;
         zombieElt.style.right=zombiePosition+"px";
         zombieElt.style.display="block";
-      },400);
-    }
-    if(x>a.width-10){
-      clearInterval(projectileInterval);
-      proj.style.display="none";
-    }
-  },16);
-}
+      }else{
+        stopZombie(); 
+      }
 
-/* ===== Game over ===== */
-function gameOver(){ locked=true; stopZombie(); overlay.style.display="flex"; }
-document.getElementById("restartBtn").addEventListener("click",()=>{
-  overlay.style.display="none"; setupLevel(currentLevel);
-});
+      zombiePaused=false;
+      locked=false;
+      feedback.textContent="";
 
-/* Lancement */
-setupLevel(0);
-</script>
+      const lvl=levels[currentLevel];
+      if(general>=lvl.questions.length){
+        qElt.textContent=`🎉 Bravo ! ${lvl.title} terminé !`;
+        choicesZone.innerHTML=""; freeInputZone.style.display="none";
+        stopZombie();
+        saveProgress('level', lvl.id); // Sauvegarde la validation du niveau
+        return;
+      }
+
+      const nxt=findNextIndex(currentIndex);
+      currentIndex=nxt;
+      renderQuestion();
+      startZombie();
+    }
+
+    function renderQuestion(){
+      const lvl=levels[currentLevel];
+      const q=lvl.questions[currentIndex];
+      const progress=localScores[currentIndex];
+
+      qElt.textContent=q.q;
+      inputElt.value="";
+      choicesZone.innerHTML="";
+      freeInputZone.style.display="none";
+
+      if(progress>=lvl.requiredPerQuestion-1){
+        freeInputZone.style.display="block";
+        inputElt.focus();
+      }else{
+        const shuffled=[...q.options].sort(()=>Math.random()-0.5);
+        shuffled.forEach(opt=>{
+          const c=document.createElement("div");
+          c.className="choice";
+          c.textContent=opt;
+          c.addEventListener("click",()=>onChoiceClick(c,opt,q));
+          choicesZone.appendChild(c);
+        });
+      }
+    }
+
+    function normalize(s){return (s||"").toLowerCase().trim();}
+    function isCorrectOption(opt,q){return normalize(opt)===normalize(q.a);}
+    function isCorrectFreeInput(q,s){
+      s=normalize(s);
+      if(q.acceptable) return q.acceptable.some(v=>normalize(v)===s);
+      return s.includes(normalize(q.a));
+    }
+
+    function onChoiceClick(elt,opt,q){
+      if(locked) return;
+      const ok=isCorrectOption(opt,q);
+      locked=true;
+
+      if(ok){
+        elt.classList.add("correct");
+        feedback.textContent="✅ Bonne réponse !";
+        attack();
+        incrementProgress(1);
+        setTimeout(()=>nextQuestion(false),900); 
+      }else{
+        elt.classList.add("wrong");
+        wrongAnswerFlow(q);
+      }
+    }
+
+    submitBtn.addEventListener("click",()=>{
+      if(locked) return;
+      const q=levels[currentLevel].questions[currentIndex];
+      const ok=isCorrectFreeInput(q,inputElt.value);
+      locked=true;
+
+      if(ok){
+        feedback.textContent="✅ Bonne réponse !";
+        attack();
+        incrementProgress(1,true);
+        setTimeout(()=>nextQuestion(false),900);
+      }else{
+        localScores[currentIndex]=Math.max(0,localScores[currentIndex]-levels[currentLevel].wrongPenaltyInput);
+        updateBars();
+        wrongAnswerFlow(q);
+      }
+    });
+
+    closeCorrectionBtn.addEventListener("click",()=>{
+        correctionOverlay.style.display = "none";
+        nextQuestion(true);
+    });
+
+
+    function wrongAnswerFlow(q){
+      stopZombie(); 
+      if(freeInputZone.style.display==="none"){
+        localScores[currentIndex]=Math.max(0,localScores[currentIndex]-1);
+        updateBars();
+      }
+      
+      feedback.textContent=`❌ Mauvaise réponse. La correction s'affiche...`;
+      
+      correctionText.textContent = q.a;
+      correctionOverlay.style.display = "flex";
+    }
+
+    function incrementProgress(v,final=false){
+      const req=levels[currentLevel].requiredPerQuestion;
+      const oldScore = localScores[currentIndex];
+
+      localScores[currentIndex]=Math.min(req,localScores[currentIndex]+v);
+      if(oldScore < req && localScores[currentIndex] >= req){
+        general++;
+      }
+      updateBars();
+      
+      if(final) {
+        // Sauvegarde la question validée (si elle est terminée)
+        saveProgress('question', levels[currentLevel].id + '-' + currentIndex);
+      }
+      
+      // Si la progression n'est pas final (juste une option), on ne sauvegarde rien.
+    }
+    
+    function decreaseLives(){
+      lives=Math.max(0,lives-1);
+      renderLives();
+      if(lives===0){
+        stopZombie();
+        overlay.style.display="flex";
+        zombieElt.style.display="none";
+      }
+    }
+
+    restartBtn.addEventListener("click",()=>{
+        overlay.style.display="none";
+        setupLevel(currentLevel); 
+    });
+
+
+    // --- LOGIQUE ZOMBIE / ANIMATION ---
+
+    function startZombie(){
+      if(zombieInterval) return;
+      
+      const lvl=levels[currentLevel];
+      const isFinal=localScores[currentIndex]>=lvl.requiredPerQuestion-1;
+      
+      const timeLimitSecs = isFinal ? ZOMBIE_TIME_FINAL_SECS : ZOMBIE_TIME_SECS;
+      const arenaWidth = arena.offsetWidth || 500; // Largeur de l'arène
+      const zombieWidth = zombieElt.offsetWidth || 50;
+      
+      // La distance que le zombie doit parcourir
+      const maxDistance = arenaWidth - zombieWidth - heroElt.offsetWidth - 30; // 30px de marge
+
+      // Calcul de la vitesse (pixels par milliseconde)
+      // Vitesse = Distance / Temps (en ms)
+      const speed = maxDistance / (timeLimitSecs * 1000); 
+
+      zombieInterval=setInterval(()=>{
+        if(locked || zombiePaused) return;
+
+        // Mise à jour de la position: position += vitesse * intervalle_de_temps
+        zombiePosition += speed * INTERVAL_MS; 
+        
+        // La position du zombie est gérée par la propriété 'right'
+        zombieElt.style.right=zombiePosition+"px";
+
+        if(zombiePosition>maxDistance){
+          // Le zombie atteint le héros !
+          stopZombie();
+          decreaseLives();
+          if(lives>0) {
+            zombieElt.style.right = maxDistance + 'px'; // Fixe la position
+            locked=true; // Bloque les actions
+            feedback.textContent=`🤕 Le zombie t'a eu ! (-1 cœur)`;
+            setTimeout(()=>nextQuestion(false), 1500); 
+          }
+        }
+      },INTERVAL_MS);
+    }
+
+    function stopZombie(){
+      if(zombieInterval) clearInterval(zombieInterval);
+      zombieInterval=null;
+    }
+
+    function attack(){
+      if(projectileInterval) return;
+      stopZombie(); // Arrête le zombie pendant l'attaque
+      zombiePaused=true; // Met en pause le mouvement du zombie
+
+      projectileElt.style.display="block";
+      const heroRight = heroElt.offsetWidth; 
+      let projPos = heroRight;
+      
+      const zombieRight = parseFloat(zombieElt.style.right); // Position actuelle du zombie
+
+      // La distance que le projectile doit parcourir
+      const targetDistance = arena.offsetWidth - heroRight - zombieRight;
+      
+      // Vitesse rapide pour l'animation
+      const PROJ_SPEED = 20; // pixels par intervalle
+
+      projectileInterval=setInterval(()=>{
+        projPos += PROJ_SPEED;
+        projectileElt.style.left=projPos+"px";
+
+        // Vérifie si le projectile a atteint le zombie
+        if(projPos >= arena.offsetWidth - zombieRight - (zombieElt.offsetWidth / 2)){
+          clearInterval(projectileInterval);
+          projectileInterval=null;
+          projectileElt.style.display="none";
+          projectileElt.style.left="0px"; // Réinitialise
+          
+          zombieElt.style.right = zombieRight + 15 + 'px'; // Animation de recul
+          setTimeout(() => {
+              zombieElt.style.right = zombieRight + 'px'; // Retour à la position normale
+          }, 80);
+
+          zombiePaused=false; // Reprend le mouvement du zombie après l'attaque
+          startZombie();
+        }
+      },INTERVAL_MS);
+    }
+
+    // Réagit aux changements de taille pour recalibrer le zombie
+    window.addEventListener('resize', () => {
+        if(zombieInterval) {
+            stopZombie();
+            startZombie();
+        }
+    });
+
+  </script>
 </body>
 </html>

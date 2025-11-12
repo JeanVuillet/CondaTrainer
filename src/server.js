@@ -11,10 +11,14 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// ====== SERVIR LES FICHIERS STATIQUES =======
+// __dirname = /5eEntraineur/src
+// On veut servir le dossier img qui est dans /5eEntraineur/
+app.use('/img', express.static(path.join(__dirname, '..', 'img')));
+
 const mongoUri = process.env.MONGODB_URI;
 
 // ====== Connexion MongoDB =======
-
 mongoose.connect(mongoUri)
     .then(() => console.log('✅ Connexion à MongoDB Atlas établie !'))
     .catch(err => console.error('❌ Erreur de connexion à MongoDB Atlas :', err));
@@ -152,8 +156,9 @@ app.get('/', (req, res) => {
 });
 
 
-// ====== START SERVER gogo =======
+// ====== START SERVER =======
 
 app.listen(port, () => {
     console.log(`✅ Serveur Express lancé sur http://localhost:${port}`);
+    console.log(`🖼️ Dossier images: ${path.join(__dirname, '..', 'img')}`);
 });

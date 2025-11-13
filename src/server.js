@@ -1,6 +1,16 @@
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
+// DEBUG - Vérifier si .env est chargé
+console.log('🔍 DEBUG - Contenu de .env:');
+console.log('MONGODB_URI:', process.env.MONGODB_URI);
+console.log('PORT:', process.env.PORT);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 
 const express = require('express');
 const mongoose = require('mongoose');

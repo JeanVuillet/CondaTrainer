@@ -282,7 +282,7 @@
   <div id="overlay">
     <div class="panel">
       <h3>💀 Game Over</h3>
-      <p>Tu n’as plus de cœurs. Recommencer le niveau ?</p>
+      <p>Tu n'as plus de cœurs. Recommencer le niveau ?</p>
       <button id="restartBtn">Recommencer</button>
     </div>
   </div>
@@ -294,7 +294,6 @@
         <button id="closeCorrectionBtn">Continuer</button>
     </div>
   </div>
-
 
   <script>
     // --- PARTIE 0 : UTILS ET RÉFÉRENCES UI ---
@@ -308,7 +307,7 @@
     const recentPlayersSection = $("#recentPlayers"); 
     const playersBody = $("#playersBody");
     const groupBtn = $("#groupBtn");
-    const logoutBtn = $("#logoutBtn"); // Référence au bouton de déconnexion
+    const logoutBtn = $("#logoutBtn");
 
     // 🔑 CONSEIL DEV : Décommenter la ligne ci-dessous pour forcer le formulaire 
     // à s'afficher lors des tests de nouvelle inscription.
@@ -320,58 +319,50 @@
     function showStudent(stu) {
       studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
       $("#welcomeText").textContent = `Bienvenue ${stu.firstName} ! Passe ton premier niveau !`;
-      logoutBtn.style.display = 'block'; // Affiche le bouton de déconnexion
+      logoutBtn.style.display = 'block';
     }
 
-    // Fonction: Afficher uniquement le formulaire et masquer le reste
     function showForm() { 
         registerCard.style.display = "block";
         game.style.display = "none";
         recentPlayersSection.style.display = "none";
         studentBadge.textContent = "Non connecté";
-        logoutBtn.style.display = 'none'; // Masquer le bouton de déconnexion
+        logoutBtn.style.display = 'none';
     }
 
     function hideFormShowGame(stu) {
       registerCard.style.display = "none";
-      recentPlayersSection.style.display = "none"; // S'assurer que le tableau prof est masqué
+      recentPlayersSection.style.display = "none";
       game.style.display = "block";
     }
     
-    // 💡 Fonction de Déconnexion
     function logout() {
-        localStorage.removeItem("player"); // Supprime la session stockée
-        currentPlayerId = null;            // Réinitialise la variable JS
+        localStorage.removeItem("player");
+        currentPlayerId = null;
         window.location.href = '/';      
     }
     
-    // Événement pour le bouton de déconnexion
     logoutBtn.addEventListener('click', logout);
-
 
     // --- PARTIE 1 : LOGIQUE DE CONNEXION / REDIRECTION ---
     if (saved && saved.id) {
         showStudent(saved);
         if (saved.id === 'prof') {
-            // Logique Professeur Jean Vuillet
             registerCard.style.display = "none";
             recentPlayersSection.style.display = "block";
             fetchPlayers(true);
         } else {
-            // Élève déjà connecté: afficher le jeu, mais démarrer le quiz après chargement
             hideFormShowGame(saved);
         }
     } else {
-        showForm(); // UTILISE LA NOUVELLE FONCTION pour afficher le formulaire
+        showForm();
     }
     
-    // Attendre le chargement complet des images et ressources pour démarrer le jeu
     window.addEventListener("load", () => {
         if (saved && saved.id && saved.id !== 'prof') {
             initQuiz();
         }
     });
-
 
     // ==== Soumission du formulaire → POST /api/register (Inscription/Connexion)
     form?.addEventListener("submit", async (e) => {
@@ -389,9 +380,7 @@
         return;
       }
 
-      // -----------------------------------------------------------------
-      // LOGIQUE D'ACCÈS PROFESSEUR (Gardée en local)
-      // -----------------------------------------------------------------
+      // LOGIQUE D'ACCÈS PROFESSEUR
       if (lastName.toLowerCase() === "vuillet" && firstName.toLowerCase() === "jean" && classroom.toLowerCase() === "Professeur".toLowerCase()) {
           const profInfo = { id: 'prof', firstName, lastName, classroom };
           localStorage.setItem("player", JSON.stringify(profInfo));
@@ -407,22 +396,18 @@
           startBtn.disabled = false;
           return;
       }
-      // -----------------------------------------------------------------
-      // LOGIQUE ÉLÈVE : APPEL AU SERVEUR POUR ENREGISTRER/CONNECTER
+      
+      // LOGIQUE ÉLÈVE : APPEL AU SERVEUR
       try {
-          // L'URL /api/register est maintenant gérée par le serveur.js corrigé
           const response = await fetch('/api/register', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ firstName, lastName, classroom })
           });
 
-          // ATTENTION : La correction de l'erreur JSON est dans server.js, mais 
-          // nous nous assurons ici de gérer la réponse correctement.
           const data = await response.json();
 
           if (!response.ok || !data.ok) {
-              // Si le serveur répond avec un statut 500 ou ok: false (en JSON)
               throw new Error(data.error || "Erreur d'inscription/connexion.");
           }
 
@@ -435,14 +420,13 @@
           showStudent(player);
           hideFormShowGame(player);
           
-          // Démarrer le quiz après le chargement
           if (document.readyState === 'complete') {
               initQuiz(); 
           } else {
               window.addEventListener("load", initQuiz, { once: true });
           }
           
-          fetchPlayers(false); // Mise à jour de la liste
+          fetchPlayers(false);
       } catch (err) {
           console.error(err);
           formMsg.textContent = "❌ Erreur : " + err.message;
@@ -451,7 +435,6 @@
           startBtn.disabled = false;
       }
     });
-
 
     // --- PARTIE 2 : LOGIQUE DU TABLEAU ET DU TRI (PROFESSEUR) ---
     const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
@@ -470,18 +453,13 @@
         }
 
         playersToRender.forEach(player => {
-            // CORRECTION DE L'ERREUR "Invalid time value" : 
-            // On s'assure d'utiliser 'created_at' (du schéma) ou 'createdAt' (si Mongoose le renvoie par défaut)
-            // Si aucune date n'est valide (cas improbable), on utilise la date actuelle.
             const dateValue = player.created_at || player.createdAt || Date.now();
             const date = new Date(dateValue); 
             
-            // Calculer le nombre total de questions pour l'affichage (basé sur le Niveau 1)
             const totalQuestions = levels[0].questions.length * levels[0].requiredPerQuestion;
             const validatedQCount = player.validatedQuestions ? player.validatedQuestions.length : 0;
             const questionSummary = `${validatedQCount}/${totalQuestions}`; 
             
-            // Formatage des niveaux validés
             const niveauxValides = player.validatedLevels && player.validatedLevels.length > 0 ? player.validatedLevels.join(', ') : '-';
 
             const row = `
@@ -509,7 +487,6 @@
             const response = await fetch('/api/players'); 
             
             if (!response.ok) {
-                // Cette erreur pourrait être Status 404 si /api/players n'est pas trouvé dans server.js
                 throw new Error(`Erreur de réseau ou du serveur (Status: ${response.status}).`);
             }
             
@@ -523,7 +500,6 @@
         }
     }
 
-
     groupBtn.addEventListener('click', () => {
         if (allPlayersData.length === 0) return;
 
@@ -535,7 +511,6 @@
              return;
         }
         
-        // Logique de tri par Classe, puis Nom, puis Prénom
         const sortedPlayers = [...allPlayersData].sort((a, b) => {
             const classA = a.classroom.toUpperCase();
             const classB = b.classroom.toUpperCase();
@@ -560,68 +535,95 @@
         isSorted = true;
     });
     
-    // Appel initial au chargement
     if (!saved || saved.id !== 'prof') {
         fetchPlayers(false); 
     }
 
-
     // --- PARTIE 3 : LOGIQUE COMPLÈTE DU QUIZ INTERACTIF ---
 
     /* ===== Données du Quiz ===== */
-    const levels=[{
-      title:"Niveau 1 : repères",
-      id:"Niveau 1",
-      placeholder:"Écris la réponse (dernier palier)",
-      requiredPerQuestion:3, startScore:0, wrongPenaltyInput:1,
-      questions:[
-        { q:"Quel empire se trouve à l'Ouest de l'Europe au début du Moyen Âge ?", a:"carolingien", options:["carolingien","byzantin","ottoman","romain d'orient"] },
-        { q:"Quel empire se trouve à l'Est de l'Europe, centré sur Constantinople ?", a:"byzantin", options:["byzantin","carolingien","ottoman","sassanide"] },
-        { q:"Quelle est la capitale de l'Empire carolingien ?", a:"Aix-la-Chapelle", acceptable:["aix la chapelle","aix-la-chapelle","aix la Chapelle"], options:["Aix-la-Chapelle","Aixe-la-chapelle","Rome","Constantinople"] },
-        { q:"Quelle est la capitale de l'Empire byzantin ?", a:"Constantinople", options:["Constantinople","Aix-la-chapelle","Aix-en-provence","Rome"] },
-        { q:"Religion dominante dans l'Empire carolingien ?", a:"catholique", options:["catholique","orthodoxe","islam","arianisme"] },
-        { q:"Religion dominante dans l'Empire byzantin ?", a:"orthodoxe", options:["orthodoxe","catholique","islam","arianisme"] }
-      ]
-    }];
+    const levels = [
+      {
+        title: "Niveau 1 : repères",
+        id: "Niveau 1",
+        placeholder: "Écris la réponse (dernier palier)",
+        requiredPerQuestion: 3,
+        startScore: 0,
+        wrongPenaltyInput: 1,
+        questions: [
+          { q: "Quel empire se trouve à l'Ouest de l'Europe au début du Moyen Âge ?", a: "carolingien", options: ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
+          { q: "Quel empire se trouve à l'Est de l'Europe, centré sur Constantinople ?", a: "byzantin", options: ["byzantin", "carolingien", "ottoman", "sassanide"] },
+          { q: "Quelle est la capitale de l'Empire carolingien ?", a: "Aix-la-Chapelle", acceptable: ["aix la chapelle", "aix-la-chapelle", "aix la Chapelle"], options: ["Aix-la-Chapelle", "Aixe-la-chapelle", "Rome", "Constantinople"] },
+          { q: "Quelle est la capitale de l'Empire byzantin ?", a: "Constantinople", options: ["Constantinople", "Aix-la-chapelle", "Aix-en-provence", "Rome"] },
+          { q: "Religion dominante dans l'Empire carolingien ?", a: "catholique", options: ["catholique", "orthodoxe", "islam", "arianisme"] },
+          { q: "Religion dominante dans l'Empire byzantin ?", a: "orthodoxe", options: ["orthodoxe", "catholique", "islam", "arianisme"] }
+        ]
+      },
+      {
+        title: "Niveau 2 : Les grandes dates",
+        id: "Niveau 2",
+        placeholder: "Écris la réponse (dernier palier)",
+        requiredPerQuestion: 3,
+        startScore: 0,
+        wrongPenaltyInput: 1,
+        questions: [
+          { q: "En quelle année Charlemagne a-t-il été couronné empereur ?", a: "800", options: ["476", "1054", "1453", "732"] },
+          { q: "Quelle date marque traditionnellement la fin de l'Empire romain d'Occident ?", a: "476", options: ["395", "800", "1066", "1453"] },
+          { q: "En quelle année Constantinople est-elle tombée aux mains des Ottomans ?", a: "1453", options: ["476", "800", "1204", "1492"] },
+          { q: "Quelles sont les dates du règne de l'empereur Justinien ?", a: "527-565", options: ["500-527", "565-600", "518-542", "550-575"] },
+          { q: "En quelle année a eu lieu le schisme entre les Églises d'Orient et d'Occident ?", a: "1054", options: ["800", "1095", "1204", "1453"] }
+        ]
+      },
+      {
+        title: "Niveau 3 : Églises d'Orient et d'Occident",
+        id: "Niveau 3",
+        placeholder: "Écris la réponse (dernier palier)",
+        requiredPerQuestion: 3,
+        startScore: 0,
+        wrongPenaltyInput: 1,
+        questions: [
+          { q: "Quelle est la langue de la liturgie catholique ?", a: "latin", options: ["grec", "hébreu", "français", "allemand"] },
+          { q: "Les prêtres catholiques doivent-ils être ?", a: "célibataires", options: ["mariés", "divorcés", "veufs", "remariés"] },
+          { q: "Comment se pratique le baptême catholique ?", a: "par aspersion", options: ["par immersion", "par onction", "par fumigation", "par imposition des mains"] },
+          { q: "Quel pain utilise-t-on pour la communion catholique ?", a: "pain sans levain", options: ["pain avec levain", "galette", "pain bénit", "hostie sucrée"] },
+          { q: "Qui est le chef de l'Église catholique ?", a: "le pape", options: ["le patriarche", "l'empereur", "le roi", "l'archevêque"] },
+          { q: "Qui est le chef de l'Église orthodoxe ?", a: "le patriarche", options: ["le pape", "le calife", "l'évêque de Rome", "le métropolite"] }
+        ]
+      }
+    ];
 
     /* ===== État du Jeu et Constantes de Temps ===== */
-    let currentLevel=0, localScores=[], general=0, currentIndex=-1;
-    let locked=false, zombieInterval=null, zombiePosition=20, projectileInterval=null, zombiePaused=false;
-    let lives=4; const MAX_LIVES=4;
+    let currentLevel = 0, localScores = [], general = 0, currentIndex = -1;
+    let locked = false, zombieInterval = null, zombiePosition = 20, projectileInterval = null, zombiePaused = false;
+    let lives = 4; const MAX_LIVES = 4;
     
-    // NOUVELLES CONSTANTES POUR LE TEMPS DU ZOMBIE
-    const ZOMBIE_TIME_SECS = 25; // Temps de base (25 secondes)
-    const ZOMBIE_TIME_FINAL_SECS = 40; // Temps pour le dernier palier (40 secondes)
-    const INTERVAL_MS = 20; // Fréquence de rafraîchissement (20 millisecondes)
-
+    const ZOMBIE_TIME_SECS = 25;
+    const ZOMBIE_TIME_FINAL_SECS = 40;
+    const INTERVAL_MS = 20;
 
     /* ===== Refs du Jeu et Correction ===== */
-    const levelTitle=document.getElementById("levelTitle");
-    const livesWrap=document.getElementById("lives");
-    const mainBar=document.getElementById("mainBar");
-    const subBarsContainer=document.getElementById("subBars");
-    const generalText=document.getElementById("general");
-    const qElt=document.getElementById("question");
-    const feedback=document.getElementById("feedback");
-    const choicesZone=document.getElementById("choices");
-    const freeInputZone=document.getElementById("freeInputZone");
-    const inputElt=document.getElementById("answer");
-    const submitBtn=document.getElementById("submit");
-    const arena=document.getElementById("arena");
-    const zombieElt=document.getElementById("zombie");
-    const heroElt=document.getElementById("hero");
-    const projectileElt=document.getElementById("projectile");
-    const overlay=document.getElementById("overlay");
-    const restartBtn=document.getElementById("restartBtn");
+    const levelTitle = document.getElementById("levelTitle");
+    const livesWrap = document.getElementById("lives");
+    const mainBar = document.getElementById("mainBar");
+    const subBarsContainer = document.getElementById("subBars");
+    const generalText = document.getElementById("general");
+    const qElt = document.getElementById("question");
+    const feedback = document.getElementById("feedback");
+    const choicesZone = document.getElementById("choices");
+    const freeInputZone = document.getElementById("freeInputZone");
+    const inputElt = document.getElementById("answer");
+    const submitBtn = document.getElementById("submit");
+    const arena = document.getElementById("arena");
+    const zombieElt = document.getElementById("zombie");
+    const heroElt = document.getElementById("hero");
+    const projectileElt = document.getElementById("projectile");
+    const overlay = document.getElementById("overlay");
+    const restartBtn = document.getElementById("restartBtn");
     const correctionOverlay = $("#correctionOverlay");
     const correctionText = $("#correctionText");
     const closeCorrectionBtn = $("#closeCorrectionBtn");
 
-
-    // -----------------------------------------------------------------
-    // LOGIQUE DE SAUVEGARDE DE LA PROGRESSION (APPEL API)
-    // -----------------------------------------------------------------
-
+    // LOGIQUE DE SAUVEGARDE DE LA PROGRESSION
     async function saveProgress(progressType, value) {
         if (!currentPlayerId || currentPlayerId === 'prof') return; 
 
@@ -646,7 +648,6 @@
             const data = await response.json();
             console.log(`Progression sauvegardée sur MongoDB: ${data.message}`);
 
-            // Après la sauvegarde réussie, mettez à jour la liste des joueurs
             if (saved && saved.id === 'prof') {
                  fetchPlayers(true); 
             }
@@ -656,9 +657,7 @@
         }
     }
 
-
     /* ===== Fonctions du Quiz ===== */
-
     function initQuiz() {
       setupLevel(0);
     }
@@ -732,7 +731,17 @@
         qElt.textContent=`🎉 Bravo ! ${lvl.title} terminé !`;
         choicesZone.innerHTML=""; freeInputZone.style.display="none";
         stopZombie();
-        saveProgress('level', lvl.id); // Sauvegarde la validation du niveau
+        saveProgress('level', lvl.id);
+        
+        // Passer au niveau suivant après un délai
+        setTimeout(() => {
+          if (currentLevel < levels.length - 1) {
+            currentLevel++;
+            setupLevel(currentLevel);
+          } else {
+            qElt.textContent = "🎉 Félicitations ! Tu as terminé tous les niveaux !";
+          }
+        }, 2000);
         return;
       }
 
@@ -815,7 +824,6 @@
         nextQuestion(true);
     });
 
-
     function wrongAnswerFlow(q){
       stopZombie(); 
       if(freeInputZone.style.display==="none"){
@@ -840,11 +848,8 @@
       updateBars();
       
       if(final) {
-        // Sauvegarde la question validée (si elle est terminée)
         saveProgress('question', levels[currentLevel].id + '-' + currentIndex);
       }
-      
-      // Si la progression n'est pas final (juste une option), on ne sauvegarde rien.
     }
     
     function decreaseLives(){
@@ -862,9 +867,7 @@
         setupLevel(currentLevel); 
     });
 
-
     // --- LOGIQUE ZOMBIE / ANIMATION ---
-
     function startZombie(){
       if(zombieInterval) return;
       
@@ -872,32 +875,26 @@
       const isFinal=localScores[currentIndex]>=lvl.requiredPerQuestion-1;
       
       const timeLimitSecs = isFinal ? ZOMBIE_TIME_FINAL_SECS : ZOMBIE_TIME_SECS;
-      const arenaWidth = arena.offsetWidth || 500; // Largeur de l'arène
+      const arenaWidth = arena.offsetWidth || 500;
       const zombieWidth = zombieElt.offsetWidth || 50;
       
-      // La distance que le zombie doit parcourir
-      const maxDistance = arenaWidth - zombieWidth - heroElt.offsetWidth - 30; // 30px de marge
+      const maxDistance = arenaWidth - zombieWidth - heroElt.offsetWidth - 30;
 
-      // Calcul de la vitesse (pixels par milliseconde)
-      // Vitesse = Distance / Temps (en ms)
       const speed = maxDistance / (timeLimitSecs * 1000); 
 
       zombieInterval=setInterval(()=>{
         if(locked || zombiePaused) return;
 
-        // Mise à jour de la position: position += vitesse * intervalle_de_temps
         zombiePosition += speed * INTERVAL_MS; 
         
-        // La position du zombie est gérée par la propriété 'right'
         zombieElt.style.right=zombiePosition+"px";
 
         if(zombiePosition>maxDistance){
-          // Le zombie atteint le héros !
           stopZombie();
           decreaseLives();
           if(lives>0) {
-            zombieElt.style.right = maxDistance + 'px'; // Fixe la position
-            locked=true; // Bloque les actions
+            zombieElt.style.right = maxDistance + 'px';
+            locked=true;
             feedback.textContent=`🤕 Le zombie t'a eu ! (-1 cœur)`;
             setTimeout(()=>nextQuestion(false), 1500); 
           }
@@ -912,44 +909,40 @@
 
     function attack(){
       if(projectileInterval) return;
-      stopZombie(); // Arrête le zombie pendant l'attaque
-      zombiePaused=true; // Met en pause le mouvement du zombie
+      stopZombie();
+      zombiePaused=true;
 
       projectileElt.style.display="block";
       const heroRight = heroElt.offsetWidth; 
       let projPos = heroRight;
       
-      const zombieRight = parseFloat(zombieElt.style.right); // Position actuelle du zombie
+      const zombieRight = parseFloat(zombieElt.style.right);
 
-      // La distance que le projectile doit parcourir
       const targetDistance = arena.offsetWidth - heroRight - zombieRight;
       
-      // Vitesse rapide pour l'animation
-      const PROJ_SPEED = 20; // pixels par intervalle
+      const PROJ_SPEED = 20;
 
       projectileInterval=setInterval(()=>{
         projPos += PROJ_SPEED;
         projectileElt.style.left=projPos+"px";
 
-        // Vérifie si le projectile a atteint le zombie
         if(projPos >= arena.offsetWidth - zombieRight - (zombieElt.offsetWidth / 2)){
           clearInterval(projectileInterval);
           projectileInterval=null;
           projectileElt.style.display="none";
-          projectileElt.style.left="0px"; // Réinitialise
+          projectileElt.style.left="0px";
           
-          zombieElt.style.right = zombieRight + 15 + 'px'; // Animation de recul
+          zombieElt.style.right = zombieRight + 15 + 'px';
           setTimeout(() => {
-              zombieElt.style.right = zombieRight + 'px'; // Retour à la position normale
+              zombieElt.style.right = zombieRight + 'px';
           }, 80);
 
-          zombiePaused=false; // Reprend le mouvement du zombie après l'attaque
+          zombiePaused=false;
           startZombie();
         }
       },INTERVAL_MS);
     }
 
-    // Réagit aux changements de taille pour recalibrer le zombie
     window.addEventListener('resize', () => {
         if(zombieInterval) {
             stopZombie();

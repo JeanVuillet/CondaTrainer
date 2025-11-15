@@ -65,10 +65,11 @@ function nameTokens(str) {
 }
 
 function normalizeClassroom(c) {
-  return normalizeBase(c)
-    .replace(/(?<=\d)(e|de|d)/, '') // 2de / 2d -> 2
-    .toUpperCase(); // 2a -> 2A
+  // On nettoie juste les espaces et on passe en majuscules
+  // ainsi "6D", "5B", "2A", "2CD" restent EXACTEMENT ces valeurs.
+  return normalizeBase(c).replace(/\s+/g, '').toUpperCase();
 }
+
 
 // ====== ROUTE LOGIN =======
 

@@ -1,22 +1,26 @@
 // ====== CONFIG .env ======
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
+// CORRECTION 1 : On indique explicitement le chemin du fichier .env qui est maintenant à la racine
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// On récupère la variable d'environnement APRÈS avoir configuré dotenv
+const mongoUri = process.env.MONGODB_URI;
+
+// ====== Middlewares =======
+// Pour lire le JSON des requêtes API
 app.use(express.json());
 
-// ====== SERVIR LES FICHIERS STATIQUES =======
-// CORRIGÉ : On remonte d'un niveau ('..') pour trouver le dossier 'img'
-app.use('/img', express.static(path.join(__dirname, '..', 'img')));
+// CORRECTION 2 : La méthode la plus propre pour servir TOUT votre front-end.
+// Cette seule ligne remplace vos anciens app.get('/') et app.use('/img', ...).
+// Elle rend le dossier 'public' entièrement accessible au navigateur.
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-const mongoUri = process.env.MONGODB_URI;
 
 // ====== Connexion MongoDB =======
 mongoose
@@ -36,7 +40,8 @@ const PlayerSchema = new mongoose.Schema({
 
 const Player = mongoose.model('Player', PlayerSchema, 'players');
 
-// ====== NORMALISATION =======
+// ====== Fonctions de Normalisation =======
+// (Votre code est bon, aucune modification ici)
 function normalizeBase(str) {
   return (str || '')
     .normalize('NFD')
@@ -46,20 +51,21 @@ function normalizeBase(str) {
     .trim()
     .toLowerCase();
 }
-
 function nameTokens(str) {
   return normalizeBase(str)
     .split(' ')
     .filter((tok) => tok.length >= 2);
 }
-
 function normalizeClassroom(c) {
   return normalizeBase(c)
     .replace(/(?<=\d)(e|de|d)/, '')
     .toUpperCase();
 }
 
-// ====== ROUTE LOGIN =======
+// ====== ROUTES API =======
+// (Votre code de routes API est excellent, aucune modification nécessaire)
+
+// Route de Login/Register
 app.post('/api/register', async (req, res) => {
   try {
     const { firstName, lastName, classroom } = req.body;
@@ -89,7 +95,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// ====== SAVE PROGRESS (AVEC DEBUG) =======
+// Route de Sauvegarde de Progression
 app.post('/api/save-progress', async (req, res) => {
   try {
     const { playerId, progressType, value } = req.body;
@@ -122,7 +128,7 @@ app.post('/api/save-progress', async (req, res) => {
   }
 });
 
-// ====== LISTE PROF =======
+// Route pour la liste des joueurs (Prof)
 app.get('/api/players', async (req, res) => {
   try {
     const players = await Player.find().sort({ created_at: -1 });
@@ -130,7 +136,7 @@ app.get('/api/players', async (req, res) => {
   } catch (err) { res.status(500).json({ message: 'Erreur serveur.' }); }
 });
 
-// ====== ROUTES DE RESET =======
+// Routes de Réinitialisation
 app.post('/api/reset-player', async (req, res) => {
   try {
     const { playerId } = req.body;
@@ -146,26 +152,23 @@ app.post('/api/reset-all-players', async (req, res) => {
   } catch (err) { res.status(500).json({ message: 'Erreur serveur.' }); }
 });
 
-// ====== ROUTE DYNAMIQUE POUR LES QUESTIONS =======
-app.get('/questions/:classKey', (req, res) => {
-  const { classKey } = req.params;
-  const allowedKeys = ['6e', '5e', '2de'];
-  if (allowedKeys.includes(classKey)) {
-    // CORRIGÉ : On remonte d'un niveau ('..') pour trouver les fichiers JSON
-    const filePath = path.join(__dirname, '..', `questions-${classKey}.json`);
-    res.sendFile(filePath, (err) => {
-      if (err) res.status(404).json({ message: `Fichier de questions non trouvé.` });
-    });
-  } else {
-    res.status(400).json({ message: 'Clé de classe non valide.' });
-  }
-});
 
-// ====== SERVE INDEX =======
+// CORRECTION 3 : Cette route n'est plus nécessaire !
+// Le `app.use(express.static('public'))` s'occupe déjà de servir les fichiers
+// dans `public/questions/`. Il suffit que votre `main.js` demande le bon chemin.
+/*
+app.get('/questions/:classKey', (req, res) => {
+  ...
+});
+*/
+
+// CORRECTION 4 : Cette route est aussi devenue inutile grâce à `express.static`.
+// Si le navigateur demande '/', express.static trouvera `public/index.html` tout seul.
+/*
 app.get('/', (req, res) => {
-  // CORRIGÉ : On remonte d'un niveau ('..') pour trouver index.html
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
+*/
 
 // ====== START SERVER =======
 app.listen(port, () => {

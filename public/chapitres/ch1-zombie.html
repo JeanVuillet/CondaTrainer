@@ -1,0 +1,116 @@
+<!-- Fichier : /chapitres/ch1-zombie.html CORRIGÉ ET FINAL -->
+
+<!-- 
+  Le template contient UNIQUEMENT le HTML qui doit être affiché.
+  C'est le rôle de main.js de trouver ce template et d'utiliser son contenu.
+-->
+<template id="template-zombie-game">
+  <p id="question"></p>
+  <div id="choices"></div>
+  <div id="freeInputZone" style="display:none;">
+    <input type="text" id="answer" placeholder="Écris ta réponse ici" />
+    <br /><button id="submit">Valider</button>
+  </div>
+  <p id="feedback"></p>
+  <div id="arena">
+    <img id="hero" src="img/hero.png" alt="Héros" />
+    <img id="zombie" src="img/zombi.png" alt="Zombie" />
+    <div id="projectile"></div>
+  </div>
+</template>
+
+<!-- 
+  Le script définit la classe, mais ne fait AUCUNE MANIPULATION DU DOM lui-même.
+  Il attend qu'on lui donne un conteneur déjà prêt.
+-->
+<script>
+  class ZombieGame {
+    constructor(container, controller) {
+      this.container = container; // Le <div> qui contient DÉJÀ le HTML du jeu
+      this.controller = controller;
+
+      this.zombieInterval = null;
+      this.projectileInterval = null;
+      this.zombiePosition = 20;
+      this.zombiePaused = false;
+      this.ZOMBIE_TIME_SECS = 25;
+      this.ZOMBIE_TIME_FINAL_SECS = 40;
+      this.INTERVAL_MS = 20;
+
+      // On appelle la fonction qui trouve les éléments
+      this.initUI();
+    }
+
+    // Cette fonction ne fait que trouver les éléments qui sont déjà dans this.container
+    initUI() {
+      this.zombieElt = this.container.querySelector("#zombie");
+      this.heroElt = this.container.querySelector("#hero");
+      this.projectileElt = this.container.querySelector("#projectile");
+      this.arena = this.container.querySelector("#arena");
+
+      // La vérification de sécurité
+      if (!this.arena || !this.zombieElt || !this.heroElt) {
+          console.error("ERREUR ZOMBIE_GAME : Un ou plusieurs éléments HTML du jeu sont introuvables. Vérifiez les IDs dans le template.");
+      }
+    }
+
+    // ... (TOUTES LES AUTRES MÉTHODES RESTENT IDENTIQUES)
+    startAnimation() {
+      if (this.zombieInterval || !this.arena) return;
+      const { isFinalQuestion } = this.controller.getState();
+      const timeLimitSecs = isFinalQuestion ? this.ZOMBIE_TIME_FINAL_SECS : this.ZOMBIE_TIME_SECS;
+      const arenaWidth = this.arena.offsetWidth;
+      const maxDistance = arenaWidth - this.zombieElt.offsetWidth - this.heroElt.offsetWidth - 30;
+      const speed = maxDistance / (timeLimitSecs * 1000);
+      this.zombieInterval = setInterval(() => {
+        const { isLocked } = this.controller.getState();
+        if (isLocked || this.zombiePaused) return;
+        this.zombiePosition += speed * this.INTERVAL_MS;
+        this.zombieElt.style.right = this.zombiePosition + "px";
+        if (this.zombiePosition > maxDistance) {
+          this.resetAnimation();
+          this.controller.notifyWrongAnswer(null);
+        }
+      }, this.INTERVAL_MS);
+    }
+    
+    playSuccessAnimation() {
+      if (this.projectileInterval) return;
+      clearInterval(this.zombieInterval);
+      this.zombieInterval = null;
+      this.zombiePaused = true;
+      this.projectileElt.style.display = "block";
+      let projPos = this.heroElt.offsetWidth;
+      const zombieRight = parseFloat(this.zombieElt.style.right);
+      const PROJ_SPEED = 20;
+      this.projectileInterval = setInterval(() => {
+        projPos += PROJ_SPEED;
+        this.projectileElt.style.left = projPos + "px";
+        if (projPos >= this.arena.offsetWidth - zombieRight - (this.zombieElt.offsetWidth / 2)) {
+          clearInterval(this.projectileInterval);
+          this.projectileInterval = null;
+          this.projectileElt.style.display = 'none';
+          this.zombieElt.style.display = 'none';
+          this.controller.notifyCorrectAnswer();
+        }
+      }, this.INTERVAL_MS);
+    }
+    
+    resetAnimation() {
+      clearInterval(this.zombieInterval);
+      clearInterval(this.projectileInterval);
+      this.zombieInterval = null;
+      this.projectileInterval = null;
+      this.zombiePaused = false;
+      this.zombiePosition = 20;
+      if (this.zombieElt) {
+          this.zombieElt.style.right = this.zombiePosition + "px";
+          this.zombieElt.style.display = 'block';
+      }
+      if (this.projectileElt) {
+          this.projectileElt.style.display = "none";
+          this.projectileElt.style.left = "0px";
+      }
+    }
+  }
+</script>

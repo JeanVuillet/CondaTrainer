@@ -1,5 +1,4 @@
 // ====== CONFIG .env ======
-// CORRECTION 1 : On indique explicitement le chemin du fichier .env qui est maintenant à la racine
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
@@ -9,16 +8,10 @@ const mongoose = require('mongoose');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// On récupère la variable d'environnement APRÈS avoir configuré dotenv
 const mongoUri = process.env.MONGODB_URI;
 
 // ====== Middlewares =======
-// Pour lire le JSON des requêtes API
 app.use(express.json());
-
-// CORRECTION 2 : La méthode la plus propre pour servir TOUT votre front-end.
-// Cette seule ligne remplace vos anciens app.get('/') et app.use('/img', ...).
-// Elle rend le dossier 'public' entièrement accessible au navigateur.
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 
@@ -41,7 +34,6 @@ const PlayerSchema = new mongoose.Schema({
 const Player = mongoose.model('Player', PlayerSchema, 'players');
 
 // ====== Fonctions de Normalisation =======
-// (Votre code est bon, aucune modification ici)
 function normalizeBase(str) {
   return (str || '')
     .normalize('NFD')
@@ -63,7 +55,6 @@ function normalizeClassroom(c) {
 }
 
 // ====== ROUTES API =======
-// (Votre code de routes API est excellent, aucune modification nécessaire)
 
 // Route de Login/Register
 app.post('/api/register', async (req, res) => {
@@ -95,7 +86,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Route de Sauvegarde de Progression
+// Route de Sauvegarde de Progression (avec logs améliorés)
 app.post('/api/save-progress', async (req, res) => {
   try {
     const { playerId, progressType, value } = req.body;
@@ -105,22 +96,27 @@ app.post('/api/save-progress', async (req, res) => {
       console.log(`[SERVEUR] ERREUR: Joueur avec ID ${playerId} non trouvé.`);
       return res.status(404).json({ message: 'Joueur non trouvé.' });
     }
+    
     let updated = false;
+
     if (progressType === 'level' && !player.validatedLevels.includes(value)) {
       player.validatedLevels.push(value);
       updated = true;
-    }
-    if (progressType === 'question' && !player.validatedQuestions.includes(value)) {
+    } else if (progressType === 'question' && !player.validatedQuestions.includes(value)) {
       player.validatedQuestions.push(value);
       updated = true;
     }
+
     if (updated) {
         await player.save();
         console.log(`[SERVEUR] ✅ Progression de ${player.firstName} ${player.lastName} MISE À JOUR.`);
+        // CORRECTION : On affiche les deux tableaux pour un meilleur débogage
+        console.log(`   --> Niveaux validés:   [${player.validatedLevels.join(', ')}]`);
         console.log(`   --> Questions validées: [${player.validatedQuestions.join(', ')}]`);
     } else {
         console.log(`[SERVEUR] 🤷 Progression déjà à jour pour ${player.firstName}. Aucune modification.`);
     }
+    
     return res.status(200).json({ message: 'Progression traitée.' });
   } catch (err) {
     console.error('[SERVEUR] ❌ ERREUR CRITIQUE lors de la sauvegarde:', err);
@@ -131,9 +127,12 @@ app.post('/api/save-progress', async (req, res) => {
 // Route pour la liste des joueurs (Prof)
 app.get('/api/players', async (req, res) => {
   try {
-    const players = await Player.find().sort({ created_at: -1 });
+    const players = await Player.find().sort({ lastName: 1, firstName: 1 }); // Tri par ordre alphabétique
     res.status(200).json(players);
-  } catch (err) { res.status(500).json({ message: 'Erreur serveur.' }); }
+  } catch (err) { 
+      console.error('[SERVEUR] Erreur /api/players:', err);
+      res.status(500).json({ message: 'Erreur serveur.' }); 
+    }
 });
 
 // Routes de Réinitialisation
@@ -142,33 +141,24 @@ app.post('/api/reset-player', async (req, res) => {
     const { playerId } = req.body;
     const player = await Player.findByIdAndUpdate(playerId, { $set: { validatedQuestions: [], validatedLevels: [] } }, { new: true });
     if (!player) return res.status(404).json({ message: 'Joueur non trouvé.' });
+    console.log(`[SERVEUR] Progression de ${player.firstName} ${player.lastName} réinitialisée.`);
     res.status(200).json({ message: `Progression de ${player.firstName} réinitialisée.` });
-  } catch (err) { res.status(500).json({ message: 'Erreur serveur.' }); }
+  } catch (err) { 
+      console.error('[SERVEUR] Erreur /api/reset-player:', err);
+      res.status(500).json({ message: 'Erreur serveur.' }); 
+    }
 });
+
 app.post('/api/reset-all-players', async (req, res) => {
   try {
     await Player.updateMany({}, { $set: { validatedQuestions: [], validatedLevels: [] } });
+    console.log('[SERVEUR] Progression de TOUS les élèves réinitialisée.');
     res.status(200).json({ message: 'Progression de tous les élèves réinitialisée.' });
-  } catch (err) { res.status(500).json({ message: 'Erreur serveur.' }); }
+  } catch (err) { 
+      console.error('[SERVEUR] Erreur /api/reset-all-players:', err);
+      res.status(500).json({ message: 'Erreur serveur.' }); 
+    }
 });
-
-
-// CORRECTION 3 : Cette route n'est plus nécessaire !
-// Le `app.use(express.static('public'))` s'occupe déjà de servir les fichiers
-// dans `public/questions/`. Il suffit que votre `main.js` demande le bon chemin.
-/*
-app.get('/questions/:classKey', (req, res) => {
-  ...
-});
-*/
-
-// CORRECTION 4 : Cette route est aussi devenue inutile grâce à `express.static`.
-// Si le navigateur demande '/', express.static trouvera `public/index.html` tout seul.
-/*
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
-});
-*/
 
 // ====== START SERVER =======
 app.listen(port, () => {

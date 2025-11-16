@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF--8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>5e Entraîneur – Quiz Interactif</title>
   <link rel="stylesheet" href="style.css">
@@ -20,10 +20,19 @@
     <section id="registerCard" class="card">
       <h2>👋 Avant de commencer</h2>
       <form id="registerForm" class="form" autocomplete="on">
-        <p class="hint">Entre ton <strong>prénom</strong>, <strong>nom</strong> et sélectionne ta <strong>classe</strong>.</p>
+        <p class="hint">
+          Entre ton <strong>prénom</strong>, <strong>nom</strong>
+          et sélectionne ta <strong>classe</strong>.
+        </p>
         <div class="row">
-          <div><label for="firstName">Prénom</label><input id="firstName" name="firstName" placeholder="Ex : Jeanne" required /></div>
-          <div><label for="lastName">Nom</label><input id="lastName" name="lastName" placeholder="Ex : Martin" required /></div>
+          <div>
+            <label for="firstName">Prénom</label>
+            <input id="firstName" name="firstName" placeholder="Ex : Jeanne" required />
+          </div>
+          <div>
+            <label for="lastName">Nom</label>
+            <input id="lastName" name="lastName" placeholder="Ex : Martin" required />
+          </div>
         </div>
         <div class="row">
           <div>
@@ -35,17 +44,25 @@
               <option value="5C">5eC</option>
               <option value="2A">2de A</option>
               <option value="2CD">2de CD</option>
-           </select>
+            </select>
           </div>
-          <div><label>&nbsp;</label><button id="startBtn" type="submit">Commencer</button></div>
+          <div>
+            <label>&nbsp;</label>
+            <button id="startBtn" type="submit">Commencer</button>
+          </div>
         </div>
         <div id="formMsg" class="hint"></div>
       </form>
+
+      <!-- Modal mot de passe prof -->
       <div id="profPasswordModal" style="display: none;">
         <h4 style="margin-top:0;">🔐 Accès Professeur</h4>
         <p class="hint">Veuillez entrer le mot de passe.</p>
         <div class="form">
-          <div><label for="profPassword">Mot de passe</label><input type="password" id="profPassword" placeholder="••••••••••" /></div>
+          <div>
+            <label for="profPassword">Mot de passe</label>
+            <input type="password" id="profPassword" placeholder="••••••••••" />
+          </div>
           <div id="profPasswordMsg" class="error" style="margin-bottom: 8px;"></div>
           <button id="validateProfPasswordBtn">Valider</button>
         </div>
@@ -54,17 +71,27 @@
 
     <!-- Écran de sélection des chapitres -->
     <section id="chapterSelection" class="card" style="display: none;">
-        <h2>Choisis ton chapitre</h2>
-        <div class="chapter-grid">
-            <div class="chapter-box" data-chapter="ch1-zombie" data-questions-key="5e">
-                <h3>Chapitre 1</h3>
-                <p>L'Attaque des Zombies</p>
-            </div>
-            <div class="chapter-box disabled">
-                <h3>Chapitre 2</h3>
-                <p>Bientôt disponible...</p>
-            </div>
+      <h2>Choisis ton chapitre</h2>
+      <div class="chapter-grid">
+        <!-- Chapitre 1 MIS À JOUR -->
+        <div class="chapter-box" 
+             data-chapter="ch1-zombie" 
+             data-questions-key="5e"
+             data-template-id="template-zombie-game"  
+             data-game-class="ZombieGame">
+          <h3>Chapitre 1</h3>
+          <p>L'Attaque des Zombies</p>
         </div>
+         <!-- Chapitre 2 MIS À JOUR -->
+        <div class="chapter-box" 
+             data-chapter="ch2-starship" 
+             data-questions-key="5e"
+             data-template-id="template-starship-game" 
+             data-game-class="StarshipGame">
+          <h3>Chapitre 2</h3>
+          <p>Starship – Défends ton vaisseau</p>
+        </div>
+      </div>
     </section>
 
     <!-- La section du jeu -->
@@ -74,13 +101,13 @@
         <h2 id="levelTitle"></h2>
         <p class="hint" id="welcomeText" style="text-align:center;"></p>
         
-        <!-- INTERFACE COMMUNE -->
         <div id="lives"></div>
         <div id="mainProgress"><div id="mainBar"></div></div>
-        <p id="general" style="text-align:center; margin:4px 0 8px;">Compteur général : 0/0</p>
+        <p id="general" style="text-align:center; margin:4px 0 8px;">
+          Compteur général : 0/0
+        </p>
         <div id="subBars"></div>
         
-        <!-- Conteneur où le jeu sera injecté -->
         <div id="gameModuleContainer"></div>
       </div>
     </section>
@@ -98,7 +125,10 @@
             <option value="2A">2de A</option>
             <option value="2CD">2de CD</option>
           </select>
-          <button id="resetAllBtn" style="width: auto; padding: 8px 12px; font-size: 14px; background: var(--warn);">⚠️ Tout Réinitialiser</button>
+          <input id="studentSearch" type="text" placeholder="Rechercher un élève..." class="action-btn" style="width: 220px; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;"/>
+          <button id="resetAllBtn" style="width: auto; padding: 8px 12px; font-size: 14px; background: var(--warn);">
+            ⚠️ Tout Réinitialiser
+          </button>
         </div>
       </div>
       <table id="playersTable" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
@@ -106,13 +136,13 @@
           <tr style="background: #f1f5f9;">
             <th>Prénom et Nom</th>
             <th>Classe</th>
+            <th>Niveau</th>
+            <th>Chapitre</th>
             <th>Progression</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="playersBody">
-          <!-- Les données des élèves seront injectées ici par JavaScript -->
-        </tbody>
+        <tbody id="playersBody"></tbody>
       </table>
     </section>
   </main>

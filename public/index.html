@@ -73,19 +73,15 @@
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
-        <!-- Chapitre 1 MIS À JOUR -->
         <div class="chapter-box" 
              data-chapter="ch1-zombie" 
-             data-questions-key="5e"
              data-template-id="template-zombie-game"  
              data-game-class="ZombieGame">
           <h3>Chapitre 1</h3>
           <p>L'Attaque des Zombies</p>
         </div>
-         <!-- Chapitre 2 MIS À JOUR -->
         <div class="chapter-box" 
              data-chapter="ch2-starship" 
-             data-questions-key="5e"
              data-template-id="template-starship-game" 
              data-game-class="StarshipGame">
           <h3>Chapitre 2</h3>
@@ -100,14 +96,12 @@
         <h1>🎮 Quiz</h1>
         <h2 id="levelTitle"></h2>
         <p class="hint" id="welcomeText" style="text-align:center;"></p>
-        
         <div id="lives"></div>
         <div id="mainProgress"><div id="mainBar"></div></div>
         <p id="general" style="text-align:center; margin:4px 0 8px;">
           Compteur général : 0/0
         </p>
         <div id="subBars"></div>
-        
         <div id="gameModuleContainer"></div>
       </div>
     </section>
@@ -131,19 +125,24 @@
           </button>
         </div>
       </div>
-      <table id="playersTable" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-        <thead>
-          <tr style="background: #f1f5f9;">
-            <th>Prénom et Nom</th>
-            <th>Classe</th>
-            <th>Niveau</th>
-            <th>Chapitre</th>
-            <th>Progression</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="playersBody"></tbody>
-      </table>
+      
+      <!-- ========================================================== -->
+      <!-- --- CORRECTION APPLIQUÉE ICI --- -->
+      <!-- Nouvelle structure de tableau -->
+      <!-- ========================================================== -->
+      <table id="playersTable" style="width: 100%; border-collapse: collapse; border-spacing: 0 10px;">
+  <thead>
+    <tr style="background: #f1f5f9;">
+      <th style="width: 20%; padding-left: 10px;">Prénom et Nom</th>
+      <th style="width: 10%;">Classe</th>
+      <th style="width: 20%;">Chapitre</th>
+      <th style="width: 20%;">Niveau en cours</th> <!-- AJOUT DE CETTE COLONNE -->
+      <th style="width: 20%;">Progression</th>
+      <th style="width: 10%;">Actions</th>
+    </tr>
+  </thead>
+</table>
+
     </section>
   </main>
 

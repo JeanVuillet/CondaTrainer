@@ -1,13 +1,15 @@
 <template id="template-starship-game">
   <style>
-    #starshipGame {
+    /* Le décor du jeu */
+    #starship-game-area {
       position: relative;
-      width: 100%;
       height: 450px;
       background: #0c0a18;
+      border-radius: 12px;
       overflow: hidden;
       cursor: crosshair;
     }
+    /* Le vaisseau du joueur */
     #ship {
       position: absolute;
       bottom: 10px;
@@ -18,22 +20,29 @@
       background: url('/images/ship.png') center/contain no-repeat;
       transition: left 0.1s linear;
     }
+    /* Les réponses qui tombent */
     .falling-answer {
       position: absolute;
-      top: -60px;
+      top: -80px;
       padding: 10px 20px;
       background: #333;
       color: white;
       border: 2px solid #00f2ff;
       border-radius: 8px;
-      animation: fall 10s linear forwards;
       font-weight: bold;
+
+      /* ========================================================== */
+      /* --- CORRECTION APPLIQUÉE ICI --- */
+      /* On passe de 8s à 20s pour ralentir la chute. */
+      animation: fall 20s linear forwards;
+      /* ========================================================== */
     }
     @keyframes fall {
-      from { top: -60px; }
-      to { top: 500px; transform: rotate(360deg); }
+      from { top: -80px; }
+      to { top: 100%; }
     }
-    .bullet {
+    /* Les missiles tirés par le vaisseau */
+    .missile {
       position: absolute;
       width: 8px;
       height: 25px;
@@ -41,12 +50,14 @@
       border-radius: 4px;
       box-shadow: 0 0 10px #ffeb3b;
     }
+    .question-zone { margin-bottom: 20px; font-size: 1.5em; text-align: center; min-height: 2.5em; }
   </style>
-  <div id="question" class="question-zone" style="margin-bottom: 8px;"></div>
-  <div id="starshipGame">
+  
+  <div id="question" class="question-zone"></div>
+  <div id="starship-game-area">
     <div id="ship"></div>
   </div>
-  <!-- Ces divs sont là pour la compatibilité mais ne sont pas utilisées par ce jeu -->
+  
   <div id="choices" style="display:none;"></div>
   <div id="freeInputZone" style="display:none;"></div>
 </template>
@@ -56,35 +67,21 @@ class StarshipGame {
   constructor(container, controller) {
     this.container = container;
     this.controller = controller;
-    this.gameArea = container.querySelector("#starshipGame");
+    this.gameArea = container.querySelector("#starship-game-area");
     this.ship = container.querySelector("#ship");
+    this.questionElement = container.querySelector("#question");
+    this.missiles = [];
     this.answers = [];
-    this.bullets = [];
-    this.animationFrameId = null;
-
-    // Propriétés pour la question actuelle
     this.currentQuestion = null;
-    this.currentCorrectAnswer = '';
-    this.currentAnswers = [];
-
+    this.animationFrameId = null;
     this.bindControls();
   }
-  
-  // Méthode pour recevoir les données de la question de main.js
+
   loadQuestion(q) {
     this.currentQuestion = q;
-    this.currentCorrectAnswer = q.a;
-    this.currentAnswers = [...q.options];
-    this.spawnAnswers();
-  }
-
-  resetAnimation() {
+    this.questionElement.textContent = q.q;
     this.clearObjects();
-    cancelAnimationFrame(this.animationFrameId);
-  }
-
-  startAnimation() {
-    this.loop();
+    this.spawnAnswers();
   }
 
   bindControls() {
@@ -102,63 +99,64 @@ class StarshipGame {
   moveShip(dx) {
     const x = this.ship.offsetLeft + dx;
     const maxX = this.gameArea.offsetWidth - this.ship.offsetWidth;
-    this.ship.style.left = Math.min(maxX, Math.max(0, x)) + "px";
+    this.ship.style.left = Math.max(0, Math.min(maxX, x)) + "px";
   }
 
   shoot() {
-    const bullet = document.createElement("div");
-    bullet.className = "bullet";
-    bullet.style.left = this.ship.offsetLeft + this.ship.offsetWidth / 2 - 4 + "px";
-    bullet.style.bottom = "70px";
-    this.gameArea.appendChild(bullet);
-    this.bullets.push(bullet);
+    if (this.missiles.length > 3) return;
+    const missile = document.createElement("div");
+    missile.className = "missile";
+    missile.style.left = this.ship.offsetLeft + this.ship.offsetWidth / 2 - 4 + "px";
+    missile.style.bottom = "70px";
+    this.gameArea.appendChild(missile);
+    this.missiles.push(missile);
   }
 
   spawnAnswers() {
-    this.clearObjects();
     let positions = [10, 25, 40, 55, 70, 85].sort(() => 0.5 - Math.random());
-
-    this.currentAnswers.forEach((txt, index) => {
-      const d = document.createElement("div");
-      d.className = "falling-answer";
-      d.style.left = `${positions[index]}%`;
-      d.style.animationDelay = `${Math.random() * 3}s`;
-      d.textContent = txt;
-      this.gameArea.appendChild(d);
-      this.answers.push(d);
+    this.currentQuestion.options.forEach((txt, index) => {
+      const answerDiv = document.createElement("div");
+      answerDiv.className = "falling-answer";
+      answerDiv.style.left = `${positions[index]}%`;
+      answerDiv.style.animationDelay = `${Math.random() * 2}s`;
+      answerDiv.textContent = txt;
+      this.gameArea.appendChild(answerDiv);
+      this.answers.push(answerDiv);
     });
   }
-
-  loop() {
-    this.updateBullets();
+  
+  gameLoop() {
+    this.updateMissiles();
     this.checkCollisions();
-    this.animationFrameId = requestAnimationFrame(() => this.loop());
+    this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
   }
 
-  updateBullets() {
-    this.bullets.forEach((b, i) => {
-      let currentBottom = parseFloat(b.style.bottom);
-      b.style.bottom = currentBottom + 10 + "px";
+  updateMissiles() {
+    for (let i = this.missiles.length - 1; i >= 0; i--) {
+      const missile = this.missiles[i];
+      let currentBottom = parseFloat(missile.style.bottom);
+      missile.style.bottom = currentBottom + 10 + "px";
       if (currentBottom > this.gameArea.offsetHeight) {
-        b.remove();
-        this.bullets.splice(i, 1);
+        missile.remove();
+        this.missiles.splice(i, 1);
       }
-    });
+    }
   }
 
   checkCollisions() {
-    for (let i = this.bullets.length - 1; i >= 0; i--) {
+    for (let i = this.missiles.length - 1; i >= 0; i--) {
       for (let j = this.answers.length - 1; j >= 0; j--) {
-        const bullet = this.bullets[i];
-        const ans = this.answers[j];
-        if (this.collide(bullet, ans)) {
-          const isCorrect = ans.textContent === this.currentCorrectAnswer;
+        const missile = this.missiles[i];
+        const answer = this.answers[j];
+        if (this.isColliding(missile, answer)) {
           this.resetAnimation();
-          
+          const isCorrect = answer.textContent === this.currentQuestion.a;
           if (isCorrect) {
             this.controller.notifyCorrectAnswer();
           } else {
-            this.controller.notifyWrongAnswer({ a: this.currentCorrectAnswer });
+            localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
+            updateBars();
+            this.controller.notifyWrongAnswer(this.currentQuestion);
           }
           return;
         }
@@ -166,22 +164,25 @@ class StarshipGame {
     }
   }
 
-  collide(a, b) {
-    const r1 = a.getBoundingClientRect();
-    const r2 = b.getBoundingClientRect();
-    return !(
-      r1.right < r2.left ||
-      r1.left > r2.right ||
-      r1.bottom < r2.top ||
-      r1.top > r2.bottom
-    );
+  isColliding(a, b) {
+    const rectA = a.getBoundingClientRect();
+    const rectB = b.getBoundingClientRect();
+    return !(rectA.right < rectB.left || rectA.left > rectB.right || rectA.bottom < rectB.top || rectA.top > rectB.bottom);
   }
 
   clearObjects() {
     this.answers.forEach(a => a.remove());
-    this.bullets.forEach(b => b.remove());
+    this.missiles.forEach(m => m.remove());
     this.answers = [];
-    this.bullets = [];
+    this.missiles = [];
+  }
+  
+  startAnimation() { this.gameLoop(); }
+  resetAnimation() {
+    cancelAnimationFrame(this.animationFrameId);
+    this.clearObjects();
   }
 }
+
+window.StarshipGame = StarshipGame;
 </script>

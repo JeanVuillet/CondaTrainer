@@ -1,7 +1,7 @@
 // --- SECTION 0: UI Références & State ---
 const $ = (sel) => document.querySelector(sel);
 
-// ... (le reste des références est correct)
+// Références générales
 const studentBadge = $("#studentBadge"),
   logoutBtn = $("#logoutBtn");
 const registerCard = $("#registerCard"),
@@ -10,6 +10,8 @@ const registerCard = $("#registerCard"),
 const form = $("#registerForm"),
   startBtn = $("#startBtn"),
   formMsg = $("#formMsg");
+
+// Références du jeu
 const gameModuleContainer = $("#gameModuleContainer");
 const levelTitle = $("#levelTitle"),
   livesWrap = $("#lives"),
@@ -21,13 +23,15 @@ const overlay = $("#overlay"),
 const correctionOverlay = $("#correctionOverlay"),
   correctionText = $("#correctionText"),
   closeCorrectionBtn = $("#closeCorrectionBtn");
+
+// Références du Tableau de Bord Professeur
 const profDashboard = $("#profDashboard");
 const playersBody = $("#playersBody");
 const classFilter = $("#classFilter");
 const resetAllBtn = $("#resetAllBtn");
 const studentSearch = $("#studentSearch");
 
-// ... (le reste des variables d'état est correct)
+// Variables d'état
 let isProfessorMode = false,
   isImpersonating = false;
 const saved = JSON.parse(localStorage.getItem("player") || "null");
@@ -42,7 +46,6 @@ let lives = 4;
 const MAX_LIVES = 4;
 let currentGameModuleInstance = null;
 let allPlayersData = [];
-
 
 // --- SECTION 1: Logique de connexion et de navigation ---
 function showStudent(stu) {
@@ -71,18 +74,11 @@ async function loadQuestions(classKey) {
   }
 }
 
-// ==================================================================
-// --- CORRECTION CRUCIALE APPLIQUÉE ICI ---
-// ==================================================================
 chapterSelection.addEventListener("click", async (e) => {
   const chapterBox = e.target.closest(".chapter-box");
   if (chapterBox && !chapterBox.classList.contains("disabled")) {
-    // On ignore le `data-questions-key` de l'HTML car il est incorrect.
     const { chapter, templateId, gameClass } = chapterBox.dataset;
-    
-    // On utilise la VRAIE classe de l'élève pour déterminer quelles questions charger.
     const questionsKey = getClassKey(saved.classroom);
-
     await loadChapter(chapter, questionsKey, templateId, gameClass);
     if (levels.length > 0) initQuiz();
   }
@@ -93,7 +89,6 @@ async function loadChapter(chapterId, questionsKey, templateId, gameClass) {
   game.style.display = "block";
   gameModuleContainer.innerHTML = "Chargement du chapitre...";
 
-  // Cette fonction va maintenant recevoir la bonne clé ('6e' pour Gael, '5e' pour un 5B, etc.)
   await loadQuestions(questionsKey);
   if (levels.length === 0) {
     gameModuleContainer.innerHTML = `<p class="error">Impossible de charger les questions pour ce chapitre.</p>`;
@@ -323,6 +318,7 @@ function wrongAnswerFlow(q) {
       correctionText.textContent = q.a;
       correctionOverlay.style.display = "flex";
     } else {
+      locked = true;
       setTimeout(() => nextQuestion(false), 1500);
     }
   }
@@ -372,7 +368,10 @@ restartBtn.addEventListener("click", () => {
 async function fetchPlayers() {
   if (!profDashboard) return;
   profDashboard.style.display = "block";
-  playersBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Chargement...</td></tr>`;
+  const table = $("#playersTable");
+  const tbody = table.querySelector('tbody') || document.createElement('tbody');
+  if (!table.contains(tbody)) table.appendChild(tbody);
+  tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Chargement...</td></tr>`;
 
   try {
     const response = await fetch("/api/players", { cache: "no-store" });
@@ -381,24 +380,25 @@ async function fetchPlayers() {
     allPlayersData = await response.json();
     applyFiltersAndRender();
   } catch (error) {
-    playersBody.innerHTML = `<tr><td colspan="6" style="color: var(--warn);">❌ Impossible de charger : ${error.message}</td></tr>`;
+    const table = $("#playersTable");
+    const tbody = table.querySelector('tbody') || document.createElement('tbody');
+    tbody.innerHTML = `<tr><td colspan="5" style="color: var(--warn);">❌ Impossible de charger : ${error.message}</td></tr>`;
   }
 }
 
+// ==================================================================
+// --- CORRIGÉ : Fonctions d'affichage du tableau de bord mises à jour ---
+// ==================================================================
 function getPlayerProgressState(player) {
   const classKey = getClassKey(player.classroom);
   const levelsData =
     (window.allQuestionsData && window.allQuestionsData[classKey]) || null;
-
   if (!levelsData) return null;
-
   const validatedLevels = player.validatedLevels || [];
   let currentLevelIndex = validatedLevels.length;
-
   if (currentLevelIndex >= levelsData.length) {
-    return { isFinished: true, currentLevel: levelsData[levelsData.length - 1] };
+    return { isFinished: true };
   }
-
   return {
     isFinished: false,
     currentLevel: levelsData[currentLevelIndex],
@@ -406,71 +406,112 @@ function getPlayerProgressState(player) {
   };
 }
 
-function generateQuestionIndicators(player) {
-  const state = getPlayerProgressState(player);
-  if (!state) return "N/A";
-
-  if (state.isFinished) {
-    return `<span class="finished-badge">🏆 Terminé</span>`;
-  }
-
-  const { currentLevel, validatedQuestions } = state;
-  const totalQuestions = currentLevel.questions.length;
-  let html = `<div class="level-title">Niveau en cours : <strong>${currentLevel.title}</strong></div><div class="questions-list">`;
-
-  let validatedInCurrent = 0;
+function generateLevelProgressHtml(level, validatedQuestions) {
+  if (!level) return 'N/A';
+  const totalQuestions = level.questions.length;
+  let html = `<div class="questions-list" style="display: flex; gap: 4px; flex-wrap: wrap;">`;
   for (let i = 0; i < totalQuestions; i++) {
-    const qId = `${currentLevel.id}-${i}`;
+    const qId = `${level.id}-${i}`;
     const isValid = validatedQuestions.includes(qId);
-    if (isValid) validatedInCurrent++;
-    html += `<div class="question-indicator ${
-      isValid ? "question-valid" : "question-invalid"
-    }" title="Question ${i + 1}">${i + 1}</div>`;
+    const indicatorClass = isValid ? "question-valid" : "question-invalid";
+    html += `<div class="question-indicator ${indicatorClass}" title="Question ${i + 1}">${i + 1}</div>`;
   }
-
-  html += `</div><div class="level-progress">${validatedInCurrent} / ${totalQuestions}</div>`;
+  html += `</div>`;
   return html;
 }
 
+
 function renderPlayers(playersToRender) {
-  playersBody.innerHTML = "";
+  const table = $("#playersTable");
+  table.querySelectorAll('tbody').forEach(tbody => tbody.remove());
+
   if (playersToRender.length === 0) {
-    playersBody.innerHTML = `<tr><td colspan="6">Aucun élève trouvé.</td></tr>`;
+    const tbody = document.createElement('tbody');
+    tbody.innerHTML = `<tr><td colspan="5">Aucun élève trouvé.</td></tr>`;
+    table.appendChild(tbody);
     return;
   }
+
+  const chaptersToDisplay = {
+    "ch1-zombie": "Chapitre 1 : Zombies",
+    "ch2-starship": "Chapitre 2 : Starship"
+  };
 
   playersToRender
     .sort((a, b) => a.lastName.localeCompare(b.lastName))
     .forEach((player) => {
-      const state = getPlayerProgressState(player);
-      let niveauCol = "N/A", chapitreCol = "-";
+      const playerTbody = document.createElement('tbody');
+      playerTbody.style.borderTop = '1px solid #e2e8f0';
 
-      if (state) {
-        if (state.isFinished) {
-          niveauCol = "Terminé";
-          chapitreCol = "Terminé";
-        } else if (state.currentLevel) {
-          niveauCol = state.currentLevel.title;
-          chapitreCol = state.currentLevel.chapterLabel || "Chapitre X";
+      const classKey = getClassKey(player.classroom);
+      const allLevelsForClass = (window.allQuestionsData && window.allQuestionsData[classKey]) || [];
+      const validatedLevels = player.validatedLevels || [];
+      const validatedQuestions = player.validatedQuestions || [];
+      
+      let chapterRowsHtml = '';
+      let isFirstRow = true;
+
+      for (const chapterId in chaptersToDisplay) {
+        const chapterLabel = chaptersToDisplay[chapterId];
+        
+        const levelsInThisChapter = allLevelsForClass.filter(level => level.chapterId === chapterId);
+        
+        let progressHtml = '';
+        let levelTitleHtml = ''; // Variable pour stocker le titre du niveau
+
+        if (levelsInThisChapter.length === 0) {
+          progressHtml = '<em>(Non applicable)</em>';
+          levelTitleHtml = '-';
+        } else {
+            const currentLevelForChapter = levelsInThisChapter.find(level => !validatedLevels.includes(level.id));
+
+            if (currentLevelForChapter) {
+                // On a un niveau en cours, on stocke son titre et sa progression
+                levelTitleHtml = currentLevelForChapter.title;
+                progressHtml = generateLevelProgressHtml(currentLevelForChapter, validatedQuestions);
+            } else {
+                // Tous les niveaux du chapitre sont terminés
+                levelTitleHtml = 'Terminé';
+                progressHtml = '<span class="finished-badge" style="background-color: #f59e0b; color: white; padding: 4px 10px; border-radius: 12px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px;">🏆</span>';
+            }
+        }
+
+        if (isFirstRow) {
+          chapterRowsHtml += `
+            <tr>
+              <td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;">
+                <strong>${player.firstName} ${player.lastName}</strong>
+              </td>
+              <td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">
+                ${player.classroom}
+              </td>
+              <td>${chapterLabel}</td>
+              <!-- On affiche le titre du niveau ici -->
+              <td>${levelTitleHtml}</td>
+              <td>${progressHtml}</td>
+              <td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">
+                <button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">
+                  Réinitialiser
+                </button>
+              </td>
+            </tr>`;
+          isFirstRow = false;
+        } else {
+          chapterRowsHtml += `
+            <tr>
+              <td>${chapterLabel}</td>
+              <!-- On affiche le titre du niveau ici aussi -->
+              <td>${levelTitleHtml}</td>
+              <td>${progressHtml}</td>
+            </tr>`;
         }
       }
-
-      const row = `
-        <tr>
-          <td><strong>${player.firstName} ${player.lastName}</strong></td>
-          <td>${player.classroom}</td>
-          <td>${niveauCol}</td>
-          <td>${chapitreCol}</td>
-          <td>${generateQuestionIndicators(player)}</td>
-          <td>
-            <button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">
-              Réinitialiser
-            </button>
-          </td>
-        </tr>`;
-      playersBody.insertAdjacentHTML("beforeend", row);
+      
+      playerTbody.innerHTML = chapterRowsHtml;
+      table.appendChild(playerTbody);
     });
 }
+
 
 let allQuestionsData = {};
 async function loadAllQuestionsForProf() {
@@ -537,6 +578,7 @@ playersBody?.addEventListener("click", async (e) => {
   }
 });
 
+// --- SECTION 4: Utilitaires et Fonctions Spécifiques ---
 function getClassKey(classroom) {
   if (!classroom) return null;
   const cls = classroom.toUpperCase();
@@ -561,16 +603,26 @@ async function handleBarClick(questionIndex) {
   if (locked || !(isRKeyDown && isTKeyDown)) return;
   locked = true;
   const lvl = levels[currentLevel];
-  const questionId = `${lvl.id}-${questionIndex}`;
-  const success = await saveProgress("question", questionId);
-  if (success) {
-    localScores[questionIndex] = lvl.requiredPerQuestion;
-    if (general < lvl.questions.length) general++;
+  const req = lvl.requiredPerQuestion;
+  if (localScores[questionIndex] < req) {
+    const oldScore = localScores[questionIndex];
+    localScores[questionIndex]++;
     updateBars();
+    if (oldScore < req && localScores[questionIndex] >= req) {
+      general++;
+      const questionId = `${lvl.id}-${questionIndex}`;
+      await saveProgress("question", questionId);
+    }
     const barElt = $(`#subBar${questionIndex}`).parentElement;
     barElt.classList.add("saved-success");
     setTimeout(() => barElt.classList.remove("saved-success"), 600);
-    if (general >= lvl.questions.length) nextQuestion(false);
+    if (general >= lvl.questions.length) {
+      nextQuestion(false);
+    } else {
+        currentIndex = questionIndex;
+        renderQuestion();
+        if (currentGameModuleInstance) currentGameModuleInstance.startAnimation();
+    }
   }
   locked = false;
 }

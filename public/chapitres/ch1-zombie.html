@@ -1,6 +1,6 @@
 <template id="template-zombie-game">
   <style>
-    /* ... (les styles ne changent pas, seule la logique change) ... */
+    /* ... (les styles ne changent pas) ... */
     #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
     #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; user-select: none; pointer-events: none; }
     #hero { left: min(3vw, 24px); }
@@ -22,7 +22,6 @@
   <div id="question" class="question-zone"></div>
   <div id="choices" class="choices-zone"></div>
   
-  <!-- Le HTML pour le champ de saisie est déjà là, il suffit de l'activer -->
   <div id="freeInputZone">
     <input type="text" id="answer" placeholder="Écris ta réponse ici" autocomplete="off" />
     <br /><button id="submit">Valider</button>
@@ -34,8 +33,6 @@ class ZombieGame {
   constructor(container, controller) {
     this.container = container;
     this.controller = controller;
-    
-    // Références aux éléments
     this.hero = container.querySelector("#hero");
     this.zombie = container.querySelector("#zombie");
     this.projectile = container.querySelector("#projectile");
@@ -52,40 +49,31 @@ class ZombieGame {
     this.zombiePosition = 20;
     this.zombiePaused = false;
     this.INTERVAL_MS = 20;
-    this.ZOMBIE_TIME_SECS = 25;
+
+    // ==================================================================
+    // --- CORRECTION APPLIQUÉE ICI ---
+    // On double le temps, ce qui divise la vitesse par 2.
+    this.ZOMBIE_TIME_SECS = 50;
+    // ==================================================================
     
-    // Écouteurs d'événements
     this.submitButton.addEventListener("click", () => this.onSubmitClick());
     this.inputElement.addEventListener("keydown", (e) => {
         if(e.key === 'Enter') this.onSubmitClick();
     });
   }
 
-  // ==================================================================
-  // --- CORRECTION APPLIQUÉE ICI ---
-  // La méthode loadQuestion décide maintenant quoi afficher.
-  // ==================================================================
   loadQuestion(q) {
-    this.questionElement.textContent = q.q;
-    this.inputElement.value = "";
-    
-    // On accède aux variables globales de main.js pour connaître la progression
-    const progress = localScores[currentIndex]; // Score actuel pour cette question
-    const required = levels[currentLevel].requiredPerQuestion; // Score requis pour valider
-
-    // Si le score est à un pas de la validation, on montre le champ de saisie
+    this.questionElement.textContent = q.q; this.inputElement.value = "";
+    const progress = localScores[currentIndex];
+    const required = levels[currentLevel].requiredPerQuestion;
     if (progress >= required - 1) {
-      this.choicesZone.style.display = 'none';
-      this.freeInputZone.style.display = 'block';
-      setTimeout(() => this.inputElement.focus(), 100); // Met le focus sur le champ
+      this.choicesZone.style.display = 'none'; this.freeInputZone.style.display = 'block';
+      setTimeout(() => this.inputElement.focus(), 100);
     } else {
-      // Sinon, on montre le QCM
-      this.freeInputZone.style.display = 'none';
-      this.choicesZone.style.display = 'flex';
+      this.freeInputZone.style.display = 'none'; this.choicesZone.style.display = 'flex';
       this.choicesZone.innerHTML = "";
       [...q.options].sort(() => Math.random() - 0.5).forEach(opt => {
-        const choiceButton = document.createElement("div");
-        choiceButton.className = "choice";
+        const choiceButton = document.createElement("div"); choiceButton.className = "choice";
         choiceButton.textContent = opt;
         choiceButton.addEventListener("click", () => this.onChoiceClick(choiceButton, opt, q));
         this.choicesZone.appendChild(choiceButton);
@@ -97,12 +85,9 @@ class ZombieGame {
     if (this.controller.getState().isLocked) return;
     const isCorrect = this._isCorrect(option, questionData);
     if (isCorrect) {
-      element.classList.add("correct");
-      this.playSuccessAnimation();
-      this.controller.notifyCorrectAnswer();
+      element.classList.add("correct"); this.playSuccessAnimation(); this.controller.notifyCorrectAnswer();
     } else {
-      element.classList.add("wrong");
-      this.controller.notifyWrongAnswer(questionData);
+      element.classList.add("wrong"); this.controller.notifyWrongAnswer(questionData);
     }
   }
 
@@ -111,10 +96,8 @@ class ZombieGame {
     const questionData = levels[currentLevel].questions[currentIndex];
     const isCorrect = this._isCorrect(this.inputElement.value, questionData, true);
     if (isCorrect) {
-      this.playSuccessAnimation();
-      this.controller.notifyCorrectAnswer();
+      this.playSuccessAnimation(); this.controller.notifyCorrectAnswer();
     } else {
-      // Pour une erreur de saisie, on pénalise un peu plus
       localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
       updateBars();
       this.controller.notifyWrongAnswer(questionData);
@@ -132,7 +115,6 @@ class ZombieGame {
       return answer === correctAnswer;
   }
 
-  // Le reste de la logique d'animation ne change pas...
   startAnimation() { this.startZombieMovement(); }
   resetAnimation() { this.stopZombieMovement(); }
   playSuccessAnimation() { this.attack(); }

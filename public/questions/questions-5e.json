@@ -1,108 +1,86 @@
 [
   {
-    "id": "niveau1-5e",
-    "title": "Niveau 1 : repères",
+    "id": "ch1-lvl1-5e",
+    "chapterId": "ch1-zombie",
+    "title": "Chapitre 1 - Niveau 1 (repères)",
     "requiredPerQuestion": 3,
     "questions": [
-      {
-        "q": "Quel empire se trouve à l'Ouest de l'Europe au début du Moyen Âge ?",
-        "a": "carolingien",
-        "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"]
-      },
-      {
-        "q": "Quel empire se trouve à l'Est de l'Europe, centré sur Constantinople ?",
-        "a": "byzantin",
-        "options": ["byzantin", "carolingien", "ottoman", "sassanide"]
-      },
-      {
-        "q": "Quelle est la capitale de l'Empire carolingien ?",
-        "a": "Aix-la-Chapelle",
-        "options": ["Aix-la-Chapelle", "Aixe-la-chapelle", "Rome", "Constantinople"]
-      },
-      {
-        "q": "Quelle est la capitale de l'Empire byzantin ?",
-        "a": "Constantinople",
-        "options": ["Constantinople", "Aix-la-chapelle", "Aix-en-provence", "Rome"]
-      },
-      {
-        "q": "Religion dominante dans l'Empire carolingien ?",
-        "a": "catholique",
-        "options": ["catholique", "orthodoxe", "islam", "arianisme"]
-      },
-      {
-        "q": "Religion dominante dans l'Empire byzantin ?",
-        "a": "orthodoxe",
-        "options": ["orthodoxe", "catholique", "islam", "arianisme"]
-      }
+      { "q": "Empire à l'Ouest de l'Europe au début du Moyen Âge ?", "a": "carolingien", "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
+      { "q": "Empire à l'Est de l'Europe, centré sur Constantinople ?", "a": "byzantin", "options": ["byzantin", "carolingien", "ottoman", "sassanide"] },
+      { "q": "Capitale de l'Empire carolingien ?", "a": "Aix-la-Chapelle", "options": ["Aix-la-Chapelle", "Rome", "Constantinople", "Paris"] },
+      { "q": "Capitale de l'Empire byzantin ?", "a": "Constantinople", "options": ["Constantinople", "Athènes", "Rome", "Damas"] },
+      { "q": "Religion de l'Empire carolingien ?", "a": "catholique", "options": ["catholique", "orthodoxe", "islam", "arianisme"] },
+      { "q": "Religion de l'Empire byzantin ?", "a": "orthodoxe", "options": ["orthodoxe", "catholique", "islam", "arianisme"] }
     ]
   },
   {
-    "id": "niveau2-5e",
-    "title": "Niveau 2 : Les grandes dates",
+    "id": "ch1-lvl2-5e",
+    "chapterId": "ch1-zombie",
+    "title": "Chapitre 1 - Niveau 2 (dates)",
     "requiredPerQuestion": 3,
     "questions": [
-      {
-        "q": "En quelle année Charlemagne a-t-il été couronné empereur ?",
-        "a": "800",
-        "options": ["476", "732", "800", "814"]
-      },
-      {
-        "q": "Quelle date marque traditionnellement la fin de l'Empire romain d'Occident ?",
-        "a": "476",
-        "options": ["395", "410", "455", "476"]
-      },
-      {
-        "q": "En quelle année Constantinople est-elle tombée aux mains des Ottomans ?",
-        "a": "1453",
-        "options": ["1204", "1299", "1453", "1492"]
-      },
-      {
-        "q": "Quelles sont les dates du règne de l'empereur Justinien ?",
-        "a": "527-565",
-        "options": ["527-565", "500-527", "565-600", "518-542"]
-      },
-      {
-        "q": "En quelle année a eu lieu le schisme entre les Églises d'Orient et d'Occident ?",
-        "a": "1054",
-        "options": ["962", "1054", "1095", "1204"]
-      }
+      { "q": "Couronnement de Charlemagne empereur ?", "a": "800", "options": ["476", "732", "800", "814"] },
+      { "q": "Fin de l'Empire romain d'Occident ?", "a": "476", "options": ["395", "410", "455", "476"] },
+      { "q": "Prise de Constantinople par les Ottomans ?", "a": "1453", "options": ["1204", "1299", "1453", "1492"] },
+      { "q": "Règne de l'empereur Justinien ?", "a": "527-565", "options": ["527-565", "500-527", "565-600", "518-542"] },
+      { "q": "Schisme entre Églises d'Orient et d'Occident ?", "a": "1054", "options": ["962", "1054", "1095", "1204"] },
+      { "q": "Début du règne de Charlemagne ?", "a": "768", "options": ["732", "768", "800", "843"] }
     ]
   },
   {
-    "id": "niveau3-5e",
-    "title": "Niveau 3 : Églises d'Orient et d'Occident",
+    "id": "ch1-lvl3-5e",
+    "chapterId": "ch1-zombie",
+    "title": "Chapitre 1 - Niveau 3 (Églises)",
     "requiredPerQuestion": 3,
     "questions": [
-      {
-        "q": "Quelle est la langue de la liturgie catholique ?",
-        "a": "latin",
-        "options": ["grec", "hébreu", "français", "latin"]
-      },
-      {
-        "q": "Les prêtres catholiques doivent-ils être ?",
-        "a": "célibataires",
-        "options": ["mariés", "célibataires", "veufs", "remariés"]
-      },
-      {
-        "q": "Comment se pratique le baptême catholique ?",
-        "a": "par aspersion",
-        "options": ["par immersion", "par onction", "par aspersion", "par imposition des mains"]
-      },
-      {
-        "q": "Quel pain utilise-t-on pour la communion catholique ?",
-        "a": "pain sans levain",
-        "options": ["pain avec levain", "galette", "pain sans levain", "hostie sucrée"]
-      },
-      {
-        "q": "Qui est le chef de l'Église catholique ?",
-        "a": "le pape",
-        "options": ["le patriarche", "l'empereur", "le roi", "le pape"]
-      },
-      {
-        "q": "Qui est le chef de l'Église orthodoxe ?",
-        "a": "le patriarche",
-        "options": ["le pape", "le patriarche", "l'évêque de Rome", "le métropolite"]
-      }
+      { "q": "Langue de la liturgie catholique ?", "a": "latin", "options": ["grec", "hébreu", "français", "latin"] },
+      { "q": "Les prêtres catholiques sont... ?", "a": "célibataires", "options": ["mariés", "célibataires", "veufs", "remariés"] },
+      { "q": "Chef de l'Église catholique ?", "a": "le pape", "options": ["le patriarche", "l'empereur", "le roi", "le pape"] },
+      { "q": "Chef de l'Église orthodoxe ?", "a": "le patriarche", "options": ["le pape", "le patriarche", "l'évêque de Rome", "le métropolite"] },
+      { "q": "Langue de la liturgie orthodoxe ?", "a": "grec", "options": ["latin", "grec", "syriaque", "slavon"] },
+      { "q": "Les prêtres orthodoxes peuvent être... ?", "a": "mariés", "options": ["célibataires", "mariés", "obligatoirement célibataires", "divorcés"] }
+    ]
+  },
+  {
+    "id": "ch2-lvl1-5e",
+    "chapterId": "ch2-starship",
+    "title": "Chapitre 2 - Niveau 1 (repères)",
+    "requiredPerQuestion": 3,
+    "questions": [
+      { "q": "Empire à l'Ouest de l'Europe au début du Moyen Âge ?", "a": "carolingien", "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
+      { "q": "Empire à l'Est de l'Europe, centré sur Constantinople ?", "a": "byzantin", "options": ["byzantin", "carolingien", "ottoman", "sassanide"] },
+      { "q": "Capitale de l'Empire carolingien ?", "a": "Aix-la-Chapelle", "options": ["Aix-la-Chapelle", "Rome", "Constantinople", "Paris"] },
+      { "q": "Capitale de l'Empire byzantin ?", "a": "Constantinople", "options": ["Constantinople", "Athènes", "Rome", "Damas"] },
+      { "q": "Religion de l'Empire carolingien ?", "a": "catholique", "options": ["catholique", "orthodoxe", "islam", "arianisme"] },
+      { "q": "Religion de l'Empire byzantin ?", "a": "orthodoxe", "options": ["orthodoxe", "catholique", "islam", "arianisme"] }
+    ]
+  },
+  {
+    "id": "ch2-lvl2-5e",
+    "chapterId": "ch2-starship",
+    "title": "Chapitre 2 - Niveau 2 (dates)",
+    "requiredPerQuestion": 3,
+    "questions": [
+      { "q": "Couronnement de Charlemagne empereur ?", "a": "800", "options": ["476", "732", "800", "814"] },
+      { "q": "Fin de l'Empire romain d'Occident ?", "a": "476", "options": ["395", "410", "455", "476"] },
+      { "q": "Prise de Constantinople par les Ottomans ?", "a": "1453", "options": ["1204", "1299", "1453", "1492"] },
+      { "q": "Règne de l'empereur Justinien ?", "a": "527-565", "options": ["527-565", "500-527", "565-600", "518-542"] },
+      { "q": "Schisme entre Églises d'Orient et d'Occident ?", "a": "1054", "options": ["962", "1054", "1095", "1204"] },
+      { "q": "Début du règne de Charlemagne ?", "a": "768", "options": ["732", "768", "800", "843"] }
+    ]
+  },
+  {
+    "id": "ch2-lvl3-5e",
+    "chapterId": "ch2-starship",
+    "title": "Chapitre 2 - Niveau 3 (Églises)",
+    "requiredPerQuestion": 3,
+    "questions": [
+      { "q": "Langue de la liturgie catholique ?", "a": "latin", "options": ["grec", "hébreu", "français", "latin"] },
+      { "q": "Les prêtres catholiques sont... ?", "a": "célibataires", "options": ["mariés", "célibataires", "veufs", "remariés"] },
+      { "q": "Chef de l'Église catholique ?", "a": "le pape", "options": ["le patriarche", "l'empereur", "le roi", "le pape"] },
+      { "q": "Chef de l'Église orthodoxe ?", "a": "le patriarche", "options": ["le pape", "le patriarche", "l'évêque de Rome", "le métropolite"] },
+      { "q": "Langue de la liturgie orthodoxe ?", "a": "grec", "options": ["latin", "grec", "syriaque", "slavon"] },
+      { "q": "Les prêtres orthodoxes peuvent être... ?", "a": "mariés", "options": ["célibataires", "mariés", "obligatoirement célibataires", "divorcés"] }
     ]
   }
 ]

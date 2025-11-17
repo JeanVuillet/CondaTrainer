@@ -27,33 +27,56 @@
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
-        <div class="chapter-box" data-chapter="ch1-zombie" data-template-id="template-zombie-game" data-game-class="ZombieGame"><h3>Chapitre 1</h3><p>L'Attaque des Zombies</p></div>
-        <div class="chapter-box" data-chapter="ch2-starship" data-template-id="template-starship-game" data-game-class="StarshipGame"><h3>Chapitre 2</h3><p>Starship – Défends ton vaisseau</p></div>
+        <div class="chapter-box" data-chapter="ch1-zombie" data-template-id="template-zombie-game" data-game-class="ZombieGame">
+          <h3>Chapitre 1</h3>
+          <p>L'Attaque des Zombies</p>
+        </div>
+        <div class="chapter-box" data-chapter="ch2-starship" data-template-id="template-starship-game" data-game-class="StarshipGame">
+          <h3>Chapitre 2</h3>
+          <p>Starship – Défends ton vaisseau</p>
+          <p style="font-size: 12px; color: #374151; margin-top: 8px;">
+            <strong>Commandes :</strong> ⬅️➡️ pour bouger, [Espace] pour tirer.
+          </p>
+        </div>
       </div>
     </section>
 
-    <!-- ========================================================== -->
-    <!-- --- CORRECTION APPLIQUÉE ICI --- -->
-    <!-- On a inversé #lives et #subBars -->
-    <!-- ========================================================== -->
+    <!-- La section du jeu -->
     <section id="game" style="display: none;">
       <div class="card quiz-container">
         <h2 id="levelTitle"></h2>
         <p class="hint" id="welcomeText" style="text-align:center;"></p>
-        
         <div id="mainProgress"><div id="mainBar"></div></div>
         <p id="general" style="text-align:center; margin:4px 0 8px;">Compteur général : 0/0</p>
         <div id="subBars"></div>
         <div id="lives"></div>
-        
         <div id="gameModuleContainer"></div>
       </div>
     </section>
     
     <!-- SECTION DU TABLEAU DE BORD PROFESSEUR -->
     <section id="profDashboard" class="card" style="margin-top: 24px; display: none;"> 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;"><h2>📈 Tableau des élèves</h2><div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;"><select id="classFilter" class="action-btn" style="width: auto; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;"><option value="all">Toutes les classes</option><option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option><option value="2A">2de A</option><option value="2CD">2de CD</option></select><input id="studentSearch" type="text" placeholder="Rechercher un élève..." class="action-btn" style="width: 220px; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;"/><button id="resetAllBtn" style="width: auto; padding: 8px 12px; font-size: 14px; background: var(--warn);">⚠️ Tout Réinitialiser</button></div></div>
-      <table id="playersTable" style="width: 100%; border-collapse: collapse; border-spacing: 0 10px;"><thead><tr style="background: #f1f5f9;"><th style="width: 20%; padding-left: 10px;">Prénom et Nom</th><th style="width: 10%;">Classe</th><th style="width: 20%;">Chapitre</th><th style="width: 20%;">Niveau en cours</th><th style="width: 20%;">Progression</th><th style="width: 10%;">Actions</th></tr></thead></table>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <h2>📈 Tableau des élèves</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+          <select id="classFilter" class="action-btn" style="width: auto; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;"><option value="all">Toutes les classes</option><option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option><option value="2A">2de A</option><option value="2CD">2de CD</option></select>
+          <input id="studentSearch" type="text" placeholder="Rechercher un élève..." class="action-btn" style="width: 220px; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;"/>
+          <button id="resetAllBtn" style="width: auto; padding: 8px 12px; font-size: 14px; background: var(--warn);">⚠️ Tout Réinitialiser</button>
+        </div>
+      </div>
+      <table id="playersTable" style="width: 100%; border-collapse: collapse; border-spacing: 0 10px;">
+        <thead>
+          <tr style="background: #f1f5f9;">
+            <th style="width: 20%; padding-left: 10px;">Prénom et Nom</th>
+            <th style="width: 10%;">Classe</th>
+            <th style="width: 20%;">Chapitre</th>
+            <th style="width: 20%;">Niveau en cours</th>
+            <th style="width: 20%;">Progression</th>
+            <th style="width: 10%;">Actions</th>
+          </tr>
+        </thead>
+        <!-- Le JS injectera des <tbody>, un par élève -->
+      </table>
     </section>
   </main>
   <div id="overlay" style="display:none;"><div class="panel"><h3>💀 Game Over</h3><p>Tu n'as plus de cœurs. Recommencer le niveau ?</p><button id="restartBtn">Recommencer</button></div></div>

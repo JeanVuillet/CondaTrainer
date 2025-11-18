@@ -520,3 +520,6 @@ async function saveProgress(progressType, value) {
     return false;
   }
 }
+//voila env a mettre a la racine 
+//MONGODB_URI="mongodb+srv://vuilletjean:Clemenceau1919@cluster0.ilgdlcy.mongodb.net/quizDB?retryWrites=true&w=majority&appName=Cluster0"
+//PORT=3000

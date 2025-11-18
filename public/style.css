@@ -9,6 +9,8 @@
   --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
+/* GLOBAL */
+
 * {
   box-sizing: border-box;
 }
@@ -22,6 +24,8 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* HEADER */
 
 header {
   display: flex;
@@ -50,6 +54,8 @@ header h1 {
   font-size: 12px !important;
 }
 
+/* LAYOUT PRINCIPAL */
+
 .wrap {
   max-width: 960px;
   width: 100%;
@@ -64,6 +70,8 @@ header h1 {
   border-radius: 14px;
   padding: 20px;
 }
+
+/* FORMULAIRE INSCRIPTION */
 
 .form {
   display: grid;
@@ -122,89 +130,140 @@ button {
   margin-top: 8px;
 }
 
+/* --- CARTES CHAPITRES --- */
+
 .chapter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
 
+/* Carte générique */
+
 .chapter-box {
-  background: #f1f5f9;
-  border-radius: 12px;
-  padding: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
   position: relative;
-  padding-bottom: 90px;
   display: flex;
   flex-direction: column;
   height: 100%;
-}
-
-.chapter-box:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow);
-}
-
-.chapter-box h3 {
-  margin: 0 0 5px;
-  font-size: 18px;
-  color: var(--text);
-}
-
-.chapter-box>p {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 0 0 10px;
-  flex-grow: 1;
-}
-
-.chapter-box .commandes {
-  font-size: 12px;
-  color: #374151;
-  margin: 8px 0;
-  background: #e5e7eb;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border-left: 3px solid var(--primary);
-}
-
-.chapter-progress-container {
-  position: absolute;
-  bottom: 15px;
-  left: 15px;
-  right: 15px;
-}
-
-.chapter-progress-bar {
-  background-color: #e5e7eb;
-  border-radius: 6px;
-  height: 8px;
   overflow: hidden;
 }
 
-.chapter-progress-bar div {
-  height: 100%;
-  background-color: var(--primary);
-  border-radius: 6px;
-  transition: width 0.5s ease;
+.chapter-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), #60a5fa);
 }
 
-.chapter-progress-text {
-  font-size: 12px;
-  color: var(--muted);
-  text-align: right;
-  margin-top: 4px;
+.chapter-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
 }
 
-.chapter-progress-badge {
-  text-align: center;
-  padding: 6px;
+.chapter-box h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Texte sous le titre (mini-jeu) */
+
+.chapter-mini {
+  font-size: 14px;
+  color: #475569;
+  margin: 0 0 16px;
+}
+
+/* Progression compacte */
+
+.chapter-progress {
+  margin: 6px 0 4px;
+}
+
+.chapter-progress-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 2px;
+}
+
+.chapter-progress-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+
+.chapter-progress-list li {
+  font-size: 13px;
+  line-height: 1.2;
+  margin: 0;
+  color: #0f172a;
+}
+
+.chapter-progress-list li + li {
+  margin-top: 2px;
+}
+
+/* Texte "Terminé" / "Commencer" */
+
+.chapter-status-text {
+  font-size: 14px;
+  margin: 8px 0;
+  color: #0f172a;
+}
+
+/* Boutons */
+
+.replay-btn {
+  width: 100%;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 6px;
   border-radius: 8px;
-  font-weight: bold;
-  background-color: #f59e0b;
-  color: white;
+  cursor: pointer;
 }
+
+.replay-btn:hover {
+  background: #cbd5e1 !important;
+}
+
+.replay-btn-improved {
+  width: 100%;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.replay-btn-improved:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+}
+
+/* Ancienne barre de résumé sous la carte (si encore utilisée) */
 
 .chapter-summary {
   border-top: 1px solid #e5e7eb;
@@ -215,6 +274,8 @@ button {
   display: flex;
   justify-content: space-between;
 }
+
+/* --- JEU : BARRES DE PROGRESSION, VIES, ETC. --- */
 
 .quiz-container h2 {
   text-align: center;
@@ -288,6 +349,8 @@ button {
   font-weight: 600;
 }
 
+/* TABLEAU PROF */
+
 #playersTable th {
   font-weight: 600;
   padding: 10px;
@@ -312,6 +375,8 @@ button {
   background: #fee2e2 !important;
   color: #b91c1c;
 }
+
+/* QUESTIONS / INDICATEURS */
 
 .questions-list {
   display: flex;
@@ -354,6 +419,8 @@ button {
   gap: 4px;
 }
 
+/* OVERLAYS */
+
 #overlay,
 #correctionOverlay {
   position: fixed;
@@ -380,340 +447,18 @@ button {
   color: #b91c1c;
 }
 
-.replay-btn-placeholder {
-  width: 100%;
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  background: #e2e8f0 !important;
-  color: #475569 !important;
-  border: 1px solid #cbd5e1 !important;
-  font-weight: 500;
-  margin-top: 12px;
-  border-radius: 8px;
-  cursor: default;
-  text-align: center;
-}
+/* RESPONSIVE */
 
-.replay-btn {
-  width: 100%;
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  background: #e2e8f0 !important;
-  color: #475569 !important;
-  border: 1px solid #cbd5e1 !important;
-  font-weight: 500;
-  margin-top: 8px;
-  cursor: pointer;
-  border-radius: 8px;
-}
-
-.replay-btn:hover {
-  background: #cbd5e1 !important;
-}
-.chapter-box {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  padding-bottom: 100px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.chapter-box:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-  border-color: #cbd5e1;
-}
-
-.chapter-box::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), #60a5fa);
-}
-
-.chapter-box h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
-  color: var(--text);
-  font-weight: 700;
-}
-
-.chapter-box > p {
-  font-size: 15px;
-  color: var(--muted);
-  margin: 0 0 16px;
-  flex-grow: 1;
-  line-height: 1.5;
-}
-
-/* Style amélioré pour les commandes */
-.chapter-box .commandes {
-  font-size: 13px;
-  color: #475569;
-  margin: 12px 0;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  border-left: 4px solid var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.chapter-box .commandes strong {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-/* Section de progression actuelle */
-.current-level {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 12px 0;
-  text-align: center;
-}
-
-.current-level-title {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 0 0 8px;
-  font-weight: 500;
-}
-
-.current-level-progress {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
-  margin: 0;
-}
-
-.current-level-progress .total {
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-/* Bouton amélioré */
-.replay-btn-improved {
-  width: 100%;
-  padding: 12px 16px !important;
-  font-size: 14px !important;
-  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%) !important;
-  color: white !important;
-  border: none !important;
-  font-weight: 600;
-  margin-top: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-}
-
-.replay-btn-improved:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-}
-
-/* Statistiques améliorées */
-.chapter-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 16px 0;
-}
-
-.stat-item {
-  background: white;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary);
-  display: block;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-/* Barre de progression principale améliorée */
-.chapter-main-progress {
-  background: #e2e8f0;
-  border-radius: 10px;
-  height: 8px;
-  margin: 12px 0;
-  overflow: hidden;
-}
-
-.chapter-main-progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), #60a5fa);
-  border-radius: 10px;
-  transition: width 0.5s ease;
-  position: relative;
-}
-
-.chapter-main-progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 20px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-}
-
-/* Badge de statut */
-.chapter-status {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: var(--primary);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Animation de pulse pour attirer l'attention */
-@keyframes pulse-gentle {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-
-.chapter-box.featured {
-  animation: pulse-gentle 2s ease-in-out infinite;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  .chapter-stats {
+  .row {
     grid-template-columns: 1fr;
-    gap: 8px;
   }
-  
-  .chapter-box {
-    padding: 20px;
-    padding-bottom: 90px;
+
+  #subBars {
+    grid-template-columns: 1fr;
   }
-}
-.chapter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-}
 
-/* Carte générique (tu avais déjà une base, je la garde en esprit) */
-.chapter-box {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.chapter-box:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
-}
-
-.chapter-box h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.chapter-mini {
-  font-size: 14px;
-  color: #475569;
-  margin: 0 0 16px;
-}
-
-.chapter-progress-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  margin: 0 0 4px;
-}
-
-.chapter-progress-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: #0f172a;
-}
-
-.chapter-progress-list li + li {
-  margin-top: 2px;
-}
-
-.chapter-status-text {
-  font-size: 14px;
-  margin: 4px 0 0;
-  color: #0f172a;
-}
-
-/* Boutons (tu avais déjà .replay-btn et .replay-btn-improved, on les réutilise) */
-.replay-btn {
-  width: 100%;
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  background: #e2e8f0 !important;
-  color: #475569 !important;
-  border: 1px solid #cbd5e1 !important;
-  font-weight: 500;
-  margin-top: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.replay-btn:hover {
-  background: #cbd5e1 !important;
-}
-
-.replay-btn-improved {
-  width: 100%;
-  padding: 10px 14px !important;
-  font-size: 14px !important;
-  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 600;
-  margin-top: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.replay-btn-improved:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+  .chapter-grid {
+    gap: 16px;
+  }
 }

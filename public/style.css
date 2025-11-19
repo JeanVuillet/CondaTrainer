@@ -223,26 +223,9 @@ button {
   color: #0f172a;
 }
 
-/* Boutons */
+/* Boutons "Jouer / Recommencer" – mêmes styles pour tous les chapitres */
 
-.replay-btn {
-  width: 100%;
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  background: #e2e8f0 !important;
-  color: #475569 !important;
-  border: 1px solid #cbd5e1 !important;
-  font-weight: 500;
-  margin-top: 10px;
-  margin-bottom: 6px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.replay-btn:hover {
-  background: #cbd5e1 !important;
-}
-
+.replay-btn,
 .replay-btn-improved {
   width: 100%;
   padding: 10px 14px !important;
@@ -258,6 +241,7 @@ button {
   transition: all 0.3s ease;
 }
 
+.replay-btn:hover,
 .replay-btn-improved:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
@@ -280,6 +264,43 @@ button {
 .quiz-container h2 {
   text-align: center;
   margin: 4px 0 10px;
+}
+
+/* Ligne du haut : retour + titre */
+
+.game-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.back-menu-btn {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #e5e7eb;
+  color: #374151;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+}
+
+.back-menu-btn:hover {
+  background: #d1d5db;
+}
+
+/* Résumé des lettres par niveau */
+
+.level-grades-summary {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.level-grade-item + .level-grade-item {
+  margin-left: 8px;
 }
 
 #lives {
@@ -462,14 +483,11 @@ button {
     gap: 16px;
   }
 }
+
 /* --- NOTE DE FIN DE NIVEAU (A+ / A / B / C) --- */
 
 .quiz-container {
   position: relative; /* pour positionner la pastille dedans */
-}
-
-.quiz-container {
-  position: relative;
 }
 
 /* Grosse lettre au milieu du jeu */
@@ -490,7 +508,6 @@ button {
   z-index: 50;
 }
 
-
 .grade-a-plus {
   background: #14532d; /* vert très foncé */
 }
@@ -506,4 +523,163 @@ button {
 
 .grade-c {
   background: #ef4444; /* rouge */
+}
+/* --- Lignes Level 1 / Level 2 / Level 3 dans les cartes chapitres --- */
+
+.chapter-levels {
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(226, 232, 240, 0.6); /* petit fond gris clair */
+}
+
+.chapter-level-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.chapter-level-row:last-child {
+  margin-bottom: 0;
+}
+
+.chapter-level-label {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.chapter-level-grade {
+  min-width: 40px;
+  text-align: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.badge-not-done {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #cbd5e1;
+  font-weight: 500;
+}
+/* Style vert/couleur pour une note ou "Validé" */
+.badge-done {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+/* Ajustement des boutons d'action du menu */
+.chapter-action-btn {
+    margin-top: 16px; /* Un peu plus d'espace puisque le texte noir est parti */
+    padding: 12px 14px !important;
+    font-size: 16px !important; /* Bouton un peu plus gros */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.game-header-row {
+  position: relative;         /* Permet de positionner le bouton par rapport à cette ligne */
+  display: flex;
+  justify-content: center;    /* Centre le titre H2 horizontalement */
+  align-items: center;
+  margin-bottom: 10px;
+  min-height: 36px;           /* Hauteur minimale pour le bouton */
+}
+
+.back-menu-btn {
+  position: absolute;         /* Sort le bouton du flux pour ne pas pousser le titre */
+  left: 0;                    /* Colle le bouton tout à gauche */
+  top: 50%;
+  transform: translateY(-50%); /* Centre le bouton verticalement */
+  
+  /* Garde ton style existant */
+  width: auto;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #e5e7eb;
+  color: #374151;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  z-index: 10;
+}
+
+.quiz-container h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;            /* Ajuste la taille si besoin */
+  padding: 0 50px;            /* Marge int. pour ne pas toucher le bouton sur mobile */
+}
+
+/* --- DANS style.css --- */
+
+/* Badges dans le menu de sélection des chapitres */
+.chapter-level-grade {
+  min-width: 40px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  font-family: system-ui, -apple-system, sans-serif;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Couleurs selon la note */
+.grade-a-plus, .grade-a {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.grade-b {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+
+.grade-c {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.grade-none {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #cbd5e1;
+  font-weight: 500;
+}
+
+/* On cache la barre de progression inutile du menu */
+.chapter-progress, .chapter-progress-container {
+  display: none !important;
+}
+/* Badges de notes dans le tableau prof */
+.table-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.table-grade-badge.grade-A, .table-grade-badge.grade-A-plus {
+  background: #dcfce7; color: #15803d; border-color: #86efac;
+}
+.table-grade-badge.grade-B {
+  background: #fef9c3; color: #a16207; border-color: #fde047;
+}
+.table-grade-badge.grade-C {
+  background: #fee2e2; color: #b91c1c; border-color: #fca5a5;
 }

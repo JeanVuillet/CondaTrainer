@@ -1,16 +1,86 @@
 <template id="template-zombie-game">
   <style>
-    #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
-    #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; user-select: none; pointer-events: none; }
+    #arena { 
+      position: relative; 
+      height: clamp(180px, 36vh, 320px); 
+      margin-top: 10px; 
+      background: linear-gradient(#f0f9ff, #e0f2fe); 
+      border-radius: 12px; 
+      overflow: hidden; 
+      box-shadow: inset 0 -6px 0 #cbd5e1; 
+    }
+    #hero, #zombie, #projectile { 
+      position: absolute; 
+      bottom: 0; 
+      height: clamp(90px, 26vh, 200px); 
+      max-width: 32vw; 
+      object-fit: contain; 
+      user-select: none; 
+      pointer-events: none; 
+    }
     #hero { left: min(3vw, 24px); }
     #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
-    #projectile { width: clamp(18px, 3vh, 28px); height: clamp(18px, 3vh, 28px); background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: calc(clamp(90px, 26vh, 200px) * 0.55); }
-    .question-zone { margin-bottom: 20px; font-size: 1.5em; text-align: center; min-height: 2.5em; }
-    .choices-zone { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
-    .choice { padding: 12px 20px; border: 2px solid #ccc; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white; }
+    #projectile { 
+      width: clamp(18px, 3vh, 28px); 
+      height: clamp(18px, 3vh, 28px); 
+      background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); 
+      border-radius: 50%; 
+      display: none; 
+      bottom: calc(clamp(90px, 26vh, 200px) * 0.55); 
+      z-index: 10;
+    }
+    .question-zone { 
+      margin-bottom: 20px; 
+      font-size: 1.5em; 
+      text-align: center; 
+      min-height: 2.5em; 
+      color: #334155;
+      font-weight: 600;
+      margin-top: 15px; 
+    }
+    .choices-zone { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 12px; 
+      justify-content: center; 
+    }
+    .choice { 
+      padding: 12px 20px; 
+      border: 2px solid #e2e8f0; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+      background: white; 
+      font-size: 1.1em;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .choice:hover { transform: translateY(-2px); border-color: #94a3b8; }
+    .choice:active { transform: translateY(0); }
+    .choice.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
+    .choice.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+
     #freeInputZone { display: none; text-align: center; margin-top: 8px; }
-    #answer { padding: 12px 14px; width: min(680px, 90%); font-size: 16px; border-radius: 10px; border: 1px solid #d1d5db; }
-    #submit { margin-top: 12px; padding: 12px 20px; background: #22c55e; color: #fff; border: 0; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    #answer { 
+      padding: 12px 14px; 
+      width: min(680px, 90%); 
+      font-size: 16px; 
+      border-radius: 10px; 
+      border: 2px solid #cbd5e1; 
+      outline: none;
+    }
+    #answer:focus { border-color: #3b82f6; }
+    #submit { 
+      margin-top: 12px; 
+      padding: 12px 24px; 
+      background: #2563eb; 
+      color: #fff; 
+      border: 0; 
+      border-radius: 8px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      font-weight: 600;
+    }
+    #submit:hover { background: #1d4ed8; }
   </style>
   
   <div id="arena">
@@ -30,26 +100,200 @@
 <script>
 class ZombieGame {
   constructor(container, controller) {
-    this.container = container; this.controller = controller;
-    this.hero = container.querySelector("#hero"); this.zombie = container.querySelector("#zombie");
-    this.projectile = container.querySelector("#projectile"); this.arena = container.querySelector("#arena");
-    this.questionElement = container.querySelector("#question"); this.choicesZone = container.querySelector("#choices");
-    this.freeInputZone = container.querySelector("#freeInputZone"); this.inputElement = container.querySelector("#answer");
+    this.container = container; 
+    this.controller = controller;
+    
+    this.hero = container.querySelector("#hero"); 
+    this.zombie = container.querySelector("#zombie");
+    this.projectile = container.querySelector("#projectile"); 
+    this.arena = container.querySelector("#arena");
+    
+    this.questionElement = container.querySelector("#question"); 
+    this.choicesZone = container.querySelector("#choices");
+    this.freeInputZone = container.querySelector("#freeInputZone"); 
+    this.inputElement = container.querySelector("#answer");
     this.submitButton = container.querySelector("#submit");
-    this.zombieInterval = null; this.projectileInterval = null; this.zombiePosition = 20;
-    this.zombiePaused = false; this.INTERVAL_MS = 20; this.ZOMBIE_TIME_SECS = 50;
+    
+    this.zombieInterval = null; 
+    this.projectileInterval = null; 
+    this.zombiePosition = 20;
+    this.zombiePaused = false;
+    this.isResetting = false; 
+    this.hasAnswered = false; // Sécurité anti double-clic
+    
     this.submitButton.addEventListener("click", () => this.onSubmitClick());
     this.inputElement.addEventListener("keydown", (e) => { if(e.key === 'Enter') this.onSubmitClick(); });
   }
-  loadQuestion(q){this.questionElement.textContent=q.q;this.inputElement.value="";const e=localScores[currentIndex],t=levels[currentLevel].requiredPerQuestion;if(e>=t-1){this.choicesZone.style.display="none",this.freeInputZone.style.display="block",setTimeout(()=>this.inputElement.focus(),100)}else{this.freeInputZone.style.display="none",this.choicesZone.style.display="flex",this.choicesZone.innerHTML="";[...q.options].sort(()=>.5-Math.random()).forEach(e=>{const t=document.createElement("div");t.className="choice",t.textContent=e,t.addEventListener("click",()=>this.onChoiceClick(t,e,q)),this.choicesZone.appendChild(t)})}}
-  onChoiceClick(e,t,o){if(this.controller.getState().isLocked)return;const i=this._isCorrect(t,o);i?(e.classList.add("correct"),this.playSuccessAnimation(),this.controller.notifyCorrectAnswer()):(e.classList.add("wrong"),this.controller.notifyWrongAnswer(o))}
-  onSubmitClick(){if(this.controller.getState().isLocked)return;const e=levels[currentLevel].questions[currentIndex],t=this._isCorrect(this.inputElement.value,e,!0);t?(this.playSuccessAnimation(),this.controller.notifyCorrectAnswer()):(localScores[currentIndex]=Math.max(0,localScores[currentIndex]-1),updateBars(),this.controller.notifyWrongAnswer(e))}
-  _normalize(e){return(e||"").toLowerCase().trim()}
-  _isCorrect(e,t,o=!1){const i=this._normalize(e),s=this._normalize(t.a);if(o){const e=(t.acceptable||[]).map(e=>this._normalize(e));return e.includes(i)||i.includes(s)}return i===s}
-  startAnimation(){this.startZombieMovement()}resetAnimation(){this.stopZombieMovement()}playSuccessAnimation(){this.attack()}
-  startZombieMovement(){if(this.zombieInterval)return;this.zombie.style.display="block";const e=this.arena.offsetWidth,t=e-this.zombie.offsetWidth-this.hero.offsetWidth-30,o=t/5e4;this.zombieInterval=setInterval(()=>{if(this.controller.getState().isLocked||this.zombiePaused)return;this.zombiePosition+=20*o,this.zombie.style.right=this.zombiePosition+"px",this.zombiePosition>=t&&this.controller.notifyWrongAnswer(null)},20)}
-  stopZombieMovement(){clearInterval(this.zombieInterval),this.zombieInterval=null,this.zombiePosition=20,this.zombie&&(this.zombie.style.right=this.zombiePosition+"px")}
-  attack(){if(this.projectileInterval)return;this.zombiePaused=!0,this.projectile.style.display="block";let e=this.hero.offsetWidth;const t=parseFloat(this.zombie.style.right);this.projectileInterval=setInterval(()=>{e+=20,this.projectile.style.left=e+"px",e>=this.arena.offsetWidth-t-this.zombie.offsetWidth/2&&(clearInterval(this.projectileInterval),this.projectileInterval=null,this.projectile.style.display="none",this.projectile.style.left="0px",this.zombie.style.display="none",this.zombiePaused=!1)},20)}
+
+  loadQuestion(q){
+    this.isResetting = false; 
+    this.hasAnswered = false; // Reset pour la nouvelle question
+    
+    this.questionElement.textContent = q.q;
+    this.inputElement.value = "";
+    
+    // Récupération sécurisée des scores
+    const score = (typeof localScores !== 'undefined' && typeof currentIndex !== 'undefined') ? localScores[currentIndex] : 0;
+    const req = (typeof levels !== 'undefined' && typeof currentLevel !== 'undefined') ? levels[currentLevel].requiredPerQuestion : 3;
+    
+    if(score >= req - 1){
+      this.choicesZone.style.display = "none";
+      this.freeInputZone.style.display = "block";
+      setTimeout(() => this.inputElement.focus(), 100);
+    } else {
+      this.freeInputZone.style.display = "none";
+      this.choicesZone.style.display = "flex";
+      this.choicesZone.innerHTML = "";
+      [...q.options].sort(() => 0.5 - Math.random()).forEach(opt => {
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.textContent = opt;
+        // Utilisation de mousedown pour être plus réactif que click
+        div.addEventListener("mousedown", () => this.onChoiceClick(div, opt, q));
+        this.choicesZone.appendChild(div);
+      });
+    }
+  }
+
+  onChoiceClick(btn, text, q){
+    // Si déjà répondu ou verrouillé, on sort
+    if(this.hasAnswered || this.controller.getState().isLocked) return;
+    this.hasAnswered = true;
+
+    const correct = this._isCorrect(text, q);
+    if(correct) {
+      btn.classList.add("correct");
+      this.playSuccessAnimation(); // Lancement visuel
+      this.controller.notifyCorrectAnswer(); // Notification LOGIQUE importante
+    } else {
+      btn.classList.add("wrong");
+      this.controller.notifyWrongAnswer(q);
+    }
+  }
+
+  onSubmitClick(){
+    if(this.hasAnswered || this.controller.getState().isLocked) return;
+    this.hasAnswered = true;
+
+    // Récupération de la question courante depuis global si non passée
+    const q = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
+    if(!q) return; 
+
+    const correct = this._isCorrect(this.inputElement.value, q, true);
+    if(correct) {
+      this.playSuccessAnimation();
+      this.controller.notifyCorrectAnswer();
+    } else {
+      if(typeof localScores !== 'undefined') localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
+      if(typeof updateBars !== 'undefined') updateBars();
+      this.controller.notifyWrongAnswer(q);
+    }
+  }
+
+  _normalize(txt){ return (txt || "").toLowerCase().trim(); }
+  
+  _isCorrect(input, qObj, strict = false){
+    const i = this._normalize(input);
+    const a = this._normalize(qObj.a);
+    if(strict){
+      const accepts = (qObj.acceptable || []).map(x => this._normalize(x));
+      return accepts.includes(i) || i.includes(a);
+    }
+    return i === a;
+  }
+
+  startAnimation(){ 
+    this.startZombieMovement(); 
+  }
+  
+  resetAnimation(){ 
+    this.stopZombieMovement(); 
+  }
+  
+  playSuccessAnimation(){ 
+    this.attack(); 
+  }
+
+  startZombieMovement(){
+    if(this.zombieInterval) return;
+    
+    this.zombie.style.display = "block";
+    this.zombie.style.opacity = "1";
+
+    const arenaW = this.arena.offsetWidth;
+    const maxDist = arenaW - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
+    const speedFactor = maxDist / 50000; 
+
+    this.zombieInterval = setInterval(() => {
+      if(this.isResetting) return;
+      if(this.controller.getState().isLocked || this.zombiePaused) return;
+      
+      this.zombiePosition += speedFactor * 20; 
+      this.zombie.style.right = this.zombiePosition + "px";
+      
+      if(this.zombiePosition >= maxDist) {
+        this.controller.notifyWrongAnswer(null);
+      }
+    }, 20);
+  }
+
+  stopZombieMovement(){
+    this.isResetting = true;
+    this.hasAnswered = false; // Reset du flag réponse
+
+    if(this.zombieInterval) { clearInterval(this.zombieInterval); this.zombieInterval = null; }
+    if(this.projectileInterval) { clearInterval(this.projectileInterval); this.projectileInterval = null; }
+
+    this.zombiePosition = 20;
+    this.zombiePaused = false;
+    
+    if(this.zombie) {
+        this.zombie.style.right = "20px";
+        this.zombie.style.display = "block";
+        this.zombie.style.opacity = "1";
+    }
+    if(this.projectile) {
+        this.projectile.style.display = "none";
+        this.projectile.style.left = "0px";
+    }
+  }
+
+  attack(){
+    if(this.projectileInterval) return;
+    
+    this.zombiePaused = true;
+    this.projectile.style.display = "block";
+    
+    let pPos = this.hero.offsetWidth; 
+    const zRight = parseFloat(this.zombie.style.right) || 20;
+    const impactPoint = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
+
+    // Animation très rapide pour éviter de bloquer l'utilisateur
+    this.projectileInterval = setInterval(() => {
+      if(this.isResetting) {
+         clearInterval(this.projectileInterval);
+         this.projectileInterval = null;
+         return;
+      }
+
+      pPos += 40; // Vitesse x2 par rapport à avant
+      this.projectile.style.left = pPos + "px";
+      
+      if(pPos >= impactPoint) {
+        clearInterval(this.projectileInterval);
+        this.projectileInterval = null;
+        
+        this.projectile.style.display = "none";
+        this.projectile.style.left = "0px";
+        
+        if(!this.isResetting) {
+           this.zombie.style.display = "none"; 
+        }
+        // On ne remet PAS zombiePaused à false ici, car on attend le chargement de la prochaine question
+        // C'est loadQuestion qui resettera tout.
+      }
+    }, 20);
+  }
 }
 window.ZombieGame = ZombieGame;
 </script>

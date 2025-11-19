@@ -1,27 +1,34 @@
-// init-db.js (ANCIENNE VERSION)
-// Ce script sert à peupler la base de données avec la structure originale (validatedLevels).
-// À exécuter AVANT de faire 'git stash' pour que la BDD soit compatible avec l'ancien code.
+// init-db.js
+// Ce script réinitialise la BDD avec la NOUVELLE structure (levels avec notes).
+// À exécuter : node init-db.js
 
 const mongoose = require('mongoose');
-require('dotenv').config(); // Pour lire le fichier .env
+require('dotenv').config(); 
 
 const mongoUri = process.env.MONGODB_URI;
 
 // ==========================================================
-// ANCIEN SCHÉMA (AVANT LES SCORES)
+// NOUVEAU SCHÉMA (AVEC NOTES A+, A, B, C)
 // ==========================================================
 const PlayerSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   classroom: String,
   validatedQuestions: [String],
-  validatedLevels: [String], // <-- ANCIENNE STRUCTURE
+  // Modification majeure ici : validatedLevels est un tableau d'objets
+  validatedLevels: [
+    {
+      levelId: { type: String, required: true },
+      grade: { type: String, default: 'C' }, // La note obtenue
+      date: { type: Date, default: Date.now }
+    }
+  ],
   created_at: { type: Date, default: Date.now },
 });
 
 const Player = mongoose.model('Player', PlayerSchema, 'players');
 
-// Liste complète des élèves, adaptée à l'ancienne structure
+// Liste des élèves (On initialise avec des tableaux vides, la structure s'adaptera à l'insertion)
 const players = [
     // === 6eD ===
     { firstName: 'Gael', lastName: 'Barbier Durango', classroom: '6D', validatedQuestions: [], validatedLevels: [] },
@@ -150,19 +157,19 @@ async function initializeDatabase() {
     await mongoose.connect(mongoUri);
     console.log('✅ Connexion réussie !');
 
-    console.log('Suppression des anciens élèves (si existants)...');
+    console.log('Suppression des anciens élèves (pour mise à jour du schéma)...');
     await Player.deleteMany({});
-    console.log('Anciens élèves supprimés.');
+    console.log('Base nettoyée.');
 
-    console.log('Ajout des nouveaux élèves...');
+    console.log('Ajout des élèves avec nouvelle structure...');
     await Player.insertMany(players);
-    console.log(`✅ ${players.length} élèves ont été ajoutés à la base de données avec succès !`);
+    console.log(`✅ ${players.length} élèves ajoutés avec succès !`);
 
   } catch (err) {
-    console.error('❌ Une erreur est survenue lors de l\'initialisation :', err);
+    console.error('❌ Erreur :', err);
   } finally {
-    console.log('Déconnexion de la base de données.');
     await mongoose.disconnect();
+    console.log('Déconnexion.');
   }
 }
 

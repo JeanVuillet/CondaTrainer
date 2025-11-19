@@ -1,12 +1,17 @@
 <template id="template-starship-game">
   <style>
+    /* Zone de question : Texte noir et gras, placé au-dessus */
     .question-zone { 
-      margin: 8px 0;
-      font-size: 1.5em; 
+      margin: 0 0 15px 0;
+      font-size: 1.3em; 
       text-align: center; 
-      min-height: 2.5em;
-      color: #e2e8f0; 
-      font-weight: bold;
+      min-height: 3em;
+      color: #111827; 
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.3;
     }
     
     #starship-game-area {
@@ -15,13 +20,13 @@
       background: radial-gradient(circle at bottom, #1e1b4b, #0f172a);
       border-radius: 12px;
       overflow: hidden;
-      border: 2px solid #334155;
-      margin-top: 10px;
+      border: 4px solid #334155;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
     }
     
     #ship {
       position: absolute;
-      bottom: 20px; /* Hauteur fixe du vaisseau */
+      bottom: 20px; 
       left: 50%;
       width: 60px;
       height: 60px;
@@ -33,18 +38,20 @@
 
     .falling-answer {
       position: absolute;
-      top: 0px; /* Départ immédiat en haut de l'écran */
-      padding: 8px 16px;
-      background: rgba(30, 41, 59, 0.9);
-      color: #fff;
+      top: 0px; 
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.95); 
+      color: #38bdf8; 
       border: 2px solid #38bdf8;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
       transform: translateX(-50%);
-      white-space: nowrap;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-      /* Plus d'animation CSS, tout est géré en JS */
+      white-space: normal; 
+      text-align: center;
+      max-width: 140px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      z-index: 5;
     }
 
     .missile {
@@ -54,13 +61,15 @@
       background-color: #fbbf24;
       border-radius: 4px;
       box-shadow: 0 0 8px #fbbf24;
+      z-index: 2;
     }
   </style>
+  
+  <div id="question" class="question-zone"></div>
   
   <div id="starship-game-area">
     <div id="ship"></div>
   </div>
-  <div id="question" class="question-zone"></div>
 </template>
 
 <script>
@@ -78,8 +87,11 @@ class StarshipGame {
     this.currentQuestion = null;
     this.animationFrameId = null;
     
-    // Vitesse de chute (ms). 12000 = 12 secondes pour traverser l'écran.
-    this.FALL_DURATION = 12000; 
+    // --- REGLAGES DU JEU ---
+    // Vitesse de chute : 24 secondes (C'est 2x plus lent qu'avant)
+    this.FALL_DURATION = 24000; 
+    // Temps d'attente avant le début de la chute : 3 secondes
+    this.READING_TIME = 3000;
 
     this.bindControls();
   }
@@ -90,14 +102,12 @@ class StarshipGame {
     this.clearObjects();
     this.spawnAnswers();
     
-    // On lance la boucle de jeu si elle n'est pas déjà active
     if (!this.animationFrameId) {
         this.gameLoop();
     }
   }
 
   bindControls() {
-    // On utilise une variable pour pouvoir supprimer l'event listener si besoin (bien que moins critique ici)
     this._keydownHandler = (e) => {
       if (this.controller.getState().isLocked) return;
 
@@ -114,18 +124,15 @@ class StarshipGame {
   moveShip(delta) {
     const newLeft = this.ship.offsetLeft + delta;
     const maxLeft = this.gameArea.offsetWidth - this.ship.offsetWidth; 
-    // On garde le vaisseau dans l'écran
     const safeLeft = Math.max(0, Math.min(maxLeft, newLeft));
     this.ship.style.left = safeLeft + "px";
   }
 
   shoot() {
-    // Limite de tir pour éviter le spam
     if (this.missiles.length > 5) return;
 
     const missile = document.createElement("div");
     missile.className = "missile";
-    // Positionnement au centre du vaisseau
     missile.style.left = (this.ship.offsetLeft + this.ship.offsetWidth / 2 - 3) + "px";
     missile.style.bottom = "80px"; 
 
@@ -142,20 +149,18 @@ class StarshipGame {
       const answerEl = document.createElement("div");
       answerEl.className = "falling-answer";
       
-      // Répartition équitable sur la largeur
       const lanePercent = ((index + 1) / (n + 1)) * 100;
       answerEl.style.left = lanePercent + "%";
-      
-      // Position de départ : 0 (Haut de l'écran)
       answerEl.style.top = "0px"; 
 
       answerEl.textContent = opt;
       answerEl.dataset.isCorrect = (opt === this.currentQuestion.a) ? "true" : "false";
       
-      // Paramètres pour l'animation
-      // Petit décalage aléatoire pour ne pas qu'ils tombent tous exactement en ligne
-      answerEl.dataset.startTime = now + (Math.random() * 1500); 
-      // Vitesse en pixels par frame (approximatif)
+      // --- CALCUL DU DÉPART ---
+      // Start Time = Maintenant + 3 secondes de lecture + petit aléatoire
+      answerEl.dataset.startTime = now + this.READING_TIME + (Math.random() * 1500); 
+      
+      // Vitesse
       answerEl.dataset.speed = (this.gameArea.offsetHeight) / (this.FALL_DURATION / 16); 
 
       this.gameArea.appendChild(answerEl);
@@ -164,42 +169,38 @@ class StarshipGame {
   }
 
   gameLoop() {
-    // Si le jeu est verrouillé (entre deux questions ou pause), on continue de boucler mais sans mise à jour
     if (this.controller.getState().isLocked) {
         this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
         return; 
     }
-
     this.updateState();
     this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
   }
 
   updateState() {
     const now = performance.now();
-    const shipTop = this.ship.offsetTop; // La ligne de défense (le vaisseau)
+    const shipTop = this.ship.offsetTop; 
 
-    // 1. Mettre à jour les RÉPONSES (chute)
+    // Update Réponses
     for (let i = this.answers.length - 1; i >= 0; i--) {
       const ans = this.answers[i];
       const startTime = parseFloat(ans.dataset.startTime);
       
+      // On ne bouge que si le délai de lecture est passé
       if (now > startTime) {
         const speed = parseFloat(ans.dataset.speed);
         const currentTop = parseFloat(ans.style.top) || 0;
-        
-        // On fait descendre
         const newTop = currentTop + speed; 
         ans.style.top = newTop + "px";
 
-        // --- DETECTION ECHEC (Vaisseau dépassé) ---
-        // Si la BONNE réponse dépasse le vaisseau, c'est perdu
+        // Echec si dépasse le vaisseau
         if (newTop > shipTop && ans.dataset.isCorrect === "true" && !ans.dataset.passed) {
-            ans.dataset.passed = "true"; // Marqueur pour ne pas déclencher 2 fois
+            ans.dataset.passed = "true"; 
             this.handleLevelFail(); 
             return;
         }
 
-        // Nettoyage si sort de l'écran (tout en bas)
+        // Nettoyage bas écran
         if (newTop > this.gameArea.offsetHeight) {
             ans.remove();
             this.answers.splice(i, 1);
@@ -207,14 +208,13 @@ class StarshipGame {
       }
     }
 
-    // 2. Mettre à jour les MISSILES (montée)
+    // Update Missiles
     for (let i = this.missiles.length - 1; i >= 0; i--) {
       const m = this.missiles[i];
       let bottom = parseFloat(m.style.bottom);
-      bottom += 8; // Vitesse missile (rapide)
+      bottom += 8; 
       m.style.bottom = bottom + "px";
 
-      // Collision missile/réponse
       const mRect = m.getBoundingClientRect();
       let hit = false;
 
@@ -222,7 +222,6 @@ class StarshipGame {
         const ans = this.answers[j];
         const aRect = ans.getBoundingClientRect();
 
-        // Vérification de collision simple
         if (
           mRect.right > aRect.left &&
           mRect.left < aRect.right &&
@@ -231,15 +230,12 @@ class StarshipGame {
         ) {
           hit = true;
           this.handleCollision(ans);
-          
-          // On détruit la réponse touchée
           ans.remove();
           this.answers.splice(j, 1);
           break; 
         }
       }
 
-      // Si le missile a touché ou sort de l'écran, on l'enlève
       if (hit || bottom > this.gameArea.offsetHeight) {
         m.remove();
         this.missiles.splice(i, 1);
@@ -251,27 +247,21 @@ class StarshipGame {
     const isCorrect = answerEl.dataset.isCorrect === "true";
     
     if (isCorrect) {
-        // Gagné
-        this.resetAnimation(false); // On fige le jeu
+        this.resetAnimation(false); 
         this.controller.notifyCorrectAnswer();
     } else {
-        // Mauvaise réponse -> Perte de vie + Panneau rouge
         this.resetAnimation();
-        
-        // Mise à jour du score local (perte de progression barre bleue)
         if(typeof localScores !== 'undefined') {
             localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
             if(typeof updateBars === 'function') updateBars();
         }
-        
         this.controller.notifyWrongAnswer(this.currentQuestion);
     }
   }
 
   handleLevelFail() {
-    // La bonne réponse est passée derrière le vaisseau -> Perte de vie
     this.resetAnimation();
-    this.controller.notifyWrongAnswer(null); // null = pas de panneau rouge, juste perte de vie/reset
+    this.controller.notifyWrongAnswer(null);
   }
 
   clearObjects() {
@@ -286,8 +276,6 @@ class StarshipGame {
   }
 
   resetAnimation(fullClear = true) {
-    // On ne coupe pas la boucle requestAnimationFrame pour éviter que le jeu fige si on a besoin de reprendre
-    // Mais on nettoie les objets
     if (fullClear) {
         this.clearObjects();
     }

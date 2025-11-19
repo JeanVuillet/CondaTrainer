@@ -29,11 +29,22 @@ let lives = 4; const MAX_LIVES = 4;
 let isGameActive = false; 
 let currentGameModuleInstance = null;
 let allPlayersData = [];
-// Temps réduit à 3 minutes pour rendre le A+ plus difficile
-let levelTimer = null, levelTimeTotal = 180000, levelTimeRemaining = 180000; 
-
-// Variable pour stocker le lancement du jeu en attente
+let levelTimer = null, levelTimeTotal = 180000, levelTimeRemaining = 180000;
 let pendingLaunch = null; 
+
+// --- GESTION DES TOUCHES POUR CHEAT CODE (R + T) ---
+let isRKeyDown = false; 
+let isTKeyDown = false;
+
+document.addEventListener("keydown", (e) => {
+  if (e.key.toLowerCase() === "r") isRKeyDown = true;
+  if (e.key.toLowerCase() === "t") isTKeyDown = true;
+});
+
+document.addEventListener("keyup", (e) => {
+  if (e.key.toLowerCase() === "r") isRKeyDown = false;
+  if (e.key.toLowerCase() === "t") isTKeyDown = false;
+});
 
 // --- LOGIQUE MODAL COURS ---
 iAmReadyBtn?.addEventListener("click", () => {
@@ -46,21 +57,25 @@ iAmReadyBtn?.addEventListener("click", () => {
 
 closeLessonBtn?.addEventListener("click", () => {
   if(lessonModal) lessonModal.style.display = "none";
-  pendingLaunch = null; // Annule le lancement
+  pendingLaunch = null; 
 });
 
 openLessonBtn?.addEventListener("click", () => {
-  if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; // Pas besoin du bouton "Prêt" en jeu
+  if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; 
   if (lessonModal) lessonModal.style.display = "flex";
 });
 
-// --- CHEAT CODE (Barre Verte) ---
+// --- CHEAT CODE (Barre Verte + R + T) ---
 $("#mainProgress")?.addEventListener("click", () => {
+  // Sécurité 1 : Jeu actif ?
   if (!isGameActive) return;
-  console.log("🕵️ CHEAT CODE ACTIVÉ : Niveau validé avec le temps actuel !");
   
-  // NOTE : On ne remplit PLUS le temps. On garde le temps actuel pour la note.
-  updateTimeBar();
+  // Sécurité 2 : Touches R et T enfoncées ?
+  if (!isRKeyDown || !isTKeyDown) return;
+
+  console.log("🕵️ CHEAT CODE ACTIVÉ : Niveau validé !");
+  
+  updateTimeBar(); // On garde le temps actuel pour la note
   
   const lvl = levels[currentLevel];
   if(lvl) {
@@ -221,7 +236,6 @@ async function updateChapterSelectionUI(player) {
     const isFinished = chapterLevels.every(l => validatedIds.includes(l.id));
     const btn = box.querySelector(".chapter-action-btn");
     
-    // --- FONCTION DE LANCEMENT ---
     const triggerGameStart = async () => {
       const startGame = async () => {
         chapterSelection.style.display = "none";
@@ -229,15 +243,16 @@ async function updateChapterSelectionUI(player) {
         await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
       };
 
-      // Construction de la super fiche de cours
+      const firstLevel = chapterLevels[0];
+      let lessonContent = "<h3>🚀 Prêt pour la mission ?</h3><p>Concentre-toi bien et bonne chance !</p>";
+      
+      // AGGREGATION DES LEÇONS
       let fullLessonHTML = "";
       let hasLesson = false;
-
       chapterLevels.forEach((lvl, index) => {
         if (lvl.lesson) {
           hasLesson = true;
           const cleanTitle = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*Niveau\s+\d+\s*[-—–]\s*/i, "");
-          
           fullLessonHTML += `
             <div class="lesson-level-title">NIVEAU ${index + 1} : ${cleanTitle}</div>
             ${lvl.lesson}
@@ -245,16 +260,11 @@ async function updateChapterSelectionUI(player) {
           `;
         }
       });
-      
-      if (fullLessonHTML.endsWith('<hr class="lesson-separator" />')) {
-          fullLessonHTML = fullLessonHTML.slice(0, -31); 
-      }
+      if (fullLessonHTML.endsWith('<hr class="lesson-separator" />')) fullLessonHTML = fullLessonHTML.slice(0, -31);
 
-      if (!hasLesson) {
-          fullLessonHTML = "<h3>🚀 Prêt pour la mission ?</h3><p>Concentre-toi bien et bonne chance !</p>";
-      }
+      if (hasLesson) lessonContent = fullLessonHTML;
 
-      lessonText.innerHTML = fullLessonHTML;
+      lessonText.innerHTML = lessonContent;
       if(iAmReadyBtn) iAmReadyBtn.style.display = "block";
       if(lessonModal) lessonModal.style.display = "flex";
       
@@ -361,7 +371,7 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
 
 async function initQuiz() {
   if (!levels.length) return;
-  setupLevel(0); // Force Arcade
+  setupLevel(0); 
 }
 
 function setupLevel(idx) {
@@ -382,7 +392,6 @@ function setupLevel(idx) {
   const welcome = document.getElementById("welcomeText");
   if(welcome) { welcome.textContent = `Bienvenue ${currentPlayerData.firstName} !`; welcome.style.display = "block"; }
 
-  // Mise à jour du bouton cours en jeu
   if (lvl.lesson) {
     if(openLessonBtn) openLessonBtn.style.display = "block";
     if(lessonText) lessonText.innerHTML = lvl.lesson; 
@@ -443,17 +452,7 @@ async function nextQuestion(keep) {
       setTimeout(() => { 
         if(isGameActive) { 
           $("#levelGrade").style.opacity="0"; 
-          
-          // Si tu veux réafficher le cours entre les niveaux, décommente :
-          // const nextLvl = levels[currentLevel + 1];
-          // if(nextLvl && nextLvl.lesson) {
-          //    lessonText.innerHTML = nextLvl.lesson;
-          //    iAmReadyBtn.style.display = "block";
-          //    lessonModal.style.display = "flex";
-          //    pendingLaunch = () => setupLevel(currentLevel + 1);
-          // } else {
-             setupLevel(currentLevel+1); 
-          // }
+          setupLevel(currentLevel+1); 
         }
       }, 2600);
     } else {
@@ -533,6 +532,10 @@ async function saveProgress(type, val, grade) {
 
 async function handleBarClick(i) {
   if(locked || !isGameActive) return;
+  
+  // SÉCURITÉ CHEAT CODE (R + T)
+  if (!isRKeyDown || !isTKeyDown) return;
+
   locked = true;
   const lvl = levels[currentLevel];
   if (localScores[i] < lvl.requiredPerQuestion) {
@@ -584,7 +587,7 @@ $("#validateProfPasswordBtn")?.addEventListener("click", () => {
   }
 });
 
-// --- TABLEAU PROF ---
+// TABLEAU PROF
 async function fetchPlayers() {
   if (!profDashboard) return;
   profDashboard.style.display = "block";
@@ -602,7 +605,6 @@ function generateFullChapterProgress(allLevels, validatedLevelIds, gradesMap, va
   if (!allLevels || allLevels.length === 0) return "N/A";
   let html = '<div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">';
 
-  // 1. Niveaux terminés (Badges 1:A+)
   allLevels.forEach((lvl, idx) => {
     const isDone = validatedLevelIds.includes(lvl.id);
     if (isDone) {
@@ -613,7 +615,6 @@ function generateFullChapterProgress(allLevels, validatedLevelIds, gradesMap, va
     }
   });
 
-  // 2. Niveau en cours (Carrés 1 2 3)
   const currentLvlObj = allLevels.find(lvl => !validatedLevelIds.includes(lvl.id));
   if (currentLvlObj) {
     html += `<div class="questions-list" style="display: inline-flex; gap: 2px; margin-left:4px;">`;
@@ -625,7 +626,6 @@ function generateFullChapterProgress(allLevels, validatedLevelIds, gradesMap, va
     }
     html += `</div>`;
   } else {
-    // Si tout fini
     if (allLevels.every(l => validatedLevelIds.includes(l.id))) {
        html += `<span style="margin-left:4px; font-size:14px;">🏆</span>`;
     }

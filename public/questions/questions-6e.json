@@ -2,235 +2,122 @@
   {
     "id": "ch1-lvl1-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 1 (Premiers hommes et néolithique)",
+    "title": "Chapitre 1 - Niveau 1 (Les grandes définitions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🦴 1. De la Pierre Taillée à la Pierre Polie</h3><ul><li><strong>1. Paléolithique :</strong> Âge de la pierre taillée. Les hommes sont <strong>nomades</strong>.</li><li><strong>2. Activités :</strong> Ils vivent de la <strong>chasse</strong>, la pêche et la <strong>cueillette</strong>.</li><li><strong>3. Le Feu :</strong> Grande découverte pour cuire, s'éclairer et se protéger.</li><li><strong>4. Néolithique :</strong> Âge de la pierre polie. Les hommes se <strong>sédentarisent</strong> (villages).</li><li><strong>5. Agriculture :</strong> Apparaît vers <strong>10 000 av. J.-C.</strong> (Proche-Orient).</li><li><strong>6. Art :</strong> Peintures dans les grottes = <strong>Art rupestre</strong>.</li></ul>",
+    "lesson": "<h3>🏙️ 1. Les mots importants de la ville</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants et d'activités.</li><li><strong>2. Urbanisation :</strong> Augmentation de la population qui vit en ville.</li><li><strong>3. Ghetto :</strong> Quartier où une population vit à l'écart du reste de la ville (souvent pauvre).</li><li><strong>4. Bidonville :</strong> Quartier très pauvre construit illégalement avec des matériaux de récupération.</li><li><strong>5. Quartier résidentiel :</strong> Quartier où l'on trouve surtout des logements pour habiter.</li><li><strong>6. Quartier d'affaires :</strong> Quartier avec des bureaux, des tours et des banques.</li></ul>",
     "questions": [
-      {
-        "q": "Quel est le mode de vie des premiers hommes au Paléolithique ?",
-        "a": "nomades",
-        "options": ["nomades", "sédentaires", "paysans", "citadins"]
-      },
-      {
-        "q": "Quelle est l'activité principale pour se nourrir au Paléolithique ?",
-        "a": "chasse et cueillette",
-        "options": ["chasse et cueillette", "agriculture", "élevage", "commerce"]
-      },
-      {
-        "q": "Comment s'appelle la période où les humains deviennent agriculteurs et éleveurs ?",
-        "a": "Néolithique",
-        "options": ["Paléolithique", "Néolithique", "Antiquité", "Moyen Âge"]
-      },
-      {
-        "q": "Comment appelle-t-on les peintures réalisées sur les parois des grottes ?",
-        "a": "art rupestre",
-        "options": ["art rupestre", "graffiti", "fresque moderne", "mosaïque"]
-      },
-      {
-        "q": "Quel progrès maîtrise l'être humain pour se chauffer et cuire les aliments ?",
-        "a": "le feu",
-        "options": ["le feu", "la roue", "l'écriture", "la monnaie"]
-      },
-      {
-        "q": "Vers quelle date apparaît l'agriculture au Proche-Orient ?",
-        "a": "vers 10 000 av. J.-C.",
-        "options": ["vers 10 000 av. J.-C.", "vers 1 000 av. J.-C.", "vers 500 ap. J.-C.", "vers 3 000 av. J.-C."]
-      }
+      { "q": "Comment appelle-t-on une très grande ville qui concentre habitants et pouvoirs ?", "a": "métropole", "options": ["métropole", "village", "campagne", "hameau"] },
+      { "q": "Quel mot désigne l'augmentation de la population en ville ?", "a": "urbanisation", "options": ["urbanisation", "ruralité", "déforestation", "migration"] },
+      { "q": "Quel quartier désigne un lieu où une population vit à l'écart (souvent pauvre) ?", "a": "ghetto", "options": ["ghetto", "centre-ville", "quartier riche", "zone industrielle"] },
+      { "q": "Quel quartier est construit avec des matériaux de récupération ?", "a": "bidonville", "options": ["bidonville", "pavillon", "gratte-ciel", "château"] },
+      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "résidentiel", "options": ["résidentiel", "industriel", "commercial", "touristique"] },
+      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "affaires", "options": ["affaires", "agricole", "historique", "portuaire"] }
     ]
   },
   {
     "id": "ch1-lvl2-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 2 (Sites et repères)",
+    "title": "Chapitre 1 - Niveau 2 (Les fonctions urbaines)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🔎 2. L'enquête sur le passé</h3><ul><li><strong>1. Archéologue :</strong> Scientifique qui fouille le sol pour étudier le passé.</li><li><strong>2. Fossile :</strong> Trace de vie (os, plante) conservée dans la roche.</li><li><strong>3. Homo Sapiens :</strong> C'est nous ! L'espèce humaine actuelle.</li><li><strong>4. Lascaux :</strong> Célèbre grotte ornée en France (Dordogne).</li><li><strong>5. Sédentarisation :</strong> Le fait de s'installer durablement quelque part (construire une maison).</li><li><strong>6. L'Histoire :</strong> Commence avec l'invention de l'<strong>écriture</strong> (fin de la Préhistoire).</li></ul>",
+    "lesson": "<h3>🏗️ 2. Les fonctions de la ville</h3><ul><li><strong>1. Résidentielle :</strong> Fonction liée au logement (habiter).</li><li><strong>2. Commerciale :</strong> Fonction liée à l'achat et la vente (magasins).</li><li><strong>3. Culturelle :</strong> Fonction liée aux loisirs et à l'art (musées, théâtres).</li><li><strong>4. Politique :</strong> Fonction liée au pouvoir (mairie, gouvernement).</li><li><strong>5. Économique :</strong> Fonction liée au travail (bureaux, usines).</li><li><strong>6. Transport :</strong> Fonction liée aux déplacements (gares, aéroports).</li></ul>",
     "questions": [
-      {
-        "q": "En France, quelle célèbre grotte ornée est un exemple d'art rupestre ?",
-        "a": "Lascaux",
-        "options": ["Lascaux", "Chauvet", "Altamira", "Cosquer"]
-      },
-      {
-        "q": "Comment appelle-t-on le spécialiste qui fouille et étudie les traces matérielles du passé ?",
-        "a": "archéologue",
-        "options": ["archéologue", "géographe", "historien de l'art", "géologue"]
-      },
-      {
-        "q": "Quand commence l'Histoire (par rapport à la Préhistoire) ?",
-        "a": "avec l'invention de l'écriture",
-        "options": ["avec l'invention de l'écriture", "avec l'apparition de l'homme", "avec la maîtrise du feu", "avec l'apparition des dinosaures"]
-      },
-      {
-        "q": "Comment appelle-t-on l'être humain moderne, notre espèce ?",
-        "a": "Homo sapiens",
-        "options": ["Homo erectus", "Homo habilis", "Homo sapiens", "Australopithèque"]
-      },
-      {
-        "q": "Quel terme désigne le fait de s'installer durablement dans un lieu ?",
-        "a": "sédentarisation",
-        "options": ["nomadisme", "sédentarisation", "migration", "exode"]
-      },
-      {
-        "q": "Comment appelle-t-on un os ou une trace d'être vivant conservé dans la roche ?",
-        "a": "fossile",
-        "options": ["fossile", "minéral", "outil", "bijou"]
-      }
+      { "q": "Quelle fonction correspond au fait d'habiter en ville ?", "a": "résidentielle", "options": ["résidentielle", "industrielle", "agricole", "sportive"] },
+      { "q": "Quelle fonction correspond aux magasins et aux achats ?", "a": "commerciale", "options": ["commerciale", "politique", "religieuse", "militaire"] },
+      { "q": "Quelle fonction correspond aux musées et aux théâtres ?", "a": "culturelle", "options": ["culturelle", "portuaire", "financière", "médicale"] },
+      { "q": "Quelle fonction correspond à la mairie ou au gouvernement ?", "a": "politique", "options": ["politique", "touristique", "sportive", "commerciale"] },
+      { "q": "Quelle fonction correspond aux bureaux et aux entreprises ?", "a": "économique", "options": ["économique", "résidentielle", "religieuse", "scolaire"] },
+      { "q": "Quelle fonction correspond aux gares et aéroports ?", "a": "transport", "options": ["transport", "agriculture", "pêche", "chasse"] }
     ]
   },
   {
     "id": "ch1-lvl3-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 3 (Migrations et vocabulaire)",
+    "title": "Chapitre 1 - Niveau 3 (Défis et problèmes)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>👣 3. L'Humanité en marche</h3><ul><li><strong>1. Préhistoire :</strong> Période avant l'écriture (la plus longue de l'humanité).</li><li><strong>2. Bipédie :</strong> Capacité à marcher debout sur deux pieds.</li><li><strong>3. Migration :</strong> Déplacement d'un peuple pour s'installer ailleurs.</li><li><strong>4. Peuplement :</strong> Les premiers humains viennent d'Afrique et ont peuplé toute la Terre.</li><li><strong>5. Culture :</strong> Manières de vivre d'un groupe (art, croyances, habitat).</li><li><strong>6. Vestiges :</strong> Objets (outils, armes) laissés par les humains du passé.</li></ul>",
+    "lesson": "<h3>🚧 3. Les défis des grandes villes</h3><ul><li><strong>1. Pollution :</strong> Problème causé par les voitures et les usines (mauvais air).</li><li><strong>2. Embouteillages :</strong> Quand il y a trop de voitures sur les routes.</li><li><strong>3. Logement :</strong> Il est souvent difficile et cher de se loger.</li><li><strong>4. Services :</strong> L'accès à l'eau et à l'électricité est un défi dans les pays pauvres.</li><li><strong>5. Exode rural :</strong> Départ des gens de la campagne vers la ville.</li><li><strong>6. Inégalités :</strong> Écarts de richesse entre les quartiers riches et pauvres.</li></ul>",
     "questions": [
-      {
-        "q": "Comment appelle-t-on le déplacement durable d'un groupe de population d'un territoire vers un autre ?",
-        "a": "migration",
-        "options": ["migration", "voyage scolaire", "tourisme", "commerce"]
-      },
-      {
-        "q": "Quel mot désigne la période très ancienne avant l'apparition de l'écriture ?",
-        "a": "Préhistoire",
-        "options": ["Préhistoire", "Antiquité", "Moyen Âge", "Temps modernes"]
-      },
-      {
-        "q": "Comment s'appelle l'aptitude de l'être humain à marcher uniquement sur ses deux pieds ?",
-        "a": "bipédie",
-        "options": ["bipédie", "quadrupédie", "natation", "planification"]
-      },
-      {
-        "q": "Quel terme désigne les objets fabriqués par l'homme (outils, armes, bijoux, etc.) ?",
-        "a": "outils ou objets archéologiques",
-        "options": ["outils ou objets archéologiques", "fossiles", "minéraux", "roches volcaniques"]
-      },
-      {
-        "q": "Quand commence approximativement la Préhistoire ?",
-        "a": "avec l'apparition des premiers hommes",
-        "options": ["avec l'apparition des premiers hommes", "avec le Big Bang", "avec la disparition des dinosaures", "avec la Révolution française"]
-      },
-      {
-        "q": "Quel terme regroupe l'ensemble des manières de vivre d'un groupe humain (habitat, croyances, techniques...) ?",
-        "a": "culture",
-        "options": ["culture", "climat", "géologie", "météo"]
-      }
+      { "q": "Quel problème est causé par les gaz d'échappement des voitures ?", "a": "pollution", "options": ["pollution", "propreté", "silence", "végétation"] },
+      { "q": "Comment appelle-t-on les bouchons sur la route ?", "a": "embouteillages", "options": ["embouteillages", "autoroutes", "vitesses", "courses"] },
+      { "q": "Quel est le problème principal pour habiter dans une métropole ?", "a": "logement", "options": ["logement", "climat", "ennui", "solitude"] },
+      { "q": "Qu'est-ce qui manque souvent dans les bidonvilles ?", "a": "eau potable", "options": ["eau potable", "télévision", "soleil", "vent"] },
+      { "q": "Comment appelle-t-on le départ de la campagne vers la ville ?", "a": "exode rural", "options": ["exode rural", "vacances", "croisière", "randonnée"] },
+      { "q": "Que doit-on réduire entre les quartiers riches et pauvres ?", "a": "inégalités", "options": ["inégalités", "routes", "parcs", "écoles"] }
     ]
   },
   {
+    "id": "ch1-lvl4-6e",
+    "chapterId": "ch1-zombie",
+    "title": "Chapitre 1 - Niveau 4 (Métropoles dans le monde)",
+    "requiredPerQuestion": 3,
+    "lesson": "<h3>🌍 4. Les métropoles mondiales</h3><ul><li><strong>1. Attractives :</strong> Les villes attirent car il y a du travail et des loisirs.</li><li><strong>2. Influentes :</strong> Elles commandent l'économie mondiale.</li><li><strong>3. Connectées :</strong> Elles sont reliées par des avions et internet.</li><li><strong>4. Nord :</strong> Les métropoles les plus riches sont dans les pays développés.</li><li><strong>5. Sud :</strong> Les métropoles qui grandissent le plus vite sont dans les pays pauvres.</li><li><strong>6. Mégapole :</strong> Nom donné aux villes de plus de 10 millions d'habitants.</li></ul>",
+    "questions": [
+      { "q": "Pourquoi les métropoles attirent-elles les gens ?", "a": "travail", "options": ["travail", "silence", "nature", "calme"] },
+      { "q": "Quel pouvoir possèdent les grandes métropoles ?", "a": "influence", "options": ["influence", "faiblesse", "isolement", "pauvreté"] },
+      { "q": "Quel moyen de transport connecte les métropoles au monde ?", "a": "avion", "options": ["avion", "vélo", "cheval", "barque"] },
+      { "q": "Dans quelle partie du monde sont les villes les plus riches ?", "a": "nord", "options": ["nord", "sud", "pôle", "désert"] },
+      { "q": "Où la croissance des villes est-elle la plus forte ?", "a": "sud", "options": ["sud", "nord", "europe", "antarctique"] },
+      { "q": "Comment appelle-t-on une ville de plus de 10 millions d'habitants ?", "a": "mégapole", "options": ["mégapole", "village", "bourg", "hameau"] }
+    ]
+  },
+
+  {
     "id": "ch2-lvl1-6e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 1 (Habiter une métropole)",
+    "title": "Chapitre 2 - Niveau 1 (Les grandes définitions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🏙️ 1. Qu'est-ce qu'une métropole ?</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre population et activités.</li><li><strong>2. Habiter :</strong> Ce n'est pas juste loger, c'est aussi travailler et se déplacer.</li><li><strong>3. Centre-ville :</strong> Souvent historique ou quartier d'affaires (gratte-ciels).</li><li><strong>4. Banlieues :</strong> Espaces construits autour du centre.</li><li><strong>5. Mobilité :</strong> Utilisation massive des <strong>transports en commun</strong>.</li><li><strong>6. Problème :</strong> Les <strong>embouteillages</strong> aux heures de pointe.</li></ul>",
+    "lesson": "<h3>🏙️ 1. Les mots importants de la ville</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants et d'activités.</li><li><strong>2. Urbanisation :</strong> Augmentation de la population qui vit en ville.</li><li><strong>3. Ghetto :</strong> Quartier où une population vit à l'écart du reste de la ville (souvent pauvre).</li><li><strong>4. Bidonville :</strong> Quartier très pauvre construit illégalement avec des matériaux de récupération.</li><li><strong>5. Quartier résidentiel :</strong> Quartier où l'on trouve surtout des logements pour habiter.</li><li><strong>6. Quartier d'affaires :</strong> Quartier avec des bureaux, des tours et des banques.</li></ul>",
     "questions": [
-      {
-        "q": "Comment appelle-t-on une très grande ville qui concentre population, activités et pouvoirs ?",
-        "a": "métropole",
-        "options": ["métropole", "village", "campagne", "hameau"]
-      },
-      {
-        "q": "Quel terme désigne le centre d'affaires d'une grande ville (tours, bureaux, sièges d'entreprises) ?",
-        "a": "quartier d'affaires",
-        "options": ["quartier d'affaires", "banlieue", "campagne", "zone industrielle"]
-      },
-      {
-        "q": "Comment appelle-t-on les zones construites autour du centre d'une métropole ?",
-        "a": "banlieues",
-        "options": ["banlieues", "déserts", "forêts", "rizières"]
-      },
-      {
-        "q": "Quel moyen de transport est typique des déplacements quotidiens en métropole ?",
-        "a": "transports en commun",
-        "options": ["transports en commun", "bateaux de croisière", "avions long-courriers", "char à bœufs"]
-      },
-      {
-        "q": "Quel problème est souvent important dans les grandes métropoles ?",
-        "a": "les embouteillages",
-        "options": ["les embouteillages", "l'absence de circulation", "le manque d'habitants", "le manque d'activités"]
-      },
-      {
-        "q": "Quel mot désigne le fait d'habiter et de pratiquer un même espace ?",
-        "a": "habiter",
-        "options": ["habiter", "migrer", "conquérir", "coloniser"]
-      }
+      { "q": "Comment appelle-t-on une très grande ville qui concentre habitants et pouvoirs ?", "a": "métropole", "options": ["métropole", "village", "campagne", "hameau"] },
+      { "q": "Quel mot désigne l'augmentation de la population en ville ?", "a": "urbanisation", "options": ["urbanisation", "ruralité", "déforestation", "migration"] },
+      { "q": "Quel quartier désigne un lieu où une population vit à l'écart (souvent pauvre) ?", "a": "ghetto", "options": ["ghetto", "centre-ville", "quartier riche", "zone industrielle"] },
+      { "q": "Quel quartier est construit avec des matériaux de récupération ?", "a": "bidonville", "options": ["bidonville", "pavillon", "gratte-ciel", "château"] },
+      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "résidentiel", "options": ["résidentiel", "industriel", "commercial", "touristique"] },
+      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "affaires", "options": ["affaires", "agricole", "historique", "portuaire"] }
     ]
   },
   {
     "id": "ch2-lvl2-6e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 2 (Organisation de la ville)",
+    "title": "Chapitre 2 - Niveau 2 (Les fonctions urbaines)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🏗️ 2. Comment la ville s'organise</h3><ul><li><strong>1. Capitale :</strong> Ville principale d'un pays (pouvoir politique).</li><li><strong>2. Urbanisation :</strong> Augmentation de la population dans les villes.</li><li><strong>3. Pavillonnaire :</strong> Quartier de maisons individuelles avec jardin.</li><li><strong>4. Mobilités pendulaires :</strong> Trajets domicile-travail quotidiens.</li><li><strong>5. Inégalités :</strong> Écarts de richesse entre quartiers riches et pauvres.</li><li><strong>6. Ouverture :</strong> Présence d'un <strong>aéroport</strong> ou d'un <strong>port</strong> pour les échanges.</li></ul>",
+    "lesson": "<h3>🏗️ 2. Les fonctions de la ville</h3><ul><li><strong>1. Résidentielle :</strong> Fonction liée au logement (habiter).</li><li><strong>2. Commerciale :</strong> Fonction liée à l'achat et la vente (magasins).</li><li><strong>3. Culturelle :</strong> Fonction liée aux loisirs et à l'art (musées, théâtres).</li><li><strong>4. Politique :</strong> Fonction liée au pouvoir (mairie, gouvernement).</li><li><strong>5. Économique :</strong> Fonction liée au travail (bureaux, usines).</li><li><strong>6. Transport :</strong> Fonction liée aux déplacements (gares, aéroports).</li></ul>",
     "questions": [
-      {
-        "q": "Quel terme désigne la ville principale d'une région ou d'un pays ?",
-        "a": "capitale",
-        "options": ["capitale", "village-centre", "hameau", "quartier"]
-      },
-      {
-        "q": "Quel type de quartier regroupe plutôt des maisons individuelles avec jardins ?",
-        "a": "quartier pavillonnaire",
-        "options": ["quartier pavillonnaire", "centre historique", "quartier d'affaires", "zone portuaire"]
-      },
-      {
-        "q": "Quel mot désigne les inégalités entre les quartiers riches et les quartiers pauvres ?",
-        "a": "inégalités socio-spatiales",
-        "options": ["inégalités socio-spatiales", "égalité parfaite", "frontière naturelle", "climat urbain"]
-      },
-      {
-        "q": "Quel élément est souvent au cœur d'une métropole pour les échanges mondiaux ?",
-        "a": "un grand port ou un aéroport international",
-        "options": ["un grand port ou un aéroport international", "un volcan", "une forêt primaire", "une base scientifique polaire"]
-      },
-      {
-        "q": "Quel phénomène décrit l'augmentation de la population dans les villes ?",
-        "a": "urbanisation",
-        "options": ["urbanisation", "déforestation", "inondation", "érosion"]
-      },
-      {
-        "q": "Comment appelle-t-on un trajet domicile–travail effectué chaque jour ?",
-        "a": "mobilité quotidienne",
-        "options": ["mobilité quotidienne", "migration internationale", "tourisme", "exode rural"]
-      }
+      { "q": "Quelle fonction correspond au fait d'habiter en ville ?", "a": "résidentielle", "options": ["résidentielle", "industrielle", "agricole", "sportive"] },
+      { "q": "Quelle fonction correspond aux magasins et aux achats ?", "a": "commerciale", "options": ["commerciale", "politique", "religieuse", "militaire"] },
+      { "q": "Quelle fonction correspond aux musées et aux théâtres ?", "a": "culturelle", "options": ["culturelle", "portuaire", "financière", "médicale"] },
+      { "q": "Quelle fonction correspond à la mairie ou au gouvernement ?", "a": "politique", "options": ["politique", "touristique", "sportive", "commerciale"] },
+      { "q": "Quelle fonction correspond aux bureaux et aux entreprises ?", "a": "économique", "options": ["économique", "résidentielle", "religieuse", "scolaire"] },
+      { "q": "Quelle fonction correspond aux gares et aéroports ?", "a": "transport", "options": ["transport", "agriculture", "pêche", "chasse"] }
     ]
   },
   {
     "id": "ch2-lvl3-6e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 3 (Acteurs et enjeux)",
+    "title": "Chapitre 2 - Niveau 3 (Défis et problèmes)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🚧 3. Les défis de la ville</h3><ul><li><strong>1. Pouvoirs publics :</strong> Ils décident de l'aménagement (routes, écoles).</li><li><strong>2. Services :</strong> Hôpitaux, écoles, police... nécessaires aux habitants.</li><li><strong>3. Pollution :</strong> Problème majeur lié aux voitures et industries.</li><li><strong>4. Bidonvilles :</strong> Quartiers très pauvres construits avec des matériaux de récupération.</li><li><strong>5. Consommation :</strong> Centres commerciaux en périphérie.</li><li><strong>6. Citoyenneté :</strong> Participation des habitants (associations, réunions).</li></ul>",
+    "lesson": "<h3>🚧 3. Les défis des grandes villes</h3><ul><li><strong>1. Pollution :</strong> Problème causé par les voitures et les usines (mauvais air).</li><li><strong>2. Embouteillages :</strong> Quand il y a trop de voitures sur les routes.</li><li><strong>3. Logement :</strong> Il est souvent difficile et cher de se loger.</li><li><strong>4. Services :</strong> L'accès à l'eau et à l'électricité est un défi dans les pays pauvres.</li><li><strong>5. Exode rural :</strong> Départ des gens de la campagne vers la ville.</li><li><strong>6. Inégalités :</strong> Écarts de richesse entre les quartiers riches et pauvres.</li></ul>",
     "questions": [
-      {
-        "q": "Quel acteur décide de l'aménagement d'un quartier (routes, écoles, parcs...) ?",
-        "a": "les pouvoirs publics",
-        "options": ["les pouvoirs publics", "les pirates", "les météorologues", "les archéologues"]
-      },
-      {
-        "q": "Quel problème environnemental est fréquent dans les métropoles ?",
-        "a": "la pollution de l'air",
-        "options": ["la pollution de l'air", "la disparition de l'air", "les tremblements de terre quotidiens", "l'absence totale de bruit"]
-      },
-      {
-        "q": "Comment appelle-t-on les quartiers très pauvres et souvent construits illégalement ?",
-        "a": "bidonvilles",
-        "options": ["bidonvilles", "quartiers d'affaires", "quartiers pavillonnaires", "centres historiques"]
-      },
-      {
-        "q": "Quel mot désigne l'ensemble des services utiles aux habitants (écoles, hôpitaux, transports...) ?",
-        "a": "les services",
-        "options": ["les services", "les volcans", "les moussons", "les reliefs"]
-      },
-      {
-        "q": "Quel type de lieu urbain regroupe des magasins et des services pour consommer ?",
-        "a": "un centre commercial",
-        "options": ["un centre commercial", "un désert", "un glacier", "un champ cultivé"]
-      },
-      {
-        "q": "Quel terme désigne la participation des habitants à la vie de leur quartier (réunions, associations...) ?",
-        "a": "citoyenneté",
-        "options": ["citoyenneté", "migration", "sédentarisation", "éruption"]
-      }
+      { "q": "Quel problème est causé par les gaz d'échappement des voitures ?", "a": "pollution", "options": ["pollution", "propreté", "silence", "végétation"] },
+      { "q": "Comment appelle-t-on les bouchons sur la route ?", "a": "embouteillages", "options": ["embouteillages", "autoroutes", "vitesses", "courses"] },
+      { "q": "Quel est le problème principal pour habiter dans une métropole ?", "a": "logement", "options": ["logement", "climat", "ennui", "solitude"] },
+      { "q": "Qu'est-ce qui manque souvent dans les bidonvilles ?", "a": "eau potable", "options": ["eau potable", "télévision", "soleil", "vent"] },
+      { "q": "Comment appelle-t-on le départ de la campagne vers la ville ?", "a": "exode rural", "options": ["exode rural", "vacances", "croisière", "randonnée"] },
+      { "q": "Que doit-on réduire entre les quartiers riches et pauvres ?", "a": "inégalités", "options": ["inégalités", "routes", "parcs", "écoles"] }
+    ]
+  },
+  {
+    "id": "ch2-lvl4-6e",
+    "chapterId": "ch2-starship",
+    "title": "Chapitre 2 - Niveau 4 (Métropoles dans le monde)",
+    "requiredPerQuestion": 3,
+    "lesson": "<h3>🌍 4. Les métropoles mondiales</h3><ul><li><strong>1. Attractives :</strong> Les villes attirent car il y a du travail et des loisirs.</li><li><strong>2. Influentes :</strong> Elles commandent l'économie mondiale.</li><li><strong>3. Connectées :</strong> Elles sont reliées par des avions et internet.</li><li><strong>4. Nord :</strong> Les métropoles les plus riches sont dans les pays développés.</li><li><strong>5. Sud :</strong> Les métropoles qui grandissent le plus vite sont dans les pays pauvres.</li><li><strong>6. Mégapole :</strong> Nom donné aux villes de plus de 10 millions d'habitants.</li></ul>",
+    "questions": [
+      { "q": "Pourquoi les métropoles attirent-elles les gens ?", "a": "travail", "options": ["travail", "silence", "nature", "calme"] },
+      { "q": "Quel pouvoir possèdent les grandes métropoles ?", "a": "influence", "options": ["influence", "faiblesse", "isolement", "pauvreté"] },
+      { "q": "Quel moyen de transport connecte les métropoles au monde ?", "a": "avion", "options": ["avion", "vélo", "cheval", "barque"] },
+      { "q": "Dans quelle partie du monde sont les villes les plus riches ?", "a": "nord", "options": ["nord", "sud", "pôle", "désert"] },
+      { "q": "Où la croissance des villes est-elle la plus forte ?", "a": "sud", "options": ["sud", "nord", "europe", "antarctique"] },
+      { "q": "Comment appelle-t-on une ville de plus de 10 millions d'habitants ?", "a": "mégapole", "options": ["mégapole", "village", "bourg", "hameau"] }
     ]
   }
 ]

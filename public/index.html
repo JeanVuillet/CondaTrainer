@@ -14,8 +14,10 @@
       <button id="logoutBtn" style="display: none;">Se déconnecter</button>
     </div>
   </header>
+
   <main class="wrap">
-    <!-- Carte d'inscription -->
+    
+    <!-- 1. Carte d'inscription / Connexion -->
     <section id="registerCard" class="card">
       <h2>👋 Avant de commencer</h2>
       <form id="registerForm" class="form" autocomplete="on">
@@ -52,8 +54,9 @@
         <div id="formMsg" class="hint"></div>
       </form>
 
+      <!-- Modal Mot de passe Prof -->
       <div id="profPasswordModal" style="display: none;">
-        <h4 style="margin-top:0;">🔐 Accès Professeur</h4>
+        <h4 style="margin-top:15px;">🔐 Accès Professeur</h4>
         <p class="hint">Veuillez entrer le mot de passe.</p>
         <div class="form">
           <div>
@@ -66,30 +69,26 @@
       </div>
     </section>
 
-    <!-- Écran de sélection des chapitres -->
-     <!-- Écran de sélection des chapitres -->
+    <!-- 2. Écran de sélection des chapitres -->
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
 
       <div class="chapter-grid">
-        <!-- Chapitre 1 -->
+        <!-- Chapitre 1 : Zombie -->
         <div class="chapter-box" 
              data-chapter="ch1-zombie" 
              data-template-id="template-zombie-game" 
              data-game-class="ZombieGame">
 
           <h3>Chapitre 1 — L’Attaque des Zombies</h3>
-
           <p class="chapter-mini">
             🎮 <strong>Mini-jeu :</strong> Survivre à l’invasion
           </p>
 
-          <!-- Lignes Level 1 / Level 2 / Level 3 + lettres -->
-          <div class="chapter-levels">
-            <!-- Rempli dynamiquement par main.js -->
-          </div>
+          <!-- Liste des niveaux (remplie par JS) -->
+          <div class="chapter-levels"></div>
 
-          <!-- Petit récap global du chapitre (niveaux / questions) -->
+          <!-- Stats (cachées par défaut par JS mais présentes) -->
           <div class="chapter-progress">
             <p class="chapter-progress-title">Progression :</p>
             <ul class="chapter-progress-list">
@@ -98,31 +97,25 @@
             </ul>
           </div>
 
-          <!-- Texte d’état dynamique : 1 Jouer ou 2 Recommencer -->
           <p class="chapter-status-text"></p>
 
-          <!-- Bouton d’action dynamique (même style bleu pour tous) -->
           <button class="replay-btn-improved chapter-action-btn">
             1 Jouer
           </button>
         </div>
 
-        <!-- Chapitre 2 -->
+        <!-- Chapitre 2 : Starship -->
         <div class="chapter-box" 
              data-chapter="ch2-starship" 
              data-template-id="template-starship-game" 
              data-game-class="StarshipGame">
 
           <h3>Chapitre 2 — Starship : Défends ton vaisseau</h3>
-
           <p class="chapter-mini">
             🎮 <strong>Mini-jeu :</strong> Bouger ⬅️➡️ • [ESPACE] Tirer
           </p>
 
-          <!-- Lignes Level 1 / Level 2 / Level 3 + lettres -->
-          <div class="chapter-levels">
-            <!-- Rempli dynamiquement par main.js -->
-          </div>
+          <div class="chapter-levels"></div>
 
           <div class="chapter-progress">
             <p class="chapter-progress-title">Progression :</p>
@@ -132,10 +125,8 @@
             </ul>
           </div>
 
-          <!-- Texte d’état dynamique -->
           <p class="chapter-status-text"></p>
 
-          <!-- Bouton d’action dynamique (bleu) -->
           <button class="replay-btn-improved chapter-action-btn">
             1 Jouer
           </button>
@@ -143,23 +134,29 @@
       </div>
     </section>
 
-    <!-- La section du jeu -->
+    <!-- 3. La section du JEU -->
     <section id="game" style="display: none;">
       <div class="card quiz-container">
+        
         <div class="game-header-row">
           <button id="backToMenuBtn" class="back-menu-btn">← Retour au menu des jeux</button>
           <h2 id="levelTitle"></h2>
+         
         </div>
+
         <p class="hint" id="welcomeText" style="text-align:center;"></p>
+        
         <div id="mainProgress"><div id="mainBar"></div></div>
         <p id="general" style="text-align:center; margin:4px 0 8px;">Compteur général : 0/0</p>
+        
         <div id="subBars"></div>
         <div id="lives"></div>
+        
         <div id="gameModuleContainer"></div>
       </div>
     </section>
     
-    <!-- SECTION DU TABLEAU DE BORD PROFESSEUR -->
+    <!-- 4. Tableau de bord PROFESSEUR -->
     <section id="profDashboard" class="card" style="margin-top: 24px; display: none;"> 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
         <h2>📈 Tableau des élèves</h2>
@@ -190,8 +187,30 @@
         <tbody id="playersBody"></tbody>
       </table>
     </section>
+
   </main>
 
+  <!-- ============================================================ -->
+  <!-- POPUPS ET MODALES (HORS DU FLUX PRINCIPAL)                   -->
+  <!-- ============================================================ -->
+
+  <!-- Modal de Cours (Correction : Placé ici pour s'afficher par-dessus le menu) -->
+  <div id="lessonModal" class="lesson-modal" style="display: none;">
+    <div class="lesson-content">
+      <div class="lesson-header">
+        <h3>Fiche de révision</h3>
+        <button id="closeLessonBtn">✖</button>
+      </div>
+      <div id="lessonText" class="lesson-body">
+        <!-- Le texte du cours sera injecté ici -->
+      </div>
+      <div class="lesson-footer">
+        <button id="iAmReadyBtn" class="ready-btn">JE SUIS PRÊT ! 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay Game Over -->
   <div id="overlay" style="display:none;">
     <div class="panel">
       <h3>💀 Game Over</h3>
@@ -200,6 +219,7 @@
     </div>
   </div>
 
+  <!-- Overlay Correction -->
   <div id="correctionOverlay" style="display:none;">
     <div class="correction-box">
       <h2>❌ Erreur ! La bonne réponse était :</h2>

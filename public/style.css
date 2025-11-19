@@ -683,3 +683,53 @@ button {
 .table-grade-badge.grade-C {
   background: #fee2e2; color: #b91c1c; border-color: #fca5a5;
 }
+/* Le Modal (Fond sombre derrière) */
+.lesson-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8); /* Plus sombre pour faire ressortir la fiche */
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* La Fiche elle-même (Papier) */
+.lesson-content {
+  background-color: #ffffff !important; /* Blanc forcé */
+  color: #1e293b; /* Texte gris foncé */
+  width: 100%;
+  max-width: 700px; /* Un peu plus large */
+  max-height: 90vh; /* Hauteur max */
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Corps du texte avec scroll */
+.lesson-body {
+  padding: 20px 30px;
+  overflow-y: auto; /* Scroll si c'est long */
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Séparateur entre les leçons des niveaux */
+.lesson-separator {
+  border: 0;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 20px 0;
+}
+
+.lesson-level-title {
+  color: #2563eb;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  font-weight: 800;
+}

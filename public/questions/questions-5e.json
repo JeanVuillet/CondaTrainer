@@ -2,8 +2,9 @@
   {
     "id": "ch1-lvl1-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 1 (repères)",
+    "title": "Chapitre 1 - Niveau 1 (Les deux empires)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🌍 1. Deux Empires face à face</h3><ul><li><strong>1. À l'Ouest :</strong> C'est l'Empire <strong>Carolingien</strong>.</li><li><strong>2. À l'Est :</strong> C'est l'Empire <strong>Byzantin</strong>.</li><li><strong>3. Capitale Ouest :</strong> Charlemagne siège à <strong>Aix-la-Chapelle</strong>.</li><li><strong>4. Capitale Est :</strong> Constantinople est la capitale byzantine.</li><li><strong>5. Religion Ouest :</strong> Chrétiens <strong>Catholiques</strong> (Église de Rome).</li><li><strong>6. Religion Est :</strong> Chrétiens <strong>Orthodoxes</strong> (Église d'Orient).</li></ul>",
     "questions": [
       { "q": "Empire à l'Ouest de l'Europe au début du Moyen Âge ?", "a": "carolingien", "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
       { "q": "Empire à l'Est de l'Europe, centré sur Constantinople ?", "a": "byzantin", "options": ["byzantin", "carolingien", "ottoman", "sassanide"] },
@@ -16,8 +17,9 @@
   {
     "id": "ch1-lvl2-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 2 (dates)",
+    "title": "Chapitre 1 - Niveau 2 (Les dates clés)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⏳ 2. La Frise Chronologique</h3><ul><li><strong>1. 476 :</strong> Chute de Rome (Fin de l'Antiquité).</li><li><strong>2. 527-565 :</strong> Règne de l'empereur <strong>Justinien</strong> (Byzance).</li><li><strong>3. 768 :</strong> Début du règne de Charlemagne.</li><li><strong>4. 800 :</strong> Couronnement de <strong>Charlemagne</strong> empereur.</li><li><strong>5. 1054 :</strong> Le <strong>Schisme</strong> (Séparation Catholiques / Orthodoxes).</li><li><strong>6. 1453 :</strong> Prise de Constantinople par les Ottomans (Fin du Moyen Âge).</li></ul>",
     "questions": [
       { "q": "Couronnement de Charlemagne empereur ?", "a": "800", "options": ["476", "732", "800", "814"] },
       { "q": "Fin de l'Empire romain d'Occident ?", "a": "476", "options": ["395", "410", "455", "476"] },
@@ -30,8 +32,9 @@
   {
     "id": "ch1-lvl3-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 3 (Églises)",
+    "title": "Chapitre 1 - Niveau 3 (Les différences religieuses)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⛪ 3. Catholiques vs Orthodoxes</h3><ul><li><strong>1. Chef Catholique :</strong> Le <strong>Pape</strong> (à Rome).</li><li><strong>2. Chef Orthodoxe :</strong> Le <strong>Patriarche</strong> (à Constantinople).</li><li><strong>3. Langue Catholique :</strong> La messe est en <strong>Latin</strong>.</li><li><strong>4. Langue Orthodoxe :</strong> La messe est en <strong>Grec</strong>.</li><li><strong>5. Prêtres Catholiques :</strong> Doivent rester <strong>célibataires</strong>.</li><li><strong>6. Prêtres Orthodoxes :</strong> Peuvent être <strong>mariés</strong> et porter la barbe.</li></ul>",
     "questions": [
       { "q": "Langue de la liturgie catholique ?", "a": "latin", "options": ["grec", "hébreu", "français", "latin"] },
       { "q": "Les prêtres catholiques sont... ?", "a": "célibataires", "options": ["mariés", "célibataires", "veufs", "remariés"] },
@@ -44,8 +47,9 @@
   {
     "id": "ch2-lvl1-5e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 1 (repères)",
+    "title": "Chapitre 2 - Niveau 1 (Révision Repères)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🌍 1. Deux Empires face à face</h3><ul><li><strong>1. À l'Ouest :</strong> C'est l'Empire <strong>Carolingien</strong>.</li><li><strong>2. À l'Est :</strong> C'est l'Empire <strong>Byzantin</strong>.</li><li><strong>3. Capitale Ouest :</strong> Charlemagne siège à <strong>Aix-la-Chapelle</strong>.</li><li><strong>4. Capitale Est :</strong> Constantinople est la capitale byzantine.</li><li><strong>5. Religion Ouest :</strong> Chrétiens <strong>Catholiques</strong> (Église de Rome).</li><li><strong>6. Religion Est :</strong> Chrétiens <strong>Orthodoxes</strong> (Église d'Orient).</li></ul>",
     "questions": [
       { "q": "Empire à l'Ouest de l'Europe au début du Moyen Âge ?", "a": "carolingien", "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
       { "q": "Empire à l'Est de l'Europe, centré sur Constantinople ?", "a": "byzantin", "options": ["byzantin", "carolingien", "ottoman", "sassanide"] },
@@ -58,8 +62,9 @@
   {
     "id": "ch2-lvl2-5e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 2 (dates)",
+    "title": "Chapitre 2 - Niveau 2 (Révision Dates)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⏳ 2. La Frise Chronologique</h3><ul><li><strong>1. 476 :</strong> Chute de Rome (Fin de l'Antiquité).</li><li><strong>2. 527-565 :</strong> Règne de l'empereur <strong>Justinien</strong> (Byzance).</li><li><strong>3. 768 :</strong> Début du règne de Charlemagne.</li><li><strong>4. 800 :</strong> Couronnement de <strong>Charlemagne</strong> empereur.</li><li><strong>5. 1054 :</strong> Le <strong>Schisme</strong> (Séparation Catholiques / Orthodoxes).</li><li><strong>6. 1453 :</strong> Prise de Constantinople par les Ottomans (Fin du Moyen Âge).</li></ul>",
     "questions": [
       { "q": "Couronnement de Charlemagne empereur ?", "a": "800", "options": ["476", "732", "800", "814"] },
       { "q": "Fin de l'Empire romain d'Occident ?", "a": "476", "options": ["395", "410", "455", "476"] },
@@ -72,8 +77,9 @@
   {
     "id": "ch2-lvl3-5e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 3 (Églises)",
+    "title": "Chapitre 2 - Niveau 3 (Révision Églises)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⛪ 3. Catholiques vs Orthodoxes</h3><ul><li><strong>1. Chef Catholique :</strong> Le <strong>Pape</strong> (à Rome).</li><li><strong>2. Chef Orthodoxe :</strong> Le <strong>Patriarche</strong> (à Constantinople).</li><li><strong>3. Langue Catholique :</strong> La messe est en <strong>Latin</strong>.</li><li><strong>4. Langue Orthodoxe :</strong> La messe est en <strong>Grec</strong>.</li><li><strong>5. Prêtres Catholiques :</strong> Doivent rester <strong>célibataires</strong>.</li><li><strong>6. Prêtres Orthodoxes :</strong> Peuvent être <strong>mariés</strong> et porter la barbe.</li></ul>",
     "questions": [
       { "q": "Langue de la liturgie catholique ?", "a": "latin", "options": ["grec", "hébreu", "français", "latin"] },
       { "q": "Les prêtres catholiques sont... ?", "a": "célibataires", "options": ["mariés", "célibataires", "veufs", "remariés"] },

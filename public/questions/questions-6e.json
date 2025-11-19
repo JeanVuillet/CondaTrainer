@@ -4,6 +4,7 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 1 (Premiers hommes et néolithique)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🦴 1. De la Pierre Taillée à la Pierre Polie</h3><ul><li><strong>1. Paléolithique :</strong> Âge de la pierre taillée. Les hommes sont <strong>nomades</strong>.</li><li><strong>2. Activités :</strong> Ils vivent de la <strong>chasse</strong>, la pêche et la <strong>cueillette</strong>.</li><li><strong>3. Le Feu :</strong> Grande découverte pour cuire, s'éclairer et se protéger.</li><li><strong>4. Néolithique :</strong> Âge de la pierre polie. Les hommes se <strong>sédentarisent</strong> (villages).</li><li><strong>5. Agriculture :</strong> Apparaît vers <strong>10 000 av. J.-C.</strong> (Proche-Orient).</li><li><strong>6. Art :</strong> Peintures dans les grottes = <strong>Art rupestre</strong>.</li></ul>",
     "questions": [
       {
         "q": "Quel est le mode de vie des premiers hommes au Paléolithique ?",
@@ -42,6 +43,7 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 2 (Sites et repères)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🔎 2. L'enquête sur le passé</h3><ul><li><strong>1. Archéologue :</strong> Scientifique qui fouille le sol pour étudier le passé.</li><li><strong>2. Fossile :</strong> Trace de vie (os, plante) conservée dans la roche.</li><li><strong>3. Homo Sapiens :</strong> C'est nous ! L'espèce humaine actuelle.</li><li><strong>4. Lascaux :</strong> Célèbre grotte ornée en France (Dordogne).</li><li><strong>5. Sédentarisation :</strong> Le fait de s'installer durablement quelque part (construire une maison).</li><li><strong>6. L'Histoire :</strong> Commence avec l'invention de l'<strong>écriture</strong> (fin de la Préhistoire).</li></ul>",
     "questions": [
       {
         "q": "En France, quelle célèbre grotte ornée est un exemple d'art rupestre ?",
@@ -80,6 +82,7 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 3 (Migrations et vocabulaire)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>👣 3. L'Humanité en marche</h3><ul><li><strong>1. Préhistoire :</strong> Période avant l'écriture (la plus longue de l'humanité).</li><li><strong>2. Bipédie :</strong> Capacité à marcher debout sur deux pieds.</li><li><strong>3. Migration :</strong> Déplacement d'un peuple pour s'installer ailleurs.</li><li><strong>4. Peuplement :</strong> Les premiers humains viennent d'Afrique et ont peuplé toute la Terre.</li><li><strong>5. Culture :</strong> Manières de vivre d'un groupe (art, croyances, habitat).</li><li><strong>6. Vestiges :</strong> Objets (outils, armes) laissés par les humains du passé.</li></ul>",
     "questions": [
       {
         "q": "Comment appelle-t-on le déplacement durable d'un groupe de population d'un territoire vers un autre ?",
@@ -113,12 +116,12 @@
       }
     ]
   },
-
   {
     "id": "ch2-lvl1-6e",
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 1 (Habiter une métropole)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🏙️ 1. Qu'est-ce qu'une métropole ?</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre population et activités.</li><li><strong>2. Habiter :</strong> Ce n'est pas juste loger, c'est aussi travailler et se déplacer.</li><li><strong>3. Centre-ville :</strong> Souvent historique ou quartier d'affaires (gratte-ciels).</li><li><strong>4. Banlieues :</strong> Espaces construits autour du centre.</li><li><strong>5. Mobilité :</strong> Utilisation massive des <strong>transports en commun</strong>.</li><li><strong>6. Problème :</strong> Les <strong>embouteillages</strong> aux heures de pointe.</li></ul>",
     "questions": [
       {
         "q": "Comment appelle-t-on une très grande ville qui concentre population, activités et pouvoirs ?",
@@ -157,6 +160,7 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 2 (Organisation de la ville)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🏗️ 2. Comment la ville s'organise</h3><ul><li><strong>1. Capitale :</strong> Ville principale d'un pays (pouvoir politique).</li><li><strong>2. Urbanisation :</strong> Augmentation de la population dans les villes.</li><li><strong>3. Pavillonnaire :</strong> Quartier de maisons individuelles avec jardin.</li><li><strong>4. Mobilités pendulaires :</strong> Trajets domicile-travail quotidiens.</li><li><strong>5. Inégalités :</strong> Écarts de richesse entre quartiers riches et pauvres.</li><li><strong>6. Ouverture :</strong> Présence d'un <strong>aéroport</strong> ou d'un <strong>port</strong> pour les échanges.</li></ul>",
     "questions": [
       {
         "q": "Quel terme désigne la ville principale d'une région ou d'un pays ?",
@@ -195,6 +199,7 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 3 (Acteurs et enjeux)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🚧 3. Les défis de la ville</h3><ul><li><strong>1. Pouvoirs publics :</strong> Ils décident de l'aménagement (routes, écoles).</li><li><strong>2. Services :</strong> Hôpitaux, écoles, police... nécessaires aux habitants.</li><li><strong>3. Pollution :</strong> Problème majeur lié aux voitures et industries.</li><li><strong>4. Bidonvilles :</strong> Quartiers très pauvres construits avec des matériaux de récupération.</li><li><strong>5. Consommation :</strong> Centres commerciaux en périphérie.</li><li><strong>6. Citoyenneté :</strong> Participation des habitants (associations, réunions).</li></ul>",
     "questions": [
       {
         "q": "Quel acteur décide de l'aménagement d'un quartier (routes, écoles, parcs...) ?",

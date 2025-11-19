@@ -4,6 +4,7 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 1 (Repères Grèce et Rome)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🏛️ 1. Le monde grec et romain</h3><ul><li><strong>1. La Polis :</strong> Nom grec pour désigner une <strong>Cité-État</strong> (ville + campagne).</li><li><strong>2. Athènes :</strong> Cité modèle de la <strong>démocratie</strong> au Ve siècle av. J.-C.</li><li><strong>3. Le Forum :</strong> Cœur politique, religieux et économique de la cité romaine.</li><li><strong>4. Chronologie :</strong> Les Grecs dominent aux Ve-IVe s. av. J.-C.</li><li><strong>5. Mare Nostrum :</strong> Les Romains dominent la Méditerranée au début de notre ère.</li><li><strong>6. Empire :</strong> Ensemble des territoires conquis et dirigés par Rome.</li></ul>",
     "questions": [
       {
         "q": "Comment s'appelle la cité grecque qui sert souvent d'exemple de démocratie au Ve siècle av. J.-C. ?",
@@ -42,6 +43,7 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 2 (Dates et événements)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⏳ 2. Les dates clés de l'Antiquité</h3><ul><li><strong>1. 753 av. J.-C. :</strong> Fondation légendaire de <strong>Rome</strong>.</li><li><strong>2. 509 av. J.-C. :</strong> Fin de la royauté, début de la <strong>République</strong> romaine.</li><li><strong>3. 480 av. J.-C. :</strong> Bataille de <strong>Salamine</strong> (Victoire grecque sur les Perses).</li><li><strong>4. 27 av. J.-C. :</strong> Auguste met fin aux guerres civiles et fonde l'<strong>Empire</strong>.</li><li><strong>5. Actium :</strong> Bataille décisive remportée par Auguste contre Antoine.</li><li><strong>6. 212 ap. J.-C. :</strong> Édit de <strong>Caracalla</strong> (Citoyenneté pour tous les hommes libres).</li></ul>",
     "questions": [
       {
         "q": "Fondation légendaire de la ville de Rome ?",
@@ -80,6 +82,7 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 3 (Institutions et sociétés)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⚖️ 3. Citoyenneté et Empire</h3><ul><li><strong>1. L'Ecclésia :</strong> Assemblée des citoyens qui vote les lois à Athènes.</li><li><strong>2. Exclus :</strong> Femmes, métèques (étrangers) et esclaves ne sont pas citoyens.</li><li><strong>3. Le Sénat :</strong> Assemblée la plus puissante sous la République romaine.</li><li><strong>4. Romanisation :</strong> Adoption de la culture et du mode de vie romain.</li><li><strong>5. Pérégrins :</strong> Habitants libres de l'Empire qui ne sont pas citoyens.</li><li><strong>6. Élites :</strong> Les sénateurs et chevaliers dominent la société romaine.</li></ul>",
     "questions": [
       {
         "q": "Dans la démocratie athénienne, comment s'appelle l'assemblée des citoyens ?",
@@ -123,12 +126,12 @@
       }
     ]
   },
-
   {
     "id": "ch2-lvl1-2de",
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 1 (Repères Grèce et Rome)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>🏛️ 1. Le monde grec et romain</h3><ul><li><strong>1. La Polis :</strong> Nom grec pour désigner une <strong>Cité-État</strong> (ville + campagne).</li><li><strong>2. Athènes :</strong> Cité modèle de la <strong>démocratie</strong> au Ve siècle av. J.-C.</li><li><strong>3. Le Forum :</strong> Cœur politique, religieux et économique de la cité romaine.</li><li><strong>4. Chronologie :</strong> Les Grecs dominent aux Ve-IVe s. av. J.-C.</li><li><strong>5. Mare Nostrum :</strong> Les Romains dominent la Méditerranée au début de notre ère.</li><li><strong>6. Empire :</strong> Ensemble des territoires conquis et dirigés par Rome.</li></ul>",
     "questions": [
       {
         "q": "Comment s'appelle la cité grecque qui sert souvent d'exemple de démocratie au Ve siècle av. J.-C. ?",
@@ -167,6 +170,7 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 2 (Dates et événements)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⏳ 2. Les dates clés de l'Antiquité</h3><ul><li><strong>1. 753 av. J.-C. :</strong> Fondation légendaire de <strong>Rome</strong>.</li><li><strong>2. 509 av. J.-C. :</strong> Fin de la royauté, début de la <strong>République</strong> romaine.</li><li><strong>3. 480 av. J.-C. :</strong> Bataille de <strong>Salamine</strong> (Victoire grecque sur les Perses).</li><li><strong>4. 27 av. J.-C. :</strong> Auguste met fin aux guerres civiles et fonde l'<strong>Empire</strong>.</li><li><strong>5. Actium :</strong> Bataille décisive remportée par Auguste contre Antoine.</li><li><strong>6. 212 ap. J.-C. :</strong> Édit de <strong>Caracalla</strong> (Citoyenneté pour tous les hommes libres).</li></ul>",
     "questions": [
       {
         "q": "Fondation légendaire de la ville de Rome ?",
@@ -205,6 +209,7 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 3 (Institutions et sociétés)",
     "requiredPerQuestion": 3,
+    "lesson": "<h3>⚖️ 3. Citoyenneté et Empire</h3><ul><li><strong>1. L'Ecclésia :</strong> Assemblée des citoyens qui vote les lois à Athènes.</li><li><strong>2. Exclus :</strong> Femmes, métèques (étrangers) et esclaves ne sont pas citoyens.</li><li><strong>3. Le Sénat :</strong> Assemblée la plus puissante sous la République romaine.</li><li><strong>4. Romanisation :</strong> Adoption de la culture et du mode de vie romain.</li><li><strong>5. Pérégrins :</strong> Habitants libres de l'Empire qui ne sont pas citoyens.</li><li><strong>6. Élites :</strong> Les sénateurs et chevaliers dominent la société romaine.</li></ul>",
     "questions": [
       {
         "q": "Dans la démocratie athénienne, comment s'appelle l'assemblée des citoyens ?",

@@ -692,3 +692,6 @@ playersBody?.addEventListener("click", async (e) => {
     }
   }
 });
+//.env
+//MONGODB_URI="mongodb+srv://vuilletjean:Clemenceau1919@cluster0.ilgdlcy.mongodb.net/quizDB?retryWrites=true&w=majority&appName=Cluster0"
+//PORT=3000

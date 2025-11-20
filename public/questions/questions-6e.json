@@ -6,12 +6,12 @@
     "requiredPerQuestion": 3,
     "lesson": "<h3>🏙️ 1. Les mots importants de la ville</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants et d'activités.</li><li><strong>2. Urbanisation :</strong> Augmentation de la population qui vit en ville.</li><li><strong>3. Ghetto :</strong> Quartier où une population vit à l'écart du reste de la ville (souvent pauvre).</li><li><strong>4. Bidonville :</strong> Quartier très pauvre construit illégalement avec des matériaux de récupération.</li><li><strong>5. Quartier résidentiel :</strong> Quartier où l'on trouve surtout des logements pour habiter.</li><li><strong>6. Quartier d'affaires :</strong> Quartier avec des bureaux, des tours et des banques.</li></ul>",
     "questions": [
-      { "q": "Comment appelle-t-on une très grande ville qui concentre habitants et pouvoirs ?", "a": "métropole", "options": ["métropole", "village", "campagne", "hameau"] },
-      { "q": "Quel mot désigne l'augmentation de la population en ville ?", "a": "urbanisation", "options": ["urbanisation", "ruralité", "déforestation", "migration"] },
-      { "q": "Quel quartier désigne un lieu où une population vit à l'écart (souvent pauvre) ?", "a": "ghetto", "options": ["ghetto", "centre-ville", "quartier riche", "zone industrielle"] },
-      { "q": "Quel quartier est construit avec des matériaux de récupération ?", "a": "bidonville", "options": ["bidonville", "pavillon", "gratte-ciel", "château"] },
-      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "résidentiel", "options": ["résidentiel", "industriel", "commercial", "touristique"] },
-      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "affaires", "options": ["affaires", "agricole", "historique", "portuaire"] }
+      { "q": "Comment appelle-t-on une très grande ville qui concentre habitants et pouvoirs ?", "a": "métropole", "options": ["métropole", "ville moyenne", "bourg rural", "zone périurbaine"] },
+      { "q": "Quel mot désigne l'augmentation de la population en ville ?", "a": "urbanisation", "options": ["urbanisation", "exode rural", "migration", "mondialisation"] },
+      { "q": "Quel quartier désigne un lieu où une population vit à l'écart (souvent pauvre) ?", "a": "ghetto", "options": ["ghetto", "centre-ville", "quartier résidentiel", "zone pavillonnaire"] },
+      { "q": "Quel quartier est construit avec des matériaux de récupération ?", "a": "bidonville", "options": ["bidonville", "banlieue pavillonnaire", "centre historique", "quartier d'affaires"] },
+      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "résidentiel", "options": ["résidentiel", "industriel", "commercial", "administratif"] },
+      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "affaires", "options": ["affaires", "historique", "résidentiel", "touristique"] }
     ]
   },
   {
@@ -21,12 +21,12 @@
     "requiredPerQuestion": 3,
     "lesson": "<h3>🏗️ 2. Les fonctions de la ville</h3><ul><li><strong>1. Résidentielle :</strong> Fonction liée au logement (habiter).</li><li><strong>2. Commerciale :</strong> Fonction liée à l'achat et la vente (magasins).</li><li><strong>3. Culturelle :</strong> Fonction liée aux loisirs et à l'art (musées, théâtres).</li><li><strong>4. Politique :</strong> Fonction liée au pouvoir (mairie, gouvernement).</li><li><strong>5. Économique :</strong> Fonction liée au travail (bureaux, usines).</li><li><strong>6. Transport :</strong> Fonction liée aux déplacements (gares, aéroports).</li></ul>",
     "questions": [
-      { "q": "Quelle fonction correspond au fait d'habiter en ville ?", "a": "résidentielle", "options": ["résidentielle", "industrielle", "agricole", "sportive"] },
-      { "q": "Quelle fonction correspond aux magasins et aux achats ?", "a": "commerciale", "options": ["commerciale", "politique", "religieuse", "militaire"] },
-      { "q": "Quelle fonction correspond aux musées et aux théâtres ?", "a": "culturelle", "options": ["culturelle", "portuaire", "financière", "médicale"] },
-      { "q": "Quelle fonction correspond à la mairie ou au gouvernement ?", "a": "politique", "options": ["politique", "touristique", "sportive", "commerciale"] },
+      { "q": "Quelle fonction correspond au fait d'habiter en ville ?", "a": "résidentielle", "options": ["résidentielle", "industrielle", "commerciale", "administrative"] },
+      { "q": "Quelle fonction correspond aux magasins et aux achats ?", "a": "commerciale", "options": ["commerciale", "politique", "résidentielle", "culturelle"] },
+      { "q": "Quelle fonction correspond aux musées et aux théâtres ?", "a": "culturelle", "options": ["culturelle", "industrielle", "financière", "administrative"] },
+      { "q": "Quelle fonction correspond à la mairie ou au gouvernement ?", "a": "politique", "options": ["politique", "commerciale", "culturelle", "résidentielle"] },
       { "q": "Quelle fonction correspond aux bureaux et aux entreprises ?", "a": "économique", "options": ["économique", "résidentielle", "religieuse", "scolaire"] },
-      { "q": "Quelle fonction correspond aux gares et aéroports ?", "a": "transport", "options": ["transport", "agriculture", "pêche", "chasse"] }
+      { "q": "Quelle fonction correspond aux gares et aéroports ?", "a": "transport", "options": ["transport", "logement", "commerce", "loisir"] }
     ]
   },
   {
@@ -36,12 +36,12 @@
     "requiredPerQuestion": 3,
     "lesson": "<h3>🚧 3. Les défis des grandes villes</h3><ul><li><strong>1. Pollution :</strong> Problème causé par les voitures et les usines (mauvais air).</li><li><strong>2. Embouteillages :</strong> Quand il y a trop de voitures sur les routes.</li><li><strong>3. Logement :</strong> Il est souvent difficile et cher de se loger.</li><li><strong>4. Services :</strong> L'accès à l'eau et à l'électricité est un défi dans les pays pauvres.</li><li><strong>5. Exode rural :</strong> Départ des gens de la campagne vers la ville.</li><li><strong>6. Inégalités :</strong> Écarts de richesse entre les quartiers riches et pauvres.</li></ul>",
     "questions": [
-      { "q": "Quel problème est causé par les gaz d'échappement des voitures ?", "a": "pollution", "options": ["pollution", "propreté", "silence", "végétation"] },
-      { "q": "Comment appelle-t-on les bouchons sur la route ?", "a": "embouteillages", "options": ["embouteillages", "autoroutes", "vitesses", "courses"] },
-      { "q": "Quel est le problème principal pour habiter dans une métropole ?", "a": "logement", "options": ["logement", "climat", "ennui", "solitude"] },
-      { "q": "Qu'est-ce qui manque souvent dans les bidonvilles ?", "a": "eau potable", "options": ["eau potable", "télévision", "soleil", "vent"] },
-      { "q": "Comment appelle-t-on le départ de la campagne vers la ville ?", "a": "exode rural", "options": ["exode rural", "vacances", "croisière", "randonnée"] },
-      { "q": "Que doit-on réduire entre les quartiers riches et pauvres ?", "a": "inégalités", "options": ["inégalités", "routes", "parcs", "écoles"] }
+      { "q": "Quel problème est causé par les gaz d'échappement des voitures ?", "a": "pollution", "options": ["pollution", "urbanisation", "végétalisation", "densité"] },
+      { "q": "Comment appelle-t-on les bouchons sur la route ?", "a": "embouteillages", "options": ["embouteillages", "migrations", "transports", "carrefours"] },
+      { "q": "Quel est le problème principal pour habiter dans une métropole ?", "a": "logement", "options": ["logement", "climat", "commerce", "emploi"] },
+      { "q": "Qu'est-ce qui manque souvent dans les bidonvilles ?", "a": "eau potable", "options": ["eau potable", "télévision", "habitants", "soleil"] },
+      { "q": "Comment appelle-t-on le départ de la campagne vers la ville ?", "a": "exode rural", "options": ["exode rural", "migration pendulaire", "tourisme", "voyage"] },
+      { "q": "Que doit-on réduire entre les quartiers riches et pauvres ?", "a": "inégalités", "options": ["inégalités", "distances", "constructions", "espaces verts"] }
     ]
   },
   {
@@ -49,14 +49,14 @@
     "chapterId": "ch1-zombie",
     "title": "Chapitre 1 - Niveau 4 (Métropoles dans le monde)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🌍 4. Les métropoles mondiales</h3><ul><li><strong>1. Attractives :</strong> Les villes attirent car il y a du travail et des loisirs.</li><li><strong>2. Influentes :</strong> Elles commandent l'économie mondiale.</li><li><strong>3. Connectées :</strong> Elles sont reliées par des avions et internet.</li><li><strong>4. Nord :</strong> Les métropoles les plus riches sont dans les pays développés.</li><li><strong>5. Sud :</strong> Les métropoles qui grandissent le plus vite sont dans les pays pauvres.</li><li><strong>6. Mégapole :</strong> Nom donné aux villes de plus de 10 millions d'habitants.</li></ul>",
+    "lesson": "<h3>🌍 4. Les métropoles mondiales</h3><ul><li><strong>1. Attractives :</strong> Les villes attirent car il y a du travail et des loisirs.</li><li><strong>2. Influentes :</strong> Elles commandent l'économie mondiale.</li><li><strong>3. Connectées :</strong> Elles sont reliées par des avions et internet.</li><li><strong>4. Nord :</strong> Les métropoles les plus riches sont dans les pays développés.</li><li><strong>5. Sud :</strong> Les métropoles qui grandissent le plus vite sont dans les pays pauvres.</li><li><strong>6. Population urbaine :</strong> Aujourd'hui, plus de la moitié de l'humanité vit en ville.</li></ul>",
     "questions": [
-      { "q": "Pourquoi les métropoles attirent-elles les gens ?", "a": "travail", "options": ["travail", "silence", "nature", "calme"] },
-      { "q": "Quel pouvoir possèdent les grandes métropoles ?", "a": "influence", "options": ["influence", "faiblesse", "isolement", "pauvreté"] },
-      { "q": "Quel moyen de transport connecte les métropoles au monde ?", "a": "avion", "options": ["avion", "vélo", "cheval", "barque"] },
-      { "q": "Dans quelle partie du monde sont les villes les plus riches ?", "a": "nord", "options": ["nord", "sud", "pôle", "désert"] },
-      { "q": "Où la croissance des villes est-elle la plus forte ?", "a": "sud", "options": ["sud", "nord", "europe", "antarctique"] },
-      { "q": "Comment appelle-t-on une ville de plus de 10 millions d'habitants ?", "a": "mégapole", "options": ["mégapole", "village", "bourg", "hameau"] }
+      { "q": "Pourquoi les métropoles attirent-elles les gens ?", "a": "travail", "options": ["travail", "calme", "nature", "agriculture"] },
+      { "q": "Quel pouvoir possèdent les grandes métropoles ?", "a": "influence", "options": ["influence", "isolement", "faiblesse", "autonomie"] },
+      { "q": "Quel moyen de transport connecte les métropoles au monde ?", "a": "avion", "options": ["avion", "bus", "vélo", "tramway"] },
+      { "q": "Dans quelle partie du monde sont les villes les plus riches ?", "a": "nord", "options": ["nord", "sud", "désert", "montagne"] },
+      { "q": "Où la croissance des villes est-elle la plus forte ?", "a": "sud", "options": ["sud", "nord", "europe", "campagne"] },
+      { "q": "Où vit aujourd'hui plus de la moitié de la population mondiale ?", "a": "ville", "options": ["ville", "campagne", "désert", "montagne"] }
     ]
   },
 
@@ -65,14 +65,14 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 1 (Les grandes définitions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🏙️ 1. Les mots importants de la ville</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants et d'activités.</li><li><strong>2. Urbanisation :</strong> Augmentation de la population qui vit en ville.</li><li><strong>3. Ghetto :</strong> Quartier où une population vit à l'écart du reste de la ville (souvent pauvre).</li><li><strong>4. Bidonville :</strong> Quartier très pauvre construit illégalement avec des matériaux de récupération.</li><li><strong>5. Quartier résidentiel :</strong> Quartier où l'on trouve surtout des logements pour habiter.</li><li><strong>6. Quartier d'affaires :</strong> Quartier avec des bureaux, des tours et des banques.</li></ul>",
+    "lesson": "<h3>🏙️ 1. Les mots importants de la ville</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants, d'activités et de pouvoirs.</li><li><strong>2. Urbanisation :</strong> Augmentation de la population qui vit en ville et agrandissement des villes.</li><li><strong>3. Centre-ville :</strong> Cœur de la ville, souvent le plus ancien et le plus animé (commerces, monuments, services).</li><li><strong>4. Banlieue :</strong> Espaces construits autour du centre-ville où vivent beaucoup d'habitants.</li><li><strong>5. Quartier résidentiel :</strong> Quartier où l'on trouve surtout des logements (maisons, immeubles) pour habiter.</li><li><strong>6. Quartier d'affaires :</strong> Quartier qui concentre les bureaux, les sièges d'entreprises et les banques (fonction économique).</li></ul>",
     "questions": [
-      { "q": "Comment appelle-t-on une très grande ville qui concentre habitants et pouvoirs ?", "a": "métropole", "options": ["métropole", "village", "campagne", "hameau"] },
-      { "q": "Quel mot désigne l'augmentation de la population en ville ?", "a": "urbanisation", "options": ["urbanisation", "ruralité", "déforestation", "migration"] },
-      { "q": "Quel quartier désigne un lieu où une population vit à l'écart (souvent pauvre) ?", "a": "ghetto", "options": ["ghetto", "centre-ville", "quartier riche", "zone industrielle"] },
-      { "q": "Quel quartier est construit avec des matériaux de récupération ?", "a": "bidonville", "options": ["bidonville", "pavillon", "gratte-ciel", "château"] },
-      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "résidentiel", "options": ["résidentiel", "industriel", "commercial", "touristique"] },
-      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "affaires", "options": ["affaires", "agricole", "historique", "portuaire"] }
+      { "q": "Qu'est-ce qu'une métropole ?", "a": "une très grande ville qui concentre habitants, activités et pouvoirs", "options": ["une très grande ville qui concentre habitants, activités et pouvoirs", "une ville moyenne sans influence régionale", "une zone rurale peu peuplée", "un ensemble de villages agricoles"] },
+      { "q": "Qu'est-ce que l'urbanisation ?", "a": "l'augmentation de la population vivant en ville", "options": ["l'augmentation de la population vivant en ville", "le départ des habitants vers la campagne", "la diminution de la taille des villes", "le développement de l'agriculture"] },
+      { "q": "Quel espace correspond au cœur animé d'une ville (commerces, services, monuments) ?", "a": "le centre-ville", "options": ["le centre-ville", "la banlieue lointaine", "la zone industrielle", "le quartier résidentiel calme"] },
+      { "q": "Comment appelle-t-on les zones construites autour du centre-ville ?", "a": "la banlieue", "options": ["la banlieue", "le centre historique", "le quartier d'affaires", "la zone rurale"] },
+      { "q": "Quel type de quartier regroupe surtout des logements (maisons, immeubles) ?", "a": "un quartier résidentiel", "options": ["un quartier résidentiel", "un quartier d'affaires", "une zone industrielle", "un centre commercial"] },
+      { "q": "Quel quartier concentre les bureaux, les grandes entreprises et les banques ?", "a": "le quartier d'affaires", "options": ["le quartier d'affaires", "le quartier résidentiel", "le centre historique", "la zone pavillonnaire"] }
     ]
   },
   {
@@ -80,29 +80,29 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 2 (Les fonctions urbaines)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🏗️ 2. Les fonctions de la ville</h3><ul><li><strong>1. Résidentielle :</strong> Fonction liée au logement (habiter).</li><li><strong>2. Commerciale :</strong> Fonction liée à l'achat et la vente (magasins).</li><li><strong>3. Culturelle :</strong> Fonction liée aux loisirs et à l'art (musées, théâtres).</li><li><strong>4. Politique :</strong> Fonction liée au pouvoir (mairie, gouvernement).</li><li><strong>5. Économique :</strong> Fonction liée au travail (bureaux, usines).</li><li><strong>6. Transport :</strong> Fonction liée aux déplacements (gares, aéroports).</li></ul>",
+    "lesson": "<h3>🏗️ 2. Les fonctions de la ville</h3><ul><li><strong>1. Fonction résidentielle :</strong> Lieux où l'on habite (maisons, immeubles).</li><li><strong>2. Fonction commerciale :</strong> Lieux où l'on achète et vend (magasins, centres commerciaux, marchés).</li><li><strong>3. Fonction culturelle :</strong> Lieux de culture et de loisirs (musées, théâtres, stades, salles de concert).</li><li><strong>4. Fonction politique :</strong> Lieux où l'on exerce le pouvoir (mairie, préfecture, parlement).</li><li><strong>5. Fonction économique :</strong> Activités liées aux entreprises et aux emplois (quartier d'affaires, bureaux, zones d'activités).</li><li><strong>6. Fonction de transport :</strong> Lieux qui permettent de se déplacer (gares, ports, aéroports, stations de métro).</li></ul>",
     "questions": [
-      { "q": "Quelle fonction correspond au fait d'habiter en ville ?", "a": "résidentielle", "options": ["résidentielle", "industrielle", "agricole", "sportive"] },
-      { "q": "Quelle fonction correspond aux magasins et aux achats ?", "a": "commerciale", "options": ["commerciale", "politique", "religieuse", "militaire"] },
-      { "q": "Quelle fonction correspond aux musées et aux théâtres ?", "a": "culturelle", "options": ["culturelle", "portuaire", "financière", "médicale"] },
-      { "q": "Quelle fonction correspond à la mairie ou au gouvernement ?", "a": "politique", "options": ["politique", "touristique", "sportive", "commerciale"] },
-      { "q": "Quelle fonction correspond aux bureaux et aux entreprises ?", "a": "économique", "options": ["économique", "résidentielle", "religieuse", "scolaire"] },
-      { "q": "Quelle fonction correspond aux gares et aéroports ?", "a": "transport", "options": ["transport", "agriculture", "pêche", "chasse"] }
+      { "q": "Quel lieu a principalement une fonction résidentielle ?", "a": "un quartier de maisons et d'immeubles", "options": ["un quartier de maisons et d'immeubles", "une zone industrielle", "un centre commercial", "un quartier d'affaires"] },
+      { "q": "Quel lieu a une fonction commerciale ?", "a": "un centre commercial", "options": ["un centre commercial", "une bibliothèque", "un immeuble d'habitation", "un hôpital"] },
+      { "q": "Quel lieu a surtout une fonction culturelle ?", "a": "un musée", "options": ["un musée", "une usine", "un supermarché", "un bureau"] },
+      { "q": "Quel bâtiment remplit principalement une fonction politique ?", "a": "l'hôtel de ville (mairie)", "options": ["l'hôtel de ville (mairie)", "un stade de football", "une gare", "un cinéma"] },
+      { "q": "Quel quartier remplit surtout une fonction économique ?", "a": "le quartier d'affaires", "options": ["le quartier d'affaires", "le quartier résidentiel", "le parc public", "le centre historique"] },
+      { "q": "Quel exemple correspond à une fonction de transport ?", "a": "une grande gare ferroviaire", "options": ["une grande gare ferroviaire", "un théâtre", "un lotissement", "une école"] }
     ]
   },
   {
     "id": "ch2-lvl3-6e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 3 (Défis et problèmes)",
+    "title": "Chapitre 2 - Niveau 3 (Défis et problèmes des métropoles)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🚧 3. Les défis des grandes villes</h3><ul><li><strong>1. Pollution :</strong> Problème causé par les voitures et les usines (mauvais air).</li><li><strong>2. Embouteillages :</strong> Quand il y a trop de voitures sur les routes.</li><li><strong>3. Logement :</strong> Il est souvent difficile et cher de se loger.</li><li><strong>4. Services :</strong> L'accès à l'eau et à l'électricité est un défi dans les pays pauvres.</li><li><strong>5. Exode rural :</strong> Départ des gens de la campagne vers la ville.</li><li><strong>6. Inégalités :</strong> Écarts de richesse entre les quartiers riches et pauvres.</li></ul>",
+    "lesson": "<h3>🚧 3. Les défis des grandes villes</h3><ul><li><strong>1. Pollution :</strong> Dans les métropoles, les voitures et les industries provoquent une importante pollution de l'air.</li><li><strong>2. Embouteillages :</strong> Aux heures de pointe, les routes sont saturées et les déplacements sont difficiles.</li><li><strong>3. Logement :</strong> Dans de nombreuses métropoles, les loyers sont très élevés et il manque de logements abordables.</li><li><strong>4. Services de base :</strong> Dans certains pays en développement, l'accès à l'eau potable, à l'électricité ou aux transports reste difficile pour une partie de la population.</li><li><strong>5. Arrivée de nouvelles populations :</strong> Dans les pays en développement, de nombreuses personnes quittent la campagne pour s'installer en ville (exode rural), ce qui fait grandir rapidement les métropoles.</li><li><strong>6. Réduire les inégalités :</strong> Les pouvoirs publics doivent améliorer les transports, les services et les logements pour que tous les habitants puissent mieux vivre en ville.</li></ul>",
     "questions": [
-      { "q": "Quel problème est causé par les gaz d'échappement des voitures ?", "a": "pollution", "options": ["pollution", "propreté", "silence", "végétation"] },
-      { "q": "Comment appelle-t-on les bouchons sur la route ?", "a": "embouteillages", "options": ["embouteillages", "autoroutes", "vitesses", "courses"] },
-      { "q": "Quel est le problème principal pour habiter dans une métropole ?", "a": "logement", "options": ["logement", "climat", "ennui", "solitude"] },
-      { "q": "Qu'est-ce qui manque souvent dans les bidonvilles ?", "a": "eau potable", "options": ["eau potable", "télévision", "soleil", "vent"] },
-      { "q": "Comment appelle-t-on le départ de la campagne vers la ville ?", "a": "exode rural", "options": ["exode rural", "vacances", "croisière", "randonnée"] },
-      { "q": "Que doit-on réduire entre les quartiers riches et pauvres ?", "a": "inégalités", "options": ["inégalités", "routes", "parcs", "écoles"] }
+      { "q": "Quel problème est souvent causé par le trafic routier et les usines dans les métropoles ?", "a": "la pollution de l'air", "options": ["la pollution de l'air", "le manque d'électricité", "le manque de magasins", "l'absence de touristes"] },
+      { "q": "Comment appelle-t-on les routes saturées de voitures qui avancent très lentement ?", "a": "des embouteillages", "options": ["des embouteillages", "des autoroutes fluides", "des zones piétonnes", "des pistes cyclables"] },
+      { "q": "Quel problème de logement rencontre-t-on souvent dans les métropoles ?", "a": "les loyers très élevés", "options": ["les loyers très élevés", "l'absence de chauffage", "des maisons trop grandes", "des loyers gratuits"] },
+      { "q": "Quel défi concerne surtout les pays en développement dans les métropoles ?", "a": "l'accès difficile à l'eau potable et à l'électricité pour tous", "options": ["l'accès difficile à l'eau potable et à l'électricité pour tous", "le manque de voitures", "l'excès de parcs", "la construction de gratte-ciels"] },
+      { "q": "Comment appelle-t-on le départ de nombreuses personnes de la campagne vers la ville ?", "a": "l'exode rural", "options": ["l'exode rural", "les migrations pendulaires", "le tourisme de masse", "l'émigration"] },
+      { "q": "Que peuvent faire les pouvoirs publics pour réduire les inégalités en ville ?", "a": "améliorer les transports, les services et les logements pour tous", "options": ["améliorer les transports, les services et les logements pour tous", "construire uniquement des quartiers d'affaires", "interdire l'accès au centre-ville", "supprimer les bus et métros"] }
     ]
   },
   {
@@ -110,14 +110,14 @@
     "chapterId": "ch2-starship",
     "title": "Chapitre 2 - Niveau 4 (Métropoles dans le monde)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🌍 4. Les métropoles mondiales</h3><ul><li><strong>1. Attractives :</strong> Les villes attirent car il y a du travail et des loisirs.</li><li><strong>2. Influentes :</strong> Elles commandent l'économie mondiale.</li><li><strong>3. Connectées :</strong> Elles sont reliées par des avions et internet.</li><li><strong>4. Nord :</strong> Les métropoles les plus riches sont dans les pays développés.</li><li><strong>5. Sud :</strong> Les métropoles qui grandissent le plus vite sont dans les pays pauvres.</li><li><strong>6. Mégapole :</strong> Nom donné aux villes de plus de 10 millions d'habitants.</li></ul>",
+    "lesson": "<h3>🌍 4. Les métropoles à l'échelle du monde</h3><ul><li><strong>1. Métropoles attractives :</strong> Elles attirent les habitants grâce aux emplois, aux études, aux services et aux loisirs.</li><li><strong>2. Métropoles influentes :</strong> Elles concentrent le pouvoir politique, économique et culturel (sièges d'entreprises, gouvernements, grands musées).</li><li><strong>3. Métropoles reliées au monde :</strong> Elles sont connectées par des ports, des aéroports, des gares et les réseaux numériques.</li><li><strong>4. Répartition mondiale :</strong> La plupart des grandes métropoles se situent dans les pays développés (Europe, Amérique du Nord, Japon).</li><li><strong>5. Croissance urbaine :</strong> La croissance des villes est particulièrement forte dans les pays en développement (Afrique, Asie, Amérique latine).</li><li><strong>6. Urbanisation mondiale :</strong> La population mondiale vit de plus en plus en ville, les métropoles grandissent et se multiplient.</li></ul>",
     "questions": [
-      { "q": "Pourquoi les métropoles attirent-elles les gens ?", "a": "travail", "options": ["travail", "silence", "nature", "calme"] },
-      { "q": "Quel pouvoir possèdent les grandes métropoles ?", "a": "influence", "options": ["influence", "faiblesse", "isolement", "pauvreté"] },
-      { "q": "Quel moyen de transport connecte les métropoles au monde ?", "a": "avion", "options": ["avion", "vélo", "cheval", "barque"] },
-      { "q": "Dans quelle partie du monde sont les villes les plus riches ?", "a": "nord", "options": ["nord", "sud", "pôle", "désert"] },
-      { "q": "Où la croissance des villes est-elle la plus forte ?", "a": "sud", "options": ["sud", "nord", "europe", "antarctique"] },
-      { "q": "Comment appelle-t-on une ville de plus de 10 millions d'habitants ?", "a": "mégapole", "options": ["mégapole", "village", "bourg", "hameau"] }
+      { "q": "Pourquoi les métropoles sont-elles attractives ?", "a": "parce qu'elles offrent des emplois, des services et des loisirs", "options": ["parce qu'elles offrent des emplois, des services et des loisirs", "parce qu'elles sont peu peuplées", "parce qu'il y a beaucoup de champs", "parce que la vie y est très calme"] },
+      { "q": "En quoi une métropole peut-elle être influente ?", "a": "elle concentre le pouvoir politique, économique et culturel", "options": ["elle concentre le pouvoir politique, économique et culturel", "elle est isolée du reste du monde", "elle produit uniquement de la nourriture", "elle n'a pas d'aéroport"] },
+      { "q": "Qu'est-ce qui montre qu'une métropole est reliée au reste du monde ?", "a": "la présence d'un grand aéroport et d'un port international", "options": ["la présence d'un grand aéroport et d'un port international", "l'absence de routes", "la présence de marchés locaux", "le manque de connexion internet"] },
+      { "q": "Dans quels types de pays se trouvent la plupart des grandes métropoles mondiales ?", "a": "dans les pays développés", "options": ["dans les pays développés", "dans les zones désertiques", "uniquement en Afrique", "dans les régions polaires"] },
+      { "q": "Où la croissance des villes est-elle aujourd'hui la plus rapide ?", "a": "dans les pays en développement", "options": ["dans les pays en développement", "en Europe de l'Ouest", "en Amérique du Nord", "au Japon"] },
+      { "q": "Que signifie l'augmentation de l'urbanisation mondiale ?", "a": "de plus en plus de personnes vivent en ville", "options": ["de plus en plus de personnes vivent en ville", "les villes se vident", "la population rurale augmente", "les gens partent vivre sur des îles"] }
     ]
   }
 ]

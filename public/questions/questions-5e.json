@@ -2,91 +2,182 @@
   {
     "id": "ch1-lvl1-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 1 (Les deux empires)",
+    "title": "Chapitre 1 - Niveau 1 (Démographie et Développement)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🌍 1. Deux Empires face à face</h3><ul><li><strong>1. À l'Ouest :</strong> C'est l'Empire <strong>Carolingien</strong>.</li><li><strong>2. À l'Est :</strong> C'est l'Empire <strong>Byzantin</strong>.</li><li><strong>3. Capitale Ouest :</strong> Charlemagne siège à <strong>Aix-la-Chapelle</strong>.</li><li><strong>4. Capitale Est :</strong> Constantinople est la capitale byzantine.</li><li><strong>5. Religion Ouest :</strong> Chrétiens <strong>Catholiques</strong> (Église de Rome).</li><li><strong>6. Religion Est :</strong> Chrétiens <strong>Orthodoxes</strong> (Église d'Orient).</li></ul>",
+    "lesson": "<h3>📈 1. La Démographie et le Développement</h3><ul><li><strong>1. Démographie :</strong> C'est l'étude de la population (naissances, décès).</li><li><strong>2. Développement :</strong> C'est quand un pays s'enrichit pour satisfaire les besoins de ses habitants.</li><li><strong>3. Croissance forte :</strong> Elle a lieu dans les pays en <strong>développement</strong> (souvent au Sud).</li><li><strong>4. Médecine :</strong> Ses progrès font baisser la mortalité et augmenter la population.</li><li><strong>5. Émergents :</strong> Pays du Sud qui se développent vite (ex: Inde, Brésil).</li><li><strong>6. Hémisphère Sud :</strong> C'est là où se situent la majorité des pays émergents.</li></ul>",
     "questions": [
-      { "q": "Empire à l'Ouest de l'Europe au début du Moyen Âge ?", "a": "carolingien", "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
-      { "q": "Empire à l'Est de l'Europe, centré sur Constantinople ?", "a": "byzantin", "options": ["byzantin", "carolingien", "ottoman", "sassanide"] },
-      { "q": "Capitale de l'Empire carolingien ?", "a": "Aix-la-Chapelle", "options": ["Aix-la-Chapelle", "Rome", "Constantinople", "Paris"] },
-      { "q": "Capitale de l'Empire byzantin ?", "a": "Constantinople", "options": ["Constantinople", "Athènes", "Rome", "Damas"] },
-      { "q": "Religion de l'Empire carolingien ?", "a": "catholique", "options": ["catholique", "orthodoxe", "islam", "arianisme"] },
-      { "q": "Religion de l'Empire byzantin ?", "a": "orthodoxe", "options": ["orthodoxe", "catholique", "islam", "arianisme"] }
+      {
+        "q": "Dans quel type de pays y a-t-il une forte croissance démographique ?",
+        "a": "pays en développement",
+        "options": ["pays développés", "pays du Nord", "pays en développement", "pays de l'Ouest"]
+      },
+      {
+        "q": "Quel facteur principal explique la forte croissance démographique ?",
+        "a": "médecine",
+        "options": ["volonté des femmes", "médecine", "prix nourriture", "pays émergents"]
+      },
+      {
+        "q": "Où sont situés la majorité des pays émergents ?",
+        "a": "sud",
+        "options": ["nord", "est", "sud", "ouest"]
+      },
+      {
+        "q": "Qu'est-ce que le développement pour un pays ?",
+        "a": "enrichissement",
+        "options": ["appauvrissement", "enrichissement", "stagnation", "immigration"]
+      },
+      {
+        "q": "Qu'est-ce que la démographie ?",
+        "a": "étude de la population",
+        "options": ["étude de la richesse", "étude de la population", "étude de l'emploi", "étude du développement"]
+      }
     ]
   },
   {
     "id": "ch1-lvl2-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 2 (Les dates clés)",
+    "title": "Chapitre 1 - Niveau 2 (Études de cas)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>⏳ 2. La Frise Chronologique</h3><ul><li><strong>1. 476 :</strong> Chute de Rome (Fin de l'Antiquité).</li><li><strong>2. 527-565 :</strong> Règne de l'empereur <strong>Justinien</strong> (Byzance).</li><li><strong>3. 768 :</strong> Début du règne de Charlemagne.</li><li><strong>4. 800 :</strong> Couronnement de <strong>Charlemagne</strong> empereur.</li><li><strong>5. 1054 :</strong> Le <strong>Schisme</strong> (Séparation Catholiques / Orthodoxes).</li><li><strong>6. 1453 :</strong> Prise de Constantinople par les Ottomans (Fin du Moyen Âge).</li></ul>",
+    "lesson": "<h3>🌍 2. Des situations variées</h3><ul><li><strong>1. Pays développés :</strong> La natalité est basse grâce à l'<strong>éducation</strong> et la santé.</li><li><strong>2. Stagnation :</strong> Certains pays riches ne grandissent plus (ex: <strong>Allemagne</strong>).</li><li><strong>3. Explosion :</strong> D'autres grandissent très vite (ex: <strong>Nigeria</strong>).</li><li><strong>4. Chine :</strong> La natalité a baissé à cause de la politique de l'<strong>enfant unique</strong>.</li><li><strong>5. Besoins :</strong> Le défi du Sud est de répondre aux besoins (écoles, hôpitaux).</li><li><strong>6. IDH :</strong> Indicateur pour mesurer le niveau de vie.</li></ul>",
     "questions": [
-      { "q": "Couronnement de Charlemagne empereur ?", "a": "800", "options": ["476", "732", "800", "814"] },
-      { "q": "Fin de l'Empire romain d'Occident ?", "a": "476", "options": ["395", "410", "455", "476"] },
-      { "q": "Prise de Constantinople par les Ottomans ?", "a": "1453", "options": ["1204", "1299", "1453", "1492"] },
-      { "q": "Règne de l'empereur Justinien ?", "a": "527-565", "options": ["527-565", "500-527", "565-600", "518-542"] },
-      { "q": "Schisme entre Églises d'Orient et d'Occident ?", "a": "1054", "options": ["962", "1054", "1095", "1204"] },
-      { "q": "Début du règne de Charlemagne ?", "a": "768", "options": ["732", "768", "800", "843"] }
+      {
+        "q": "Quel facteur explique la baisse de la natalité dans les pays développés ?",
+        "a": "éducation",
+        "options": ["pauvreté", "climat", "éducation", "religion"]
+      },
+      {
+        "q": "Pourquoi la natalité a-t-elle fortement baissé en Chine ?",
+        "a": "enfant unique",
+        "options": ["meilleure éducation", "enfant unique", "enrichissement", "médecine"]
+      },
+      {
+        "q": "Lequel de ces problèmes est typique des pays en développement ?",
+        "a": "répondre aux besoins",
+        "options": ["vieillissement", "dépenses sociales", "répondre aux besoins", "trop de richesses"]
+      },
+      {
+        "q": "Lequel de ces pays a connu une explosion démographique ?",
+        "a": "Nigeria",
+        "options": ["Angleterre", "Japon", "Nigeria", "Chine"]
+      },
+      {
+        "q": "Quel pays a connu une stagnation de sa population ?",
+        "a": "Allemagne",
+        "options": ["Inde", "Allemagne", "Nigeria", "Brésil"]
+      }
     ]
   },
   {
     "id": "ch1-lvl3-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 3 (Les différences religieuses)",
+    "title": "Chapitre 1 - Niveau 3 (Défis et Solutions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>⛪ 3. Catholiques vs Orthodoxes</h3><ul><li><strong>1. Chef Catholique :</strong> Le <strong>Pape</strong> (à Rome).</li><li><strong>2. Chef Orthodoxe :</strong> Le <strong>Patriarche</strong> (à Constantinople).</li><li><strong>3. Langue Catholique :</strong> La messe est en <strong>Latin</strong>.</li><li><strong>4. Langue Orthodoxe :</strong> La messe est en <strong>Grec</strong>.</li><li><strong>5. Prêtres Catholiques :</strong> Doivent rester <strong>célibataires</strong>.</li><li><strong>6. Prêtres Orthodoxes :</strong> Peuvent être <strong>mariés</strong> et porter la barbe.</li></ul>",
+    "lesson": "<h3>🚧 3. Défis et Solutions</h3><ul><li><strong>1. Vieillissement :</strong> Problème majeur des pays riches (coût des retraites).</li><li><strong>2. Immigration :</strong> Solution pour apporter de la main-d'œuvre aux pays vieillissants.</li><li><strong>3. Main-d'œuvre :</strong> C'est l'avantage d'une forte croissance (beaucoup de travailleurs).</li><li><strong>4. Investir :</strong> Les pays pauvres doivent miser sur l'<strong>éducation</strong> et la santé.</li><li><strong>5. Ressources :</strong> Les pays développés consomment beaucoup de ressources.</li><li><strong>6. Avenir :</strong> Il faut gérer la croissance pour protéger l'environnement.</li></ul>",
     "questions": [
-      { "q": "Langue de la liturgie catholique ?", "a": "latin", "options": ["grec", "hébreu", "français", "latin"] },
-      { "q": "Les prêtres catholiques sont... ?", "a": "célibataires", "options": ["mariés", "célibataires", "veufs", "remariés"] },
-      { "q": "Chef de l'Église catholique ?", "a": "le pape", "options": ["le patriarche", "l'empereur", "le roi", "le pape"] },
-      { "q": "Chef de l'Église orthodoxe ?", "a": "le patriarche", "options": ["le pape", "le patriarche", "l'évêque de Rome", "le métropolite"] },
-      { "q": "Langue de la liturgie orthodoxe ?", "a": "grec", "options": ["latin", "grec", "syriaque", "slavon"] },
-      { "q": "Les prêtres orthodoxes peuvent être... ?", "a": "mariés", "options": ["célibataires", "mariés", "obligatoirement célibataires", "divorcés"] }
+      {
+        "q": "Quel problème touche particulièrement les pays développés ?",
+        "a": "vieillissement",
+        "options": ["famine", "guerre civile", "vieillissement", "manque d'eau"]
+      },
+      {
+        "q": "Quelle est une solution au vieillissement dans les pays développés ?",
+        "a": "immigration",
+        "options": ["guerre", "immigration", "mortalité", "isolement"]
+      },
+      {
+        "q": "Pour améliorer leur situation, les pays en développement doivent investir dans...",
+        "a": "éducation",
+        "options": ["finance", "armement", "éducation", "tourisme"]
+      },
+      {
+        "q": "Quel avantage donne une forte croissance démographique ?",
+        "a": "main d'oeuvre",
+        "options": ["plus de demandes", "main d'oeuvre", "plus de services", "plus de PIB"]
+      }
     ]
   },
+
   {
     "id": "ch2-lvl1-5e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 1 (Révision Repères)",
+    "title": "Chapitre 2 - Niveau 1 (Démographie et Développement)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🌍 1. Deux Empires face à face</h3><ul><li><strong>1. À l'Ouest :</strong> C'est l'Empire <strong>Carolingien</strong>.</li><li><strong>2. À l'Est :</strong> C'est l'Empire <strong>Byzantin</strong>.</li><li><strong>3. Capitale Ouest :</strong> Charlemagne siège à <strong>Aix-la-Chapelle</strong>.</li><li><strong>4. Capitale Est :</strong> Constantinople est la capitale byzantine.</li><li><strong>5. Religion Ouest :</strong> Chrétiens <strong>Catholiques</strong> (Église de Rome).</li><li><strong>6. Religion Est :</strong> Chrétiens <strong>Orthodoxes</strong> (Église d'Orient).</li></ul>",
+    "lesson": "<h3>📈 1. La Démographie et le Développement</h3><ul><li><strong>1. Démographie :</strong> C'est l'étude de la population (naissances, décès).</li><li><strong>2. Développement :</strong> C'est quand un pays s'enrichit pour satisfaire les besoins de ses habitants.</li><li><strong>3. Croissance forte :</strong> Elle a lieu dans les pays en <strong>développement</strong> (souvent au Sud).</li><li><strong>4. Médecine :</strong> Ses progrès font baisser la mortalité et augmenter la population.</li><li><strong>5. Émergents :</strong> Pays du Sud qui se développent vite (ex: Inde, Brésil).</li><li><strong>6. Hémisphère Sud :</strong> C'est là où se situent la majorité des pays émergents.</li></ul>",
     "questions": [
-      { "q": "Empire à l'Ouest de l'Europe au début du Moyen Âge ?", "a": "carolingien", "options": ["carolingien", "byzantin", "ottoman", "romain d'orient"] },
-      { "q": "Empire à l'Est de l'Europe, centré sur Constantinople ?", "a": "byzantin", "options": ["byzantin", "carolingien", "ottoman", "sassanide"] },
-      { "q": "Capitale de l'Empire carolingien ?", "a": "Aix-la-Chapelle", "options": ["Aix-la-Chapelle", "Rome", "Constantinople", "Paris"] },
-      { "q": "Capitale de l'Empire byzantin ?", "a": "Constantinople", "options": ["Constantinople", "Athènes", "Rome", "Damas"] },
-      { "q": "Religion de l'Empire carolingien ?", "a": "catholique", "options": ["catholique", "orthodoxe", "islam", "arianisme"] },
-      { "q": "Religion de l'Empire byzantin ?", "a": "orthodoxe", "options": ["orthodoxe", "catholique", "islam", "arianisme"] }
+      { "q": "Dans quel type de pays y a-t-il une forte croissance démographique ?", "a": "pays en développement", "options": ["pays développés", "pays du Nord", "pays en développement", "pays de l'Ouest"] },
+      { "q": "Quel facteur principal explique la forte croissance démographique ?", "a": "médecine", "options": ["volonté des femmes", "médecine", "prix nourriture", "pays émergents"] },
+      { "q": "Où sont situés la majorité des pays émergents ?", "a": "sud", "options": ["nord", "est", "sud", "ouest"] },
+      { "q": "Qu'est-ce que le développement pour un pays ?", "a": "enrichissement", "options": ["appauvrissement", "enrichissement", "stagnation", "immigration"] },
+      { "q": "Qu'est-ce que la démographie ?", "a": "étude de la population", "options": ["étude de la richesse", "étude de la population", "étude de l'emploi", "étude du développement"] }
     ]
   },
   {
     "id": "ch2-lvl2-5e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 2 (Révision Dates)",
+    "title": "Chapitre 2 - Niveau 2 (Études de cas)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>⏳ 2. La Frise Chronologique</h3><ul><li><strong>1. 476 :</strong> Chute de Rome (Fin de l'Antiquité).</li><li><strong>2. 527-565 :</strong> Règne de l'empereur <strong>Justinien</strong> (Byzance).</li><li><strong>3. 768 :</strong> Début du règne de Charlemagne.</li><li><strong>4. 800 :</strong> Couronnement de <strong>Charlemagne</strong> empereur.</li><li><strong>5. 1054 :</strong> Le <strong>Schisme</strong> (Séparation Catholiques / Orthodoxes).</li><li><strong>6. 1453 :</strong> Prise de Constantinople par les Ottomans (Fin du Moyen Âge).</li></ul>",
+    "lesson": "<h3>🌍 2. Des situations variées</h3><ul><li><strong>1. Pays développés :</strong> La natalité est basse grâce à l'<strong>éducation</strong> et la santé.</li><li><strong>2. Stagnation :</strong> Certains pays riches ne grandissent plus (ex: <strong>Allemagne</strong>).</li><li><strong>3. Explosion :</strong> D'autres grandissent très vite (ex: <strong>Nigeria</strong>).</li><li><strong>4. Chine :</strong> La natalité a baissé à cause de la politique de l'<strong>enfant unique</strong>.</li><li><strong>5. Besoins :</strong> Le défi du Sud est de répondre aux besoins (écoles, hôpitaux).</li><li><strong>6. IDH :</strong> Indicateur pour mesurer le niveau de vie.</li></ul>",
     "questions": [
-      { "q": "Couronnement de Charlemagne empereur ?", "a": "800", "options": ["476", "732", "800", "814"] },
-      { "q": "Fin de l'Empire romain d'Occident ?", "a": "476", "options": ["395", "410", "455", "476"] },
-      { "q": "Prise de Constantinople par les Ottomans ?", "a": "1453", "options": ["1204", "1299", "1453", "1492"] },
-      { "q": "Règne de l'empereur Justinien ?", "a": "527-565", "options": ["527-565", "500-527", "565-600", "518-542"] },
-      { "q": "Schisme entre Églises d'Orient et d'Occident ?", "a": "1054", "options": ["962", "1054", "1095", "1204"] },
-      { "q": "Début du règne de Charlemagne ?", "a": "768", "options": ["732", "768", "800", "843"] }
+      { "q": "Quel facteur explique la baisse de la natalité dans les pays développés ?", "a": "éducation", "options": ["pauvreté", "climat", "éducation", "religion"] },
+      { "q": "Pourquoi la natalité a-t-elle fortement baissé en Chine ?", "a": "enfant unique", "options": ["meilleure éducation", "enfant unique", "enrichissement", "médecine"] },
+      { "q": "Lequel de ces problèmes est typique des pays en développement ?", "a": "répondre aux besoins", "options": ["vieillissement", "dépenses sociales", "répondre aux besoins", "trop de richesses"] },
+      { "q": "Lequel de ces pays a connu une explosion démographique ?", "a": "Nigeria", "options": ["Angleterre", "Japon", "Nigeria", "Chine"] },
+      { "q": "Quel pays a connu une stagnation de sa population ?", "a": "Allemagne", "options": ["Inde", "Allemagne", "Nigeria", "Brésil"] }
     ]
   },
   {
     "id": "ch2-lvl3-5e",
     "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 3 (Révision Églises)",
+    "title": "Chapitre 2 - Niveau 3 (Défis et Solutions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>⛪ 3. Catholiques vs Orthodoxes</h3><ul><li><strong>1. Chef Catholique :</strong> Le <strong>Pape</strong> (à Rome).</li><li><strong>2. Chef Orthodoxe :</strong> Le <strong>Patriarche</strong> (à Constantinople).</li><li><strong>3. Langue Catholique :</strong> La messe est en <strong>Latin</strong>.</li><li><strong>4. Langue Orthodoxe :</strong> La messe est en <strong>Grec</strong>.</li><li><strong>5. Prêtres Catholiques :</strong> Doivent rester <strong>célibataires</strong>.</li><li><strong>6. Prêtres Orthodoxes :</strong> Peuvent être <strong>mariés</strong> et porter la barbe.</li></ul>",
+    "lesson": "<h3>🚧 3. Défis et Solutions</h3><ul><li><strong>1. Vieillissement :</strong> Problème majeur des pays riches (coût des retraites).</li><li><strong>2. Immigration :</strong> Solution pour apporter de la main-d'œuvre aux pays vieillissants.</li><li><strong>3. Main-d'œuvre :</strong> C'est l'avantage d'une forte croissance (beaucoup de travailleurs).</li><li><strong>4. Investir :</strong> Les pays pauvres doivent miser sur l'<strong>éducation</strong> et la santé.</li><li><strong>5. Ressources :</strong> Les pays développés consomment beaucoup de ressources.</li><li><strong>6. Avenir :</strong> Il faut gérer la croissance pour protéger l'environnement.</li></ul>",
     "questions": [
-      { "q": "Langue de la liturgie catholique ?", "a": "latin", "options": ["grec", "hébreu", "français", "latin"] },
-      { "q": "Les prêtres catholiques sont... ?", "a": "célibataires", "options": ["mariés", "célibataires", "veufs", "remariés"] },
-      { "q": "Chef de l'Église catholique ?", "a": "le pape", "options": ["le patriarche", "l'empereur", "le roi", "le pape"] },
-      { "q": "Chef de l'Église orthodoxe ?", "a": "le patriarche", "options": ["le pape", "le patriarche", "l'évêque de Rome", "le métropolite"] },
-      { "q": "Langue de la liturgie orthodoxe ?", "a": "grec", "options": ["latin", "grec", "syriaque", "slavon"] },
-      { "q": "Les prêtres orthodoxes peuvent être... ?", "a": "mariés", "options": ["célibataires", "mariés", "obligatoirement célibataires", "divorcés"] }
+      { "q": "Quel problème touche particulièrement les pays développés ?", "a": "vieillissement", "options": ["famine", "guerre civile", "vieillissement", "manque d'eau"] },
+      { "q": "Quelle est une solution au vieillissement dans les pays développés ?", "a": "immigration", "options": ["guerre", "immigration", "mortalité", "isolement"] },
+      { "q": "Pour améliorer leur situation, les pays en développement doivent investir dans...", "a": "éducation", "options": ["finance", "armement", "éducation", "tourisme"] },
+      { "q": "Quel avantage donne une forte croissance démographique ?", "a": "main d'oeuvre", "options": ["plus de demandes", "main d'oeuvre", "plus de services", "plus de PIB"] }
+    ]
+  },
+
+  {
+    "id": "ch3-lvl1-5e",
+    "chapterId": "ch3-jumper",
+    "title": "Chapitre 3 - Niveau 1 (Démographie et Développement)",
+    "requiredPerQuestion": 3,
+    "lesson": "<h3>📈 1. La Démographie et le Développement</h3><ul><li><strong>1. Démographie :</strong> C'est l'étude de la population (naissances, décès).</li><li><strong>2. Développement :</strong> C'est quand un pays s'enrichit pour satisfaire les besoins de ses habitants.</li><li><strong>3. Croissance forte :</strong> Elle a lieu dans les pays en <strong>développement</strong> (souvent au Sud).</li><li><strong>4. Médecine :</strong> Ses progrès font baisser la mortalité et augmenter la population.</li><li><strong>5. Émergents :</strong> Pays du Sud qui se développent vite (ex: Inde, Brésil).</li><li><strong>6. Hémisphère Sud :</strong> C'est là où se situent la majorité des pays émergents.</li></ul>",
+    "questions": [
+      { "q": "Dans quel type de pays y a-t-il une forte croissance démographique ?", "a": "pays en développement", "options": ["pays développés", "pays du Nord", "pays en développement", "pays de l'Ouest"] },
+      { "q": "Quel facteur principal explique la forte croissance démographique ?", "a": "médecine", "options": ["volonté des femmes", "médecine", "prix nourriture", "pays émergents"] },
+      { "q": "Où sont situés la majorité des pays émergents ?", "a": "sud", "options": ["nord", "est", "sud", "ouest"] },
+      { "q": "Qu'est-ce que le développement pour un pays ?", "a": "enrichissement", "options": ["appauvrissement", "enrichissement", "stagnation", "immigration"] },
+      { "q": "Qu'est-ce que la démographie ?", "a": "étude de la population", "options": ["étude de la richesse", "étude de la population", "étude de l'emploi", "étude du développement"] }
+    ]
+  },
+  {
+    "id": "ch3-lvl2-5e",
+    "chapterId": "ch3-jumper",
+    "title": "Chapitre 3 - Niveau 2 (Études de cas)",
+    "requiredPerQuestion": 3,
+    "lesson": "<h3>🌍 2. Des situations variées</h3><ul><li><strong>1. Pays développés :</strong> La natalité est basse grâce à l'<strong>éducation</strong> et la santé.</li><li><strong>2. Stagnation :</strong> Certains pays riches ne grandissent plus (ex: <strong>Allemagne</strong>).</li><li><strong>3. Explosion :</strong> D'autres grandissent très vite (ex: <strong>Nigeria</strong>).</li><li><strong>4. Chine :</strong> La natalité a baissé à cause de la politique de l'<strong>enfant unique</strong>.</li><li><strong>5. Besoins :</strong> Le défi du Sud est de répondre aux besoins (écoles, hôpitaux).</li><li><strong>6. IDH :</strong> Indicateur pour mesurer le niveau de vie.</li></ul>",
+    "questions": [
+      { "q": "Quel facteur explique la baisse de la natalité dans les pays développés ?", "a": "éducation", "options": ["pauvreté", "climat", "éducation", "religion"] },
+      { "q": "Pourquoi la natalité a-t-elle fortement baissé en Chine ?", "a": "enfant unique", "options": ["meilleure éducation", "enfant unique", "enrichissement", "médecine"] },
+      { "q": "Lequel de ces problèmes est typique des pays en développement ?", "a": "répondre aux besoins", "options": ["vieillissement", "dépenses sociales", "répondre aux besoins", "trop de richesses"] },
+      { "q": "Lequel de ces pays a connu une explosion démographique ?", "a": "Nigeria", "options": ["Angleterre", "Japon", "Nigeria", "Chine"] },
+      { "q": "Quel pays a connu une stagnation de sa population ?", "a": "Allemagne", "options": ["Inde", "Allemagne", "Nigeria", "Brésil"] }
+    ]
+  },
+  {
+    "id": "ch3-lvl3-5e",
+    "chapterId": "ch3-jumper",
+    "title": "Chapitre 3 - Niveau 3 (Défis et Solutions)",
+    "requiredPerQuestion": 3,
+    "lesson": "<h3>🚧 3. Défis et Solutions</h3><ul><li><strong>1. Vieillissement :</strong> Problème majeur des pays riches (coût des retraites).</li><li><strong>2. Immigration :</strong> Solution pour apporter de la main-d'œuvre aux pays vieillissants.</li><li><strong>3. Main-d'œuvre :</strong> C'est l'avantage d'une forte croissance (beaucoup de travailleurs).</li><li><strong>4. Investir :</strong> Les pays pauvres doivent miser sur l'<strong>éducation</strong> et la santé.</li><li><strong>5. Ressources :</strong> Les pays développés consomment beaucoup de ressources.</li><li><strong>6. Avenir :</strong> Il faut gérer la croissance pour protéger l'environnement.</li></ul>",
+    "questions": [
+      { "q": "Quel problème touche particulièrement les pays développés ?", "a": "vieillissement", "options": ["famine", "guerre civile", "vieillissement", "manque d'eau"] },
+      { "q": "Quelle est une solution au vieillissement dans les pays développés ?", "a": "immigration", "options": ["guerre", "immigration", "mortalité", "isolement"] },
+      { "q": "Pour améliorer leur situation, les pays en développement doivent investir dans...", "a": "éducation", "options": ["finance", "armement", "éducation", "tourisme"] },
+      { "q": "Quel avantage donne une forte croissance démographique ?", "a": "main d'oeuvre", "options": ["plus de demandes", "main d'oeuvre", "plus de services", "plus de PIB"] }
     ]
   }
 ]

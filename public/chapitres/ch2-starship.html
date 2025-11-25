@@ -1,8 +1,8 @@
 <template id="template-starship-game">
   <style>
-    /* Zone de question : Texte noir et gras, placé au-dessus */
+    /* Zone de question */
     .question-zone { 
-      margin: 0 0 15px 0;
+      margin: 0 0 10px 0;
       font-size: 1.3em; 
       text-align: center; 
       min-height: 3em;
@@ -16,7 +16,8 @@
     
     #starship-game-area {
       position: relative;
-      height: clamp(320px, 50vh, 550px); 
+      /* Hauteur ajustée pour bien prendre la place */
+      height: clamp(350px, 60vh, 600px); 
       background: radial-gradient(circle at bottom, #1e1b4b, #0f172a);
       border-radius: 12px;
       overflow: hidden;
@@ -26,14 +27,13 @@
     
     #ship {
       position: absolute;
-      bottom: 20px; 
+      bottom: 60px; /* On remonte un peu le vaisseau pour qu'il ne soit pas caché par les boutons au départ */
       left: 50%;
       width: 60px;
       height: 60px;
       transform: translateX(-50%);
       background: url('/images/ship.png') center/contain no-repeat;
-      transition: left 0.08s linear;
-      z-index: 10;
+      z-index: 5; /* Le vaisseau est DERRIÈRE les boutons (z-index 20) */
     }
 
     .falling-answer {
@@ -51,7 +51,7 @@
       text-align: center;
       max-width: 140px;
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-      z-index: 5;
+      z-index: 4;
     }
 
     .missile {
@@ -63,12 +63,82 @@
       box-shadow: 0 0 8px #fbbf24;
       z-index: 2;
     }
+
+    /* --- CONTROLES MOBILES (SUPERPOSÉS) --- */
+    #mobile-controls {
+      position: absolute; /* Superposition */
+      bottom: 15px;       /* Collé en bas */
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      user-select: none;
+      z-index: 20; /* Au-dessus de tout */
+      pointer-events: none; /* Permet de cliquer à travers la zone vide */
+    }
+
+    .d-pad {
+      display: flex;
+      gap: 15px;
+      pointer-events: auto; /* Réactive le clic sur les boutons */
+    }
+
+    .control-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.2); /* Semi-transparent */
+      backdrop-filter: blur(4px);
+      color: white;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      touch-action: manipulation;
+      transition: transform 0.1s, background 0.1s;
+    }
+
+    .control-btn:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    #btn-fire {
+      pointer-events: auto;
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.3);
+      color: #fbbf24;
+      width: 70px;
+      height: 70px;
+      font-size: 30px;
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+    }
+    
+    #btn-fire:active {
+      background: rgba(251, 191, 36, 0.6);
+      color: white;
+    }
+
   </style>
   
   <div id="question" class="question-zone"></div>
   
   <div id="starship-game-area">
     <div id="ship"></div>
+    
+    <!-- ZONE DE CONTRÔLES INTÉGRÉE AU JEU -->
+    <div id="mobile-controls">
+      <div class="d-pad">
+        <div id="btn-left" class="control-btn">⬅️</div>
+        <div id="btn-right" class="control-btn">➡️</div>
+      </div>
+      <div id="btn-fire" class="control-btn">🔥</div>
+    </div>
   </div>
 </template>
 
@@ -82,15 +152,22 @@ class StarshipGame {
     this.ship = container.querySelector("#ship");
     this.questionElement = container.querySelector("#question");
 
+    // Boutons mobiles
+    this.btnLeft = container.querySelector("#btn-left");
+    this.btnRight = container.querySelector("#btn-right");
+    this.btnFire = container.querySelector("#btn-fire");
+
     this.missiles = [];
     this.answers = [];
     this.currentQuestion = null;
     this.animationFrameId = null;
     
-    // --- REGLAGES DU JEU ---
-    // Vitesse de chute : 24 secondes (C'est 2x plus lent qu'avant)
+    // État des touches
+    this.isLeftPressed = false;
+    this.isRightPressed = false;
+
+    // REGLAGES
     this.FALL_DURATION = 24000; 
-    // Temps d'attente avant le début de la chute : 3 secondes
     this.READING_TIME = 3000;
 
     this.bindControls();
@@ -108,17 +185,52 @@ class StarshipGame {
   }
 
   bindControls() {
+    // 1. CLAVIER
     this._keydownHandler = (e) => {
       if (this.controller.getState().isLocked) return;
-
-      if (e.key === "ArrowLeft") this.moveShip(-50);
-      if (e.key === "ArrowRight") this.moveShip(50);
+      if (e.key === "ArrowLeft") this.isLeftPressed = true;
+      if (e.key === "ArrowRight") this.isRightPressed = true;
       if (e.code === "Space") {
         e.preventDefault();
         this.shoot();
       }
     };
+    
+    this._keyupHandler = (e) => {
+      if (e.key === "ArrowLeft") this.isLeftPressed = false;
+      if (e.key === "ArrowRight") this.isRightPressed = false;
+    };
+
     document.addEventListener("keydown", this._keydownHandler);
+    document.addEventListener("keyup", this._keyupHandler);
+
+    // 2. TACTILE / SOURIS
+    
+    // GAUCHE
+    const startLeft = (e) => { e.preventDefault(); this.isLeftPressed = true; };
+    const endLeft = (e) => { e.preventDefault(); this.isLeftPressed = false; };
+    this.btnLeft.addEventListener("mousedown", startLeft);
+    this.btnLeft.addEventListener("touchstart", startLeft);
+    this.btnLeft.addEventListener("mouseup", endLeft);
+    this.btnLeft.addEventListener("touchend", endLeft);
+    this.btnLeft.addEventListener("mouseleave", endLeft);
+
+    // DROITE
+    const startRight = (e) => { e.preventDefault(); this.isRightPressed = true; };
+    const endRight = (e) => { e.preventDefault(); this.isRightPressed = false; };
+    this.btnRight.addEventListener("mousedown", startRight);
+    this.btnRight.addEventListener("touchstart", startRight);
+    this.btnRight.addEventListener("mouseup", endRight);
+    this.btnRight.addEventListener("touchend", endRight);
+    this.btnRight.addEventListener("mouseleave", endRight);
+
+    // TIR
+    const doFire = (e) => { 
+        e.preventDefault(); 
+        if (!this.controller.getState().isLocked) this.shoot(); 
+    };
+    this.btnFire.addEventListener("mousedown", doFire);
+    this.btnFire.addEventListener("touchstart", doFire);
   }
 
   moveShip(delta) {
@@ -130,12 +242,10 @@ class StarshipGame {
 
   shoot() {
     if (this.missiles.length > 5) return;
-
     const missile = document.createElement("div");
     missile.className = "missile";
     missile.style.left = (this.ship.offsetLeft + this.ship.offsetWidth / 2 - 3) + "px";
-    missile.style.bottom = "80px"; 
-
+    missile.style.bottom = (parseFloat(getComputedStyle(this.ship).bottom) + 60) + "px"; // Départ au dessus du vaisseau
     this.gameArea.appendChild(missile);
     this.missiles.push(missile);
   }
@@ -148,21 +258,13 @@ class StarshipGame {
     opts.forEach((opt, index) => {
       const answerEl = document.createElement("div");
       answerEl.className = "falling-answer";
-      
       const lanePercent = ((index + 1) / (n + 1)) * 100;
       answerEl.style.left = lanePercent + "%";
       answerEl.style.top = "0px"; 
-
       answerEl.textContent = opt;
       answerEl.dataset.isCorrect = (opt === this.currentQuestion.a) ? "true" : "false";
-      
-      // --- CALCUL DU DÉPART ---
-      // Start Time = Maintenant + 3 secondes de lecture + petit aléatoire
       answerEl.dataset.startTime = now + this.READING_TIME + (Math.random() * 1500); 
-      
-      // Vitesse
       answerEl.dataset.speed = (this.gameArea.offsetHeight) / (this.FALL_DURATION / 16); 
-
       this.gameArea.appendChild(answerEl);
       this.answers.push(answerEl);
     });
@@ -179,28 +281,30 @@ class StarshipGame {
 
   updateState() {
     const now = performance.now();
+
+    // 1. MOUVEMENT
+    const SHIP_SPEED = 8; 
+    if (this.isLeftPressed) this.moveShip(-SHIP_SPEED);
+    if (this.isRightPressed) this.moveShip(SHIP_SPEED);
+
     const shipTop = this.ship.offsetTop; 
 
-    // Update Réponses
+    // 2. REPONSES
     for (let i = this.answers.length - 1; i >= 0; i--) {
       const ans = this.answers[i];
       const startTime = parseFloat(ans.dataset.startTime);
       
-      // On ne bouge que si le délai de lecture est passé
       if (now > startTime) {
         const speed = parseFloat(ans.dataset.speed);
         const currentTop = parseFloat(ans.style.top) || 0;
         const newTop = currentTop + speed; 
         ans.style.top = newTop + "px";
 
-        // Echec si dépasse le vaisseau
         if (newTop > shipTop && ans.dataset.isCorrect === "true" && !ans.dataset.passed) {
             ans.dataset.passed = "true"; 
             this.handleLevelFail(); 
             return;
         }
-
-        // Nettoyage bas écran
         if (newTop > this.gameArea.offsetHeight) {
             ans.remove();
             this.answers.splice(i, 1);
@@ -208,7 +312,7 @@ class StarshipGame {
       }
     }
 
-    // Update Missiles
+    // 3. MISSILES
     for (let i = this.missiles.length - 1; i >= 0; i--) {
       const m = this.missiles[i];
       let bottom = parseFloat(m.style.bottom);
@@ -245,7 +349,6 @@ class StarshipGame {
 
   handleCollision(answerEl) {
     const isCorrect = answerEl.dataset.isCorrect === "true";
-    
     if (isCorrect) {
         this.resetAnimation(false); 
         this.controller.notifyCorrectAnswer();
@@ -269,6 +372,8 @@ class StarshipGame {
     this.missiles.forEach(m => m.remove());
     this.answers = [];
     this.missiles = [];
+    this.isLeftPressed = false;
+    this.isRightPressed = false;
   }
 
   startAnimation() {

@@ -67,16 +67,11 @@ openLessonBtn?.addEventListener("click", () => {
 
 // --- CHEAT CODE (Barre Verte + R + T) ---
 $("#mainProgress")?.addEventListener("click", () => {
-  // Sécurité 1 : Jeu actif ?
   if (!isGameActive) return;
-  
-  // Sécurité 2 : Touches R et T enfoncées ?
-  if (!isRKeyDown || !isTKeyDown) return;
+  if (!isRKeyDown || !isTKeyDown) return; // SÉCURITÉ
 
   console.log("🕵️ CHEAT CODE ACTIVÉ : Niveau validé !");
-  
-  updateTimeBar(); // On garde le temps actuel pour la note
-  
+  updateTimeBar(); 
   const lvl = levels[currentLevel];
   if(lvl) {
     general = lvl.questions.length;
@@ -243,31 +238,22 @@ async function updateChapterSelectionUI(player) {
         await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
       };
 
-      const firstLevel = chapterLevels[0];
-      let lessonContent = "<h3>🚀 Prêt pour la mission ?</h3><p>Concentre-toi bien et bonne chance !</p>";
-      
-      // AGGREGATION DES LEÇONS
       let fullLessonHTML = "";
       let hasLesson = false;
       chapterLevels.forEach((lvl, index) => {
         if (lvl.lesson) {
           hasLesson = true;
           const cleanTitle = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*Niveau\s+\d+\s*[-—–]\s*/i, "");
-          fullLessonHTML += `
-            <div class="lesson-level-title">NIVEAU ${index + 1} : ${cleanTitle}</div>
-            ${lvl.lesson}
-            <hr class="lesson-separator" />
-          `;
+          fullLessonHTML += `<div class="lesson-level-title">NIVEAU ${index + 1} : ${cleanTitle}</div>${lvl.lesson}<hr class="lesson-separator" />`;
         }
       });
       if (fullLessonHTML.endsWith('<hr class="lesson-separator" />')) fullLessonHTML = fullLessonHTML.slice(0, -31);
+      
+      if (!hasLesson) fullLessonHTML = "<h3>🚀 Prêt pour la mission ?</h3><p>Concentre-toi bien et bonne chance !</p>";
 
-      if (hasLesson) lessonContent = fullLessonHTML;
-
-      lessonText.innerHTML = lessonContent;
+      lessonText.innerHTML = fullLessonHTML;
       if(iAmReadyBtn) iAmReadyBtn.style.display = "block";
       if(lessonModal) lessonModal.style.display = "flex";
-      
       pendingLaunch = startGame;
     };
 
@@ -309,20 +295,17 @@ async function updateChapterSelectionUI(player) {
       try {
         await loadAllQuestionsForProf();
         const res = await fetch(`/api/player-progress/${saved.id}`);
-        
         if (res.status === 404) {
           localStorage.removeItem("player");
           window.location.reload();
           return;
         }
-
         if(res.ok) {
           const serverData = await res.json();
           currentPlayerData = { ...saved, ...serverData };
         } else {
           currentPlayerData = saved;
         }
-        
         showStudent(saved);
         await updateChapterSelectionUI(currentPlayerData);
         chapterSelection.style.display = "block";
@@ -340,7 +323,6 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
   gameModuleContainer.innerHTML = "Chargement...";
   await loadQuestions(classKey);
   levels = levels.filter(l => l.chapterId === chapId);
-  
   if(!levels.length) { gameModuleContainer.innerHTML = "Erreur: Pas de niveaux."; return; }
 
   try {
@@ -350,7 +332,6 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const tpl = doc.querySelector(`#${templateId}`);
     const script = doc.querySelector("script");
-    
     gameModuleContainer.innerHTML = "";
     gameModuleContainer.appendChild(tpl.content.cloneNode(true));
     eval(script.textContent);
@@ -386,7 +367,6 @@ function setupLevel(idx) {
   const lvl = levels[currentLevel];
   const summary = document.getElementById("levelGradesSummary");
   if(summary) summary.remove();
-  
   levelTitle.textContent = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*/i, "");
   
   const welcome = document.getElementById("welcomeText");
@@ -470,12 +450,10 @@ async function nextQuestion(keep) {
 
 function incrementProgress(v) {
   if (!isGameActive) return;
-  
   const lvl = levels[currentLevel];
   const req = lvl.requiredPerQuestion;
   
   if (typeof localScores[currentIndex] === 'undefined') localScores[currentIndex] = 0;
-  
   const oldScore = localScores[currentIndex];
   localScores[currentIndex] = Math.min(req, oldScore + v);
   
@@ -533,7 +511,7 @@ async function saveProgress(type, val, grade) {
 async function handleBarClick(i) {
   if(locked || !isGameActive) return;
   
-  // SÉCURITÉ CHEAT CODE (R + T)
+  // CHEAT CODE (R + T)
   if (!isRKeyDown || !isTKeyDown) return;
 
   locked = true;
@@ -587,7 +565,6 @@ $("#validateProfPasswordBtn")?.addEventListener("click", () => {
   }
 });
 
-// TABLEAU PROF
 async function fetchPlayers() {
   if (!profDashboard) return;
   profDashboard.style.display = "block";
@@ -643,7 +620,13 @@ function renderPlayers(playersToRender) {
     table.appendChild(tbody);
     return;
   }
-  const chaptersToDisplay = { "ch1-zombie": "Chapitre 1", "ch2-starship": "Chapitre 2" };
+  
+  // --- ICI : AJOUT DU CHAPITRE 3 DANS LE TABLEAU ---
+  const chaptersToDisplay = { 
+    "ch1-zombie": "Chapitre 1", 
+    "ch2-starship": "Chapitre 2", 
+    "ch3-jumper": "Chapitre 3" 
+  };
 
   playersToRender.sort((a, b) => a.lastName.localeCompare(b.lastName)).forEach((player) => {
       const playerTbody = document.createElement("tbody");

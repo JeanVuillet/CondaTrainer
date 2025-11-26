@@ -16,28 +16,19 @@
   </header>
 
   <main class="wrap">
-    
-    <!-- 1. Carte d'inscription / Connexion -->
+    <!-- 1. Connexion -->
     <section id="registerCard" class="card">
       <h2>👋 Avant de commencer</h2>
       <form id="registerForm" class="form" autocomplete="on">
-        <p class="hint">
-          Entre ton <strong>prénom</strong>, <strong>nom</strong> et sélectionne ta <strong>classe</strong>.
-        </p>
+        <p class="hint">Prénom, Nom et Classe.</p>
         <div class="row">
-          <div>
-            <label for="firstName">Prénom</label>
-            <input id="firstName" name="firstName" placeholder="Ex : Jeanne" required />
-          </div>
-          <div>
-            <label for="lastName">Nom</label>
-            <input id="lastName" name="lastName" placeholder="Ex : Martin" required />
-          </div>
+          <div><label>Prénom</label><input id="firstName" placeholder="Ex : Jeanne" required /></div>
+          <div><label>Nom</label><input id="lastName" placeholder="Ex : Martin" required /></div>
         </div>
         <div class="row">
           <div>
-            <label for="classroom">Classe</label>
-            <select id="classroom" name="classroom">
+            <label>Classe</label>
+            <select id="classroom">
               <option value="" disabled selected>Choisis ta classe...</option>
               <option value="6D">6eD</option>
               <option value="5B">5eB</option>
@@ -46,141 +37,72 @@
               <option value="2CD">2de CD</option>
             </select>
           </div>
-          <div>
-            <label>&nbsp;</label>
-            <button id="startBtn" type="submit">Commencer</button>
-          </div>
+          <div><label>&nbsp;</label><button id="startBtn" type="submit">Commencer</button></div>
         </div>
         <div id="formMsg" class="hint"></div>
       </form>
-
-      <!-- Modal Mot de passe Prof -->
       <div id="profPasswordModal" style="display: none;">
-        <h4 style="margin-top:15px;">🔐 Accès Professeur</h4>
-        <p class="hint">Veuillez entrer le mot de passe.</p>
-        <div class="form">
-          <div>
-            <label for="profPassword">Mot de passe</label>
-            <input type="password" id="profPassword" placeholder="••••••••••" />
-          </div>
-          <div id="profPasswordMsg" class="error" style="margin-bottom: 8px;"></div>
-          <button id="validateProfPasswordBtn">Valider</button>
-        </div>
+        <h4>🔐 Accès Professeur</h4>
+        <input type="password" id="profPassword" placeholder="••••••••••" />
+        <button id="validateProfPasswordBtn">Valider</button>
       </div>
     </section>
 
-    <!-- 2. Écran de sélection des chapitres -->
+    <!-- 2. Sélection Chapitre -->
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
-
       <div class="chapter-grid">
-        <!-- Chapitre 1 : Zombie -->
-        <div class="chapter-box" 
-             data-chapter="ch1-zombie" 
-             data-template-id="template-zombie-game" 
-             data-game-class="ZombieGame">
-
+        <div class="chapter-box" data-chapter="ch1-zombie" data-template-id="template-zombie-game" data-game-class="ZombieGame">
           <h3>Chapitre 1 — L’Attaque des Zombies</h3>
-          <p class="chapter-mini">
-            🎮 <strong>Mini-jeu :</strong> Survivre à l’invasion
-          </p>
-
-          <!-- Liste des niveaux (remplie par JS) -->
-          <div class="chapter-levels"></div>
-
-          <!-- Stats (cachées par défaut par JS mais présentes) -->
-          <div class="chapter-progress">
-            <p class="chapter-progress-title">Progression :</p>
-            <ul class="chapter-progress-list">
-              <li><strong>Niveaux :</strong> 0 / 0</li>
-              <li><strong>Questions :</strong> 0 / 0</li>
-            </ul>
-          </div>
-
-          <p class="chapter-status-text"></p>
-
-          <button class="replay-btn-improved chapter-action-btn">
-            1 Jouer
-          </button>
-        </div>
-
-        <!-- Chapitre 2 : Starship -->
-        <div class="chapter-box" 
-             data-chapter="ch2-starship" 
-             data-template-id="template-starship-game" 
-             data-game-class="StarshipGame">
-
-          <h3>Chapitre 2 — Starship : Défends ton vaisseau</h3>
-          <p class="chapter-mini">
-            🎮 <strong>Mini-jeu :</strong> Bouger ⬅️➡️ • [ESPACE] Tirer
-          </p>
-
-          <div class="chapter-levels"></div>
-
-          <div class="chapter-progress">
-            <p class="chapter-progress-title">Progression :</p>
-            <ul class="chapter-progress-list">
-              <li><strong>Niveaux :</strong> 0 / 0</li>
-              <li><strong>Questions :</strong> 0 / 0</li>
-            </ul>
-          </div>
-
-          <p class="chapter-status-text"></p>
-
-          <button class="replay-btn-improved chapter-action-btn">
-            1 Jouer
-          </button>
-        </div>
-        <!-- Chapitre 3 -->
-        <div class="chapter-box" 
-             data-chapter="ch3-jumper" 
-             data-template-id="template-jumper-game" 
-             data-game-class="JumperGame">
-
-          <h3>Chapitre 3 — Le Jumper de l'Histoire</h3>
-          <p class="chapter-mini">
-            🎮 <strong>Mini-jeu :</strong> Saute sur la bonne couleur !
-          </p>
-
+          <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Survivre à l’invasion</p>
           <div class="chapter-levels"></div>
           <div class="chapter-progress" style="display:none"></div>
           <p class="chapter-status-text" style="display:none"></p>
+          <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
+        </div>
 
-          <button class="replay-btn-improved chapter-action-btn">
-            1 Jouer
-          </button>
+        <div class="chapter-box" data-chapter="ch2-starship" data-template-id="template-starship-game" data-game-class="StarshipGame">
+          <h3>Chapitre 2 — Starship</h3>
+          <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Bouger ⬅️➡️ • [ESPACE] Tirer</p>
+          <div class="chapter-levels"></div>
+          <div class="chapter-progress" style="display:none"></div>
+          <p class="chapter-status-text" style="display:none"></p>
+          <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
+        </div>
+
+        <div class="chapter-box" data-chapter="ch3-jumper" data-template-id="template-jumper-game" data-game-class="JumperGame">
+          <h3>Chapitre 3 — Le Jumper</h3>
+          <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Sauter sur la bonne couleur</p>
+          <div class="chapter-levels"></div>
+          <div class="chapter-progress" style="display:none"></div>
+          <p class="chapter-status-text" style="display:none"></p>
+          <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
       </div>
     </section>
 
-    <!-- 3. La section du JEU -->
+    <!-- 3. Jeu -->
     <section id="game" style="display: none;">
       <div class="card quiz-container">
-        
         <div class="game-header-row">
           <button id="backToMenuBtn" class="back-menu-btn">← Retour au menu des jeux</button>
           <h2 id="levelTitle"></h2>
-         
         </div>
-
         <p class="hint" id="welcomeText" style="text-align:center;"></p>
-        
         <div id="mainProgress"><div id="mainBar"></div></div>
         <p id="general" style="text-align:center; margin:4px 0 8px;">Compteur général : 0/0</p>
-        
         <div id="subBars"></div>
         <div id="lives"></div>
-        
         <div id="gameModuleContainer"></div>
       </div>
     </section>
     
-    <!-- 4. Tableau de bord PROFESSEUR -->
+    <!-- 4. Dashboard Prof -->
     <section id="profDashboard" class="card" style="margin-top: 24px; display: none;"> 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap:10px;">
         <h2>📈 Tableau des élèves</h2>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-          <select id="classFilter" class="action-btn" style="width: auto; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <select id="classFilter" class="action-btn">
             <option value="all">Toutes les classes</option>
             <option value="6D">6eD</option>
             <option value="5B">5eB</option>
@@ -188,63 +110,46 @@
             <option value="2A">2de A</option>
             <option value="2CD">2de CD</option>
           </select>
-          <input id="studentSearch" type="text" placeholder="Rechercher un élève..." class="action-btn" style="width: 220px; font-size: 14px; padding: 8px 12px!important; height: 37px; border-color: #d1d5db;"/>
-          <button id="resetAllBtn" style="width: auto; padding: 8px 12px; font-size: 14px; background: var(--warn);">⚠️ Tout Réinitialiser</button>
+          
+          <!-- NOUVEAU BOUTON TEST -->
+          <button id="testClassBtn" style="background: #3b82f6; color: white;">🎮 Tester cette classe</button>
+          
+          <input id="studentSearch" type="text" placeholder="Rechercher..." class="action-btn"/>
+          <button id="resetAllBtn" style="background: var(--warn);">⚠️ Tout Réinitialiser</button>
         </div>
       </div>
-      <table id="playersTable" style="width: 100%; border-collapse: collapse; border-spacing: 0 10px;">
+      <table id="playersTable" style="width: 100%; border-collapse: collapse;">
         <thead>
           <tr style="background: #f1f5f9;">
-            <th style="width: 20%; padding-left: 10px;">Prénom et Nom</th>
-            <th style="width: 10%;">Classe</th>
-            <th style="width: 20%;">Chapitre</th>
-            <th style="width: 20%;">Niveau en cours</th>
-            <th style="width: 20%;">Progression</th>
-            <th style="width: 10%;">Actions</th>
+            <th>Prénom et Nom</th><th>Classe</th><th>Chapitre</th><th>Niveau en cours</th><th>Progression</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="playersBody"></tbody>
       </table>
     </section>
 
+    <!-- Fiche Cours (MODAL) -->
+    <div id="lessonModal" class="lesson-modal" style="display: none;">
+      <div class="lesson-content">
+        <div class="lesson-header">
+          <h3>Fiche de révision</h3>
+          <button id="closeLessonBtn">✖</button>
+        </div>
+        <div id="lessonText" class="lesson-body"></div>
+        <div class="lesson-footer">
+          <button id="iAmReadyBtn" class="ready-btn">JE SUIS PRÊT ! 🚀</button>
+        </div>
+      </div>
+    </div>
+
   </main>
 
-  <!-- ============================================================ -->
-  <!-- POPUPS ET MODALES (HORS DU FLUX PRINCIPAL)                   -->
-  <!-- ============================================================ -->
-
-  <!-- Modal de Cours (Correction : Placé ici pour s'afficher par-dessus le menu) -->
-  <div id="lessonModal" class="lesson-modal" style="display: none;">
-    <div class="lesson-content">
-      <div class="lesson-header">
-        <h3>Fiche de révision</h3>
-        <button id="closeLessonBtn">✖</button>
-      </div>
-      <div id="lessonText" class="lesson-body">
-        <!-- Le texte du cours sera injecté ici -->
-      </div>
-      <div class="lesson-footer">
-        <button id="iAmReadyBtn" class="ready-btn">JE SUIS PRÊT ! 🚀</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Overlay Game Over -->
   <div id="overlay" style="display:none;">
-    <div class="panel">
-      <h3>💀 Game Over</h3>
-      <p>Tu n'as plus de cœurs. Recommencer le niveau ?</p>
-      <button id="restartBtn">Recommencer</button>
-    </div>
+    <div class="panel"><h3>💀 Game Over</h3><p>Tu n'as plus de cœurs.</p><button id="restartBtn">Recommencer</button></div>
   </div>
 
-  <!-- Overlay Correction -->
   <div id="correctionOverlay" style="display:none;">
-    <div class="correction-box">
-      <h2>❌ Erreur ! La bonne réponse était :</h2>
-      <p id="correctionText"></p>
-      <button id="closeCorrectionBtn">Continuer</button>
-    </div>
+    <div class="correction-box"><h2>❌ Erreur ! La bonne réponse était :</h2><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div>
   </div>
 
   <script src="main.js"></script>

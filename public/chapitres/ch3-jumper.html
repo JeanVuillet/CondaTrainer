@@ -40,41 +40,15 @@
       touch-action: none; 
     }
 
-    /* Barre d'énergie (Fuel) */
-    #energy-container {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 100px;
-      height: 12px;
-      background: #1e293b;
-      border: 2px solid #fff;
-      border-radius: 6px;
-      overflow: hidden;
-      z-index: 20;
-    }
-    #energy-bar {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, #eab308, #22c55e);
-      transform-origin: left;
-      transition: width 0.1s linear;
-    }
-    .energy-label {
-      position: absolute;
-      top: 10px;
-      right: 115px;
-      font-size: 10px;
-      font-weight: bold;
-      color: #1e293b;
-    }
-
     #player {
       position: absolute;
       width: 40px;
       height: 40px;
-      background: url('/images/jumper.png') center/contain no-repeat;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
       z-index: 10;
+      transition: transform 0.1s; /* Pour le retournement gauche/droite */
     }
 
     .platform {
@@ -100,6 +74,7 @@
     .seg-orange { background: #f97316; }
     .seg-blue { background: #3b82f6; }
 
+    /* Porte d'arrivée (Cachée par défaut) */
     #goal-door {
       position: absolute;
       width: 40px;
@@ -109,12 +84,20 @@
       border-radius: 8px 8px 0 0;
       bottom: 40px; 
       right: 20px;
-      display: flex;
+      display: none; /* Invisible au début */
       align-items: center;
       justify-content: center;
       color: white;
       font-weight: bold;
       font-size: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+    
+    /* Classe pour faire apparaître la porte */
+    .door-visible {
+      display: flex !important;
+      opacity: 1 !important;
     }
 
     /* --- CONTROLES --- */
@@ -152,14 +135,10 @@
   </div>
 
   <div id="jumper-area">
-    <span class="energy-label">JETPACK</span>
-    <div id="energy-container"><div id="energy-bar"></div></div>
-
     <div id="player"></div>
     
     <div id="plat-start" class="platform" style="left: 0; bottom: 40px; width: 20%;"></div>
     
-    <!-- Plateforme plus large et un peu plus loin pour le challenge -->
     <div id="plat-choice" class="platform" style="left: 30%; bottom: 60px; width: 50%;">
       <div class="plat-segment seg-red"></div>
       <div class="plat-segment seg-green"></div>
@@ -176,7 +155,7 @@
       <div id="btn-left" class="ctrl-btn">⬅️</div>
       <div id="btn-right" class="ctrl-btn">➡️</div>
     </div>
-    <div id="btn-jump" class="ctrl-btn btn-jump">🦘</div>
+    <div id="btn-jump" class="ctrl-btn btn-jump">🚀</div>
   </div>
 </template>
 
@@ -188,7 +167,6 @@ class JumperGame {
     
     this.area = container.querySelector("#jumper-area");
     this.player = container.querySelector("#player");
-    this.energyBar = container.querySelector("#energy-bar");
     
     this.platStart = container.querySelector("#plat-start");
     this.platChoice = container.querySelector("#plat-choice");
@@ -208,24 +186,20 @@ class JumperGame {
     this.vx = 0; 
     this.vy = 0;
     
-    // --- REGLAGES PHYSIQUE JETPACK (CALIBRÉ) ---
-    this.GRAVITY = 0.6;       // Gravité constante
-    this.THRUST = 1.1;        // Force du moteur (Doit être > Gravité pour monter)
-    this.MAX_V_SPEED = 6;     // Vitesse max de montée
-    this.MOVE_SPEED = 0.55;    // Vitesse latérale
-    this.FRICTION = 0.90;     // Glissement (plus c'est haut, plus ça glisse)
+    // --- REGLAGES PHYSIQUE VOL INFINI ---
+    this.GRAVITY = 0.6;       
+    this.THRUST = 1.0;        // Poussée douce
+    this.MAX_V_SPEED = 4;     // Plafond vitesse plus bas (monte moins vite)
     
-    // Energie
-    this.MAX_FUEL = 100;
-    this.fuel = 100;
-    // Calibré pour atteindre le milieu de la plateforme centrale avec un plein
-    this.FUEL_CONSUMPTION = 1.4; 
+    this.MOVE_SPEED = 0.55;    
+    this.FRICTION = 0.85;     
 
     // Inputs
     this.keys = { left: false, right: false, jump: false };
     this.currentQ = null;
     this.correctColorIndex = -1; 
     this.animId = null;
+    this.onGround = true;
 
     this.colors = [
       { name: "red", hex: "#ef4444" },
@@ -265,16 +239,14 @@ class JumperGame {
     this.y = 80; 
     this.vx = 0;
     this.vy = 0;
-    this.fuel = this.MAX_FUEL;
-    this.updateFuelBar();
+    this.onGround = true;
+    
+    // Reset Porte
+    this.goalDoor.classList.remove('door-visible');
+    
     this.player.style.left = this.x + "px";
     this.player.style.bottom = this.y + "px";
-  }
-
-  updateFuelBar() {
-    this.energyBar.style.width = this.fuel + "%";
-    if (this.fuel < 20) this.energyBar.style.background = "#ef4444"; 
-    else this.energyBar.style.background = "linear-gradient(90deg, #eab308, #22c55e)";
+    this.player.style.backgroundImage = "url('/images/jumper.png')";
   }
 
   bindControls() {
@@ -317,39 +289,44 @@ class JumperGame {
   }
 
   update() {
-    // 1. Horizontal (Glisse un peu grâce à FRICTION)
+    // 1. Horizontal
     if (this.keys.left) this.vx -= this.MOVE_SPEED;
     if (this.keys.right) this.vx += this.MOVE_SPEED;
     
-    this.vx *= this.FRICTION; // Friction = Glissement
+    if (!this.keys.left && !this.keys.right) {
+        // Arrêt plus net au sol
+        if (this.onGround) this.vx *= 0.5; 
+        else this.vx *= this.FRICTION;
+        
+        if (Math.abs(this.vx) < 0.1) this.vx = 0;
+    }
+
+    // Plafond vitesse latérale
+    if (this.vx > 3) this.vx = 3;
+    if (this.vx < -3) this.vx = -3;
+
     this.x += this.vx;
 
     if (this.x < 0) { this.x = 0; this.vx = 0; }
     if (this.x > this.area.offsetWidth - 40) { this.x = this.area.offsetWidth - 40; this.vx = 0; }
 
-    // 2. Vertical (JETPACK)
-    // On applique toujours la gravité
+    // 2. Vertical (VOL INFINI)
     this.vy -= this.GRAVITY;
 
-    // Si on appuie et qu'on a du carburant, on applique la poussée
-    if (this.keys.jump && this.fuel > 0) {
+    // Si on appuie, on vole (pas de limite de fuel)
+    if (this.keys.jump) {
       this.vy += this.THRUST; 
-      this.fuel -= this.FUEL_CONSUMPTION;
-      if (this.fuel < 0) this.fuel = 0;
     }
     
-    // Plafond de vitesse pour ne pas téléporter le joueur
     if (this.vy > this.MAX_V_SPEED) this.vy = this.MAX_V_SPEED;
-
-    this.updateFuelBar();
 
     this.y += this.vy;
     
-    // Plafond écran (rebond léger)
     const maxY = this.area.offsetHeight - 40;
-    if (this.y > maxY) { this.y = maxY; this.vy = -1; }
+    if (this.y > maxY) { this.y = maxY; this.vy = -0.5; }
 
-    // 3. Collisions Plateformes
+    // 3. Collisions
+    this.onGround = false; 
     const platforms = [
       { el: this.platStart, type: 'safe' },
       { el: this.platChoice, type: 'choice' },
@@ -366,7 +343,7 @@ class JumperGame {
         const platTop = areaRect.bottom - rect.top; 
 
         if (this.x + 30 > platLeft && this.x + 10 < platRight) {
-          if (this.y <= platTop && this.y + 25 >= platTop) {
+          if (this.y <= platTop && this.y + 20 >= platTop) {
             
             // TEST COULEUR
             if (p.type === 'choice') {
@@ -376,17 +353,18 @@ class JumperGame {
               const segmentIndex = Math.floor(playerCenter / segmentWidth);
 
               if (segmentIndex !== this.correctColorIndex) {
-                return; // On passe à travers
+                return; // Passe à travers
               }
+              
+              // SI ON EST ICI = BONNE COULEUR !
+              // On fait apparaître la porte
+              this.goalDoor.classList.add('door-visible');
             }
 
-            // Atterrissage = RECHARGE
+            // Atterrissage
             this.y = platTop;
             this.vy = 0;
-            
-            if (this.fuel < this.MAX_FUEL) {
-               this.fuel = this.MAX_FUEL;
-            }
+            this.onGround = true; 
           }
         }
       });
@@ -402,22 +380,33 @@ class JumperGame {
       this.resetPosition();
     }
 
-    // 5. Victoire
-    const doorRect = this.goalDoor.getBoundingClientRect();
-    const areaRect = this.area.getBoundingClientRect();
-    const doorLeft = doorRect.left - areaRect.left;
-    const doorRight = doorRect.right - areaRect.left;
-    const doorBottom = areaRect.bottom - doorRect.bottom;
+    // 5. Victoire (Porte) - SEULEMENT SI VISIBLE
+    if (this.goalDoor.classList.contains('door-visible')) {
+        const doorRect = this.goalDoor.getBoundingClientRect();
+        const areaRect = this.area.getBoundingClientRect();
+        const doorLeft = doorRect.left - areaRect.left;
+        const doorRight = doorRect.right - areaRect.left;
+        const doorBottom = areaRect.bottom - doorRect.bottom;
 
-    if (this.x + 30 > doorLeft && this.x + 10 < doorRight && this.y <= doorBottom + 60 && this.y >= doorBottom) {
-      this.controller.notifyCorrectAnswer();
-      this.resetPosition();
+        if (this.x + 30 > doorLeft && this.x + 10 < doorRight && this.y <= doorBottom + 60 && this.y >= doorBottom) {
+          this.controller.notifyCorrectAnswer();
+          this.resetPosition();
+        }
     }
   }
 
   draw() {
     this.player.style.left = this.x + "px";
     this.player.style.bottom = this.y + "px";
+    
+    // Changement de Costume
+    if (this.onGround) {
+        this.player.style.backgroundImage = "url('/images/jumper.png')";
+    } else {
+        this.player.style.backgroundImage = "url('/images/jetpack.png')";
+    }
+
+    // Orientation
     if (this.vx > 0.1) this.player.style.transform = "scaleX(1)";
     else if (this.vx < -0.1) this.player.style.transform = "scaleX(-1)";
   }

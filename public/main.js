@@ -9,6 +9,9 @@ const overlay = $("#overlay"), restartBtn = $("#restartBtn");
 const correctionOverlay = $("#correctionOverlay"), correctionText = $("#correctionText"), closeCorrectionBtn = $("#closeCorrectionBtn");
 const profDashboard = $("#profDashboard"), playersBody = $("#playersBody"), classFilter = $("#classFilter"), resetAllBtn = $("#resetAllBtn"), studentSearch = $("#studentSearch"), backToMenuBtn = $("#backToMenuBtn");
 
+// Bouton Test Prof
+const testClassBtn = $("#testClassBtn");
+
 // --- UI FICHE COURS ---
 const openLessonBtn = $("#openLessonBtn");
 const lessonModal = $("#lessonModal");
@@ -295,17 +298,20 @@ async function updateChapterSelectionUI(player) {
       try {
         await loadAllQuestionsForProf();
         const res = await fetch(`/api/player-progress/${saved.id}`);
+        
         if (res.status === 404) {
           localStorage.removeItem("player");
           window.location.reload();
           return;
         }
+
         if(res.ok) {
           const serverData = await res.json();
           currentPlayerData = { ...saved, ...serverData };
         } else {
           currentPlayerData = saved;
         }
+        
         showStudent(saved);
         await updateChapterSelectionUI(currentPlayerData);
         chapterSelection.style.display = "block";
@@ -323,6 +329,7 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
   gameModuleContainer.innerHTML = "Chargement...";
   await loadQuestions(classKey);
   levels = levels.filter(l => l.chapterId === chapId);
+  
   if(!levels.length) { gameModuleContainer.innerHTML = "Erreur: Pas de niveaux."; return; }
 
   try {
@@ -332,6 +339,7 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const tpl = doc.querySelector(`#${templateId}`);
     const script = doc.querySelector("script");
+    
     gameModuleContainer.innerHTML = "";
     gameModuleContainer.appendChild(tpl.content.cloneNode(true));
     eval(script.textContent);
@@ -511,7 +519,7 @@ async function saveProgress(type, val, grade) {
 async function handleBarClick(i) {
   if(locked || !isGameActive) return;
   
-  // CHEAT CODE (R + T)
+  // SÉCURITÉ CHEAT CODE (R + T)
   if (!isRKeyDown || !isTKeyDown) return;
 
   locked = true;
@@ -620,13 +628,7 @@ function renderPlayers(playersToRender) {
     table.appendChild(tbody);
     return;
   }
-  
-  // --- ICI : AJOUT DU CHAPITRE 3 DANS LE TABLEAU ---
-  const chaptersToDisplay = { 
-    "ch1-zombie": "Chapitre 1", 
-    "ch2-starship": "Chapitre 2", 
-    "ch3-jumper": "Chapitre 3" 
-  };
+  const chaptersToDisplay = { "ch1-zombie": "Chapitre 1", "ch2-starship": "Chapitre 2", "ch3-jumper": "Chapitre 3" };
 
   playersToRender.sort((a, b) => a.lastName.localeCompare(b.lastName)).forEach((player) => {
       const playerTbody = document.createElement("tbody");
@@ -689,6 +691,37 @@ function applyFiltersAndRender() {
 
 classFilter?.addEventListener("change", applyFiltersAndRender);
 studentSearch?.addEventListener("input", applyFiltersAndRender);
+
+// --- LOGIQUE BOUTON TEST CLASSE ---
+testClassBtn?.addEventListener("click", async () => {
+  const selectedClass = classFilter ? classFilter.value : "all";
+  
+  if (selectedClass === "all") {
+    alert("Veuillez sélectionner une classe spécifique dans le menu déroulant avant de cliquer sur Tester.");
+    return;
+  }
+
+  // On tente de se connecter en tant que "Eleve Test" de la classe choisie
+  try {
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // On utilise "Eleve" et "Test" comme défini dans init-db.js
+      body: JSON.stringify({ firstName: "Eleve", lastName: "Test", classroom: selectedClass }),
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur lors de la connexion test.");
+    
+    // Succès : on sauvegarde et on recharge pour devenir cet élève
+    localStorage.setItem("player", JSON.stringify(data));
+    window.location.reload();
+    
+  } catch (err) {
+    console.error(err);
+    alert("Impossible de trouver le compte 'Eleve Test' pour cette classe. Assurez-vous d'avoir relancé init-db.js.");
+  }
+});
 
 resetAllBtn?.addEventListener("click", async () => {
   if (confirm("⚠️ Réinitialiser TOUS les élèves ?")) {

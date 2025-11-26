@@ -1,6 +1,9 @@
 // --- SECTION 0: UI & State ---
 const $ = (sel) => document.querySelector(sel);
 const studentBadge = $("#studentBadge"), logoutBtn = $("#logoutBtn");
+// NOUVEAU : Bouton retour prof
+const backToProfBtn = $("#backToProfBtn");
+
 const registerCard = $("#registerCard"), chapterSelection = $("#chapterSelection"), game = $("#game");
 const form = $("#registerForm"), startBtn = $("#startBtn"), formMsg = $("#formMsg");
 const gameModuleContainer = $("#gameModuleContainer");
@@ -9,7 +12,7 @@ const overlay = $("#overlay"), restartBtn = $("#restartBtn");
 const correctionOverlay = $("#correctionOverlay"), correctionText = $("#correctionText"), closeCorrectionBtn = $("#closeCorrectionBtn");
 const profDashboard = $("#profDashboard"), playersBody = $("#playersBody"), classFilter = $("#classFilter"), resetAllBtn = $("#resetAllBtn"), studentSearch = $("#studentSearch"), backToMenuBtn = $("#backToMenuBtn");
 
-// Bouton Test Prof
+// Bouton Test Prof (dans le dashboard)
 const testClassBtn = $("#testClassBtn");
 
 // --- UI FICHE COURS ---
@@ -47,6 +50,16 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   if (e.key.toLowerCase() === "r") isRKeyDown = false;
   if (e.key.toLowerCase() === "t") isTKeyDown = false;
+});
+
+// --- LOGIQUE RETOUR PROF (Si on est Eleve Test) ---
+backToProfBtn?.addEventListener("click", () => {
+  // On force la reconnexion en tant que prof Jean Vuillet
+  localStorage.setItem(
+    "player",
+    JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })
+  );
+  window.location.reload();
 });
 
 // --- LOGIQUE MODAL COURS ---
@@ -142,6 +155,11 @@ function renderLives() {
 function showStudent(stu) {
   studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
   logoutBtn.style.display = "block";
+  
+  // Si c'est l'élève test, on affiche le bouton magique
+  if (stu.firstName === "Eleve" && stu.lastName === "Test") {
+    if(backToProfBtn) backToProfBtn.style.display = "block";
+  }
 }
 logoutBtn.addEventListener("click", () => { localStorage.removeItem("player"); window.location.reload(); });
 
@@ -573,6 +591,7 @@ $("#validateProfPasswordBtn")?.addEventListener("click", () => {
   }
 });
 
+// TABLEAU PROF
 async function fetchPlayers() {
   if (!profDashboard) return;
   profDashboard.style.display = "block";
@@ -701,25 +720,22 @@ testClassBtn?.addEventListener("click", async () => {
     return;
   }
 
-  // On tente de se connecter en tant que "Eleve Test" de la classe choisie
   try {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      // On utilise "Eleve" et "Test" comme défini dans init-db.js
       body: JSON.stringify({ firstName: "Eleve", lastName: "Test", classroom: selectedClass }),
     });
     
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erreur lors de la connexion test.");
     
-    // Succès : on sauvegarde et on recharge pour devenir cet élève
     localStorage.setItem("player", JSON.stringify(data));
     window.location.reload();
     
   } catch (err) {
     console.error(err);
-    alert("Impossible de trouver le compte 'Eleve Test' pour cette classe. Assurez-vous d'avoir relancé init-db.js.");
+    alert("Impossible de trouver le compte 'Eleve Test'. Assurez-vous d'avoir relancé init-db.js.");
   }
 });
 

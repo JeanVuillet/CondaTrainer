@@ -1,7 +1,7 @@
 // --- SECTION 0: UI & State ---
 const $ = (sel) => document.querySelector(sel);
 const studentBadge = $("#studentBadge"), logoutBtn = $("#logoutBtn");
-// NOUVEAU : Bouton retour prof
+// Bouton retour prof
 const backToProfBtn = $("#backToProfBtn");
 
 const registerCard = $("#registerCard"), chapterSelection = $("#chapterSelection"), game = $("#game");
@@ -54,7 +54,6 @@ document.addEventListener("keyup", (e) => {
 
 // --- LOGIQUE RETOUR PROF (Si on est Eleve Test) ---
 backToProfBtn?.addEventListener("click", () => {
-  // On force la reconnexion en tant que prof Jean Vuillet
   localStorage.setItem(
     "player",
     JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })
@@ -156,7 +155,6 @@ function showStudent(stu) {
   studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
   logoutBtn.style.display = "block";
   
-  // Si c'est l'élève test, on affiche le bouton magique
   if (stu.firstName === "Eleve" && stu.lastName === "Test") {
     if(backToProfBtn) backToProfBtn.style.display = "block";
   }
@@ -257,6 +255,11 @@ async function updateChapterSelectionUI(player) {
         chapterSelection.style.display = "none";
         game.style.display = "block";
         await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
+        
+        // --- SCROLLING AUTO ---
+        setTimeout(() => {
+           game.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
       };
 
       let fullLessonHTML = "";
@@ -647,7 +650,11 @@ function renderPlayers(playersToRender) {
     table.appendChild(tbody);
     return;
   }
-  const chaptersToDisplay = { "ch1-zombie": "Chapitre 1", "ch2-starship": "Chapitre 2", "ch3-jumper": "Chapitre 3" };
+  const chaptersToDisplay = { 
+    "ch1-zombie": "Chapitre 1", 
+    "ch2-starship": "Chapitre 2",
+    "ch3-jumper": "Chapitre 3" 
+  };
 
   playersToRender.sort((a, b) => a.lastName.localeCompare(b.lastName)).forEach((player) => {
       const playerTbody = document.createElement("tbody");

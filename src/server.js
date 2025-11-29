@@ -1,273 +1,250 @@
-// ====== CONFIG .env ======
+// ====== CONFIG ET POLYFILL FETCH ======
 const path = require('path');
-// On force dotenv à aller chercher le .env à la RACINE du projet
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
+
+const nodeFetch = require('node-fetch');
+if (!global.fetch) {
+  global.fetch = nodeFetch;
+  global.Headers = nodeFetch.Headers;
+  global.Request = nodeFetch.Request;
+  global.Response = nodeFetch.Response;
+}
 
 const express = require('express');
 const mongoose = require('mongoose');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ====== URI MONGO =======
 const mongoUri = process.env.MONGODB_URI;
+const geminiKey = process.env.GEMINI_API_KEY;
 
-if (!mongoUri) {
-  console.error('❌ ERREUR CRITIQUE : MONGODB_URI est undefined.');
-  process.exit(1);
-}
+if (!mongoUri) { console.error('❌ MONGODB_URI manquant'); process.exit(1); }
 
-// ====== Middlewares =======
+console.log("------------------------------------------------");
+if (geminiKey) console.log("🔑 Clé API détectée (Mode IA activé)");
+else console.log("🔕 Pas de clé API (Mode Algo Local uniquement)");
+console.log("------------------------------------------------");
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ====== Connexion MongoDB =======
-mongoose
-  .connect(mongoUri)
-  .then(() => console.log('✅ Connexion à MongoDB Atlas établie !'))
-  .catch((err) => console.error('❌ Erreur de connexion à MongoDB Atlas :', err));
+mongoose.connect(mongoUri)
+  .then(() => console.log('✅ MongoDB Connecté'))
+  .catch(err => console.error('❌ Erreur Mongo:', err));
 
-// ====== Schema (HYBRIDE POUR EVITER LES CRASHS) =======
+// ====== SCHEMA ======
 const PlayerSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   classroom: String,
   validatedQuestions: [String],
-  // "Mixed" permet de stocker des Strings (vieux format) ET des Objets (nouveau format)
-  // On nettoiera les données via le code, pas via le schéma.
   validatedLevels: { type: [mongoose.Schema.Types.Mixed], default: [] },
   created_at: { type: Date, default: Date.now },
-}, { minimize: false }); // Important : empêche Mongoose de supprimer les objets vides
+}, { minimize: false });
 
 const Player = mongoose.model('Player', PlayerSchema, 'players');
 
-// ====== Fonctions de Normalisation =======
-function normalizeBase(str) {
-  return (str || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[-'’._]/g, ' ').trim().toLowerCase();
+// ====== UTILITAIRES LOCAL ======
+function normalizeBase(str) { return (str || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').trim().toLowerCase(); }
+function nameTokens(str) { return normalizeBase(str).split(/[\s-']+/).filter(t => t.length >= 2); }
+function normalizeClassroom(c) { return normalizeBase(c).replace(/(?<=\d)(e|de|d)/, '').toUpperCase(); }
+
+function calculateSimilarity(s1, s2) {
+  let longer = s1; let shorter = s2;
+  if (s1.length < s2.length) { longer = s2; shorter = s1; }
+  const longerLength = longer.length;
+  if (longerLength === 0) return 1.0;
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+}
+function editDistance(s1, s2) {
+  s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
+  let costs = new Array();
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i == 0) costs[j] = j;
+      else {
+        if (j > 0) {
+          let newValue = costs[j - 1];
+          if (s1.charAt(i - 1) != s2.charAt(j - 1)) newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
 }
 
-function nameTokens(str) {
-  return normalizeBase(str).split(' ').filter((tok) => tok.length >= 2);
-}
-
-function normalizeClassroom(c) {
-  return normalizeBase(c).replace(/(?<=\d)(e|de|d)/, '').toUpperCase();
-}
-
-// ====== ROUTES API =======
-
-// Route de Login/Register
+// ====== ROUTES ======
 app.post('/api/register', async (req, res) => {
   try {
     const { firstName, lastName, classroom } = req.body;
-    if (!firstName || !lastName || !classroom) return res.status(400).json({ ok: false, error: 'Champs manquants.' });
-
-    const inputFirstTokens = nameTokens(firstName);
-    const inputLastTokens = nameTokens(lastName);
-    const normClass = normalizeClassroom(classroom);
-
-    let classesToCheck = [normClass];
-    if (normClass === '2C' || normClass === '2D') classesToCheck = ['2C', '2D', '2CD'];
-    if (normClass === '6' || normClass === '6D') classesToCheck = ['6', '6D'];
-
-    const all = await Player.find({ classroom: { $in: classesToCheck } });
-    const found = all.find((p) => {
-      const dbFirstTokens = nameTokens(p.firstName);
-      const dbLastTokens = nameTokens(p.lastName);
-      return (
-        inputFirstTokens.some((tok) => dbFirstTokens.includes(tok)) &&
-        inputLastTokens.some((tok) => dbLastTokens.includes(tok))
-      );
+    if (!firstName || !lastName || !classroom) return res.status(400).json({ ok: false });
+    const inputFirst = nameTokens(firstName); const inputLast = nameTokens(lastName); const normClass = normalizeClassroom(classroom);
+    let classes = [normClass];
+    if (['2C', '2D'].includes(normClass)) classes = ['2C', '2D', '2CD'];
+    if (['6', '6D'].includes(normClass)) classes = ['6', '6D'];
+    const all = await Player.find({ classroom: { $in: classes } });
+    const found = all.find(p => {
+      const dbFirst = nameTokens(p.firstName); const dbLast = nameTokens(p.lastName);
+      return inputFirst.some(t => dbFirst.includes(t)) && inputLast.some(t => dbLast.includes(t));
     });
-
-    if (!found) {
-      console.log(`[LOGIN] Échec pour ${firstName} ${lastName} (${classroom})`);
-      return res.status(404).json({ ok: false, error: 'Élève introuvable.' });
-    }
-
-    console.log(`[LOGIN] Succès pour ${found.firstName} ${found.lastName}`);
-    return res.status(200).json({
-      ok: true,
-      id: found._id,
-      firstName: found.firstName,
-      lastName: found.lastName,
-      classroom: found.classroom,
-    });
-  } catch (err) {
-    console.error('Erreur register:', err);
-    res.status(500).json({ ok: false, error: 'Erreur serveur.' });
-  }
+    if (!found) return res.status(404).json({ ok: false });
+    
+    // --- C'est ici qu'il y avait l'erreur, voici la ligne corrigée : ---
+    return res.json({ ok: true, id: found._id, firstName: found.firstName, lastName: found.lastName, classroom: found.classroom });
+  
+  } catch (e) { res.status(500).json({ ok: false }); }
 });
 
-// --- ROUTE DE SAUVEGARDE (DEBUGGÉE) ---
 app.post('/api/save-progress', async (req, res) => {
+  const { playerId, progressType, value, grade } = req.body;
   try {
-    const { playerId, progressType, value, grade } = req.body;
-    
-    console.log(`\n[SERVEUR] 📩 REÇU: ${progressType} = ${value} (Note: ${grade || 'N/A'}) pour ID ${playerId}`);
-
     const player = await Player.findById(playerId);
-    if (!player) {
-      console.error(`[SERVEUR] ❌ Joueur introuvable !`);
-      return res.status(404).json({ message: 'Joueur non trouvé.' });
-    }
-
-    // --- ETAPE 1 : NETTOYAGE DES DONNÉES ---
-    // On force la conversion de tout ce qui traine en "String" vers un "Objet"
+    if (!player) return res.status(404).json({ message: 'Introuvable' });
     let cleanLevels = [];
-    let wasDirty = false;
-
-    if (player.validatedLevels && Array.isArray(player.validatedLevels)) {
-      player.validatedLevels.forEach(item => {
-        if (typeof item === 'string') {
-          // C'est une vieille donnée, on convertit
-          cleanLevels.push({ levelId: item, grade: 'Validé', date: new Date() });
-          wasDirty = true;
-        } else if (typeof item === 'object' && item !== null && item.levelId) {
-          // C'est déjà propre, on garde
-          cleanLevels.push(item);
-        }
-      });
+    if (Array.isArray(player.validatedLevels)) {
+      for (let item of player.validatedLevels) {
+        if (typeof item === 'string') cleanLevels.push({ levelId: item, grade: 'Validé', date: new Date() });
+        else if (typeof item === 'object' && item && item.levelId) cleanLevels.push(item);
+      }
     }
-    
-    // On remplace par la liste propre
     player.validatedLevels = cleanLevels;
-    if (wasDirty) console.log(`[SERVEUR] 🧹 Données nettoyées (Conversion String -> Objet effectuée).`);
-
-    // --- ETAPE 2 : MISE A JOUR LOGIQUE ---
-    let hasChanged = false;
-
+    let changed = false;
     if (progressType === 'level') {
-      const levelId = value;
+      const existingIndex = player.validatedLevels.findIndex(l => l.levelId === value);
       const newGrade = grade || 'C';
-
-      // Recherche dans la liste PROPRE
-      const existingIndex = player.validatedLevels.findIndex(l => l.levelId === levelId);
-
       if (existingIndex > -1) {
-        // Le niveau existe : on met à jour la note
-        console.log(`[SERVEUR] 🔄 Mise à jour niveau existant : ${player.validatedLevels[existingIndex].grade} -> ${newGrade}`);
         player.validatedLevels[existingIndex].grade = newGrade;
         player.validatedLevels[existingIndex].date = new Date();
-        hasChanged = true;
+        changed = true;
       } else {
-        // Le niveau n'existe pas : on l'ajoute
-        console.log(`[SERVEUR] ➕ Nouveau niveau ajouté : ${levelId} (${newGrade})`);
-        player.validatedLevels.push({ levelId: levelId, grade: newGrade, date: new Date() });
-        hasChanged = true;
+        player.validatedLevels.push({ levelId: value, grade: newGrade, date: new Date() });
+        changed = true;
       }
-
     } else if (progressType === 'question') {
-      if (!player.validatedQuestions.includes(value)) {
-        player.validatedQuestions.push(value);
-        hasChanged = true;
-        // console.log(`[SERVEUR] Question ajoutée : ${value}`); // Un peu verbeux, décommente si besoin
+      if (!player.validatedQuestions.includes(value)) { player.validatedQuestions.push(value); changed = true; }
+    }
+    if (changed || player.isModified('validatedLevels')) { player.markModified('validatedLevels'); await player.save(); }
+    res.json({ message: 'Saved' });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+app.get('/api/players', async (req, res) => { res.json(await Player.find().sort({ lastName: 1 })); });
+app.get('/api/player-progress/:playerId', async (req, res) => {
+  const p = await Player.findById(req.params.playerId);
+  if(!p) return res.status(404).json({});
+  res.json({ validatedLevels: p.validatedLevels, validatedQuestions: p.validatedQuestions });
+});
+app.post('/api/reset-player-chapter', async (req, res) => {
+  const { playerId, levelIds } = req.body;
+  const p = await Player.findById(playerId);
+  if(p) {
+    p.validatedLevels = p.validatedLevels.filter(l => { const id = (typeof l === 'string') ? l : l.levelId; return !levelIds.includes(id); });
+    p.validatedQuestions = p.validatedQuestions.filter(q => !levelIds.some(id => q.startsWith(id)));
+    p.markModified('validatedLevels');
+    await p.save();
+  }
+  res.json({ message: 'Reset' });
+});
+app.post('/api/reset-player', async (req, res) => { await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
+app.post('/api/reset-all-players', async (req, res) => { await Player.updateMany({}, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
+
+
+// ============================================================
+// IA HYBRIDE (Version Corrigée : Gemini 2.0 + Local "Imprécis")
+// ============================================================
+app.post('/api/verify-answer-ai', async (req, res) => {
+  const { question, userAnswer, expectedAnswer } = req.body;
+  console.log(`[IA] Analyse : "${userAnswer}" (Attendu: ${expectedAnswer})`);
+
+  let useLocalAlgo = true; 
+
+  if (geminiKey) {
+    try {
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      // On utilise Gemini 2.0 Flash (qui fonctionne avec ta clé)
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+      const prompt = `
+        Tu es un professeur correcteur bienveillant pour des collégiens.
+        
+        Question : "${question}"
+        Réponse attendue : "${expectedAnswer}"
+        Réponse de l'élève : "${userAnswer}"
+        
+        Règles :
+        - Si la réponse est bonne (même avec fautes ou synonymes) -> "correct".
+        - Si la réponse est fausse ou n'a rien à voir -> "incorrect".
+        - Si la réponse est incomplète, partielle ou un peu floue -> "imprecise".
+        
+        Donne un feedback court (15 mots max).
+        Si "imprecise", donne un indice SANS donner la réponse.
+        
+        Réponds UNIQUEMENT au format JSON : { "status": "correct" | "incorrect" | "imprecise", "feedback": "string" }
+      `;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      let text = response.text();
+      
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const jsonResponse = JSON.parse(text);
+      
+      console.log("[IA-GEMINI] Succès :", jsonResponse);
+      return res.json(jsonResponse); 
+
+    } catch (error) {
+      console.error("[IA-GEMINI] Erreur (Passage au mode Local) :", error.message);
+      useLocalAlgo = true; 
+    }
+  }
+
+  // 2. ALGO LOCAL AMÉLIORÉ (Si l'IA plante ou n'est pas là)
+  if (useLocalAlgo) {
+    console.log("[IA-LOCALE] Algorithme de secours intelligent.");
+    
+    const cleanUser = normalizeBase(userAnswer);
+    const cleanExpected = normalizeBase(expectedAnswer);
+    
+    let status = "incorrect";
+    let feedback = "";
+
+    // A. Copie parfaite ou presque
+    if (cleanUser.includes(cleanExpected) || calculateSimilarity(cleanUser, cleanExpected) > 0.75) {
+        status = "correct";
+        feedback = "Excellent, c'est tout à fait ça.";
+    } 
+    else {
+      // B. Analyse des mots clés pour détecter "IMPRÉCIS"
+      // On ignore les petits mots (le, la, de...)
+      const keyWords = cleanExpected.split(/[\s,;]+/).filter(w => w.length > 3);
+      const foundWords = keyWords.filter(kw => cleanUser.includes(kw));
+      
+      if (keyWords.length > 0) {
+         // Si on a trouvé tous les mots clés
+         if (foundWords.length === keyWords.length) {
+            status = "correct";
+            feedback = "Bonne réponse !";
+         }
+         // Si on en a trouvé au moins un (mais pas tous) -> IMPRÉCIS
+         else if (foundWords.length > 0) {
+            status = "imprecise";
+            feedback = `Tu as trouvé "${foundWords[0]}", mais ta réponse est incomplète.`;
+         }
       }
     }
 
-    // --- ETAPE 3 : SAUVEGARDE EN BDD ---
-    if (hasChanged || wasDirty) {
-      // TRÈS IMPORTANT : Dire à Mongoose que ce champ "Mixed" a changé
-      player.markModified('validatedLevels'); 
-      
-      await player.save();
-      console.log(`[SERVEUR] ✅ SAUVEGARDE BDD RÉUSSIE pour ${player.firstName}.`);
-      
-      // Petit log de contrôle
-      const summary = player.validatedLevels.map(l => `${l.levelId}:${l.grade}`).join(', ');
-      console.log(`[SERVEUR] 📊 État actuel : [${summary}]`);
-    } else {
-      console.log(`[SERVEUR] 🤷 Aucune modification nécessaire (déjà à jour).`);
+    if (status === "incorrect") {
+        feedback = `Ce n'est pas ça. La réponse attendue était : ${expectedAnswer}`;
     }
 
-    return res.status(200).json({ message: 'Progression traitée.' });
-
-  } catch (err) {
-    console.error('[SERVEUR] ❌ CRASH SAUVEGARDE:', err);
-    res.status(500).json({ message: 'Erreur serveur.', error: err.message });
+    return res.json({ status: status, feedback: feedback });
   }
 });
 
-// Route pour la liste des joueurs (Prof)
-app.get('/api/players', async (req, res) => {
-  try {
-    const players = await Player.find().sort({ lastName: 1, firstName: 1 });
-    res.status(200).json(players);
-  } catch (err) {
-    console.error('[SERVEUR] Erreur /api/players:', err);
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-});
-
-// Route de réinitialisation d'un joueur
-app.post('/api/reset-player', async (req, res) => {
-  try {
-    const { playerId } = req.body;
-    await Player.findByIdAndUpdate(playerId, { $set: { validatedQuestions: [], validatedLevels: [] } });
-    console.log(`[SERVEUR] Reset joueur ${playerId}`);
-    res.status(200).json({ message: `Reset OK` });
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-});
-
-// Route de réinitialisation de tous les joueurs
-app.post('/api/reset-all-players', async (req, res) => {
-  try {
-    await Player.updateMany({}, { $set: { validatedQuestions: [], validatedLevels: [] } });
-    console.log('[SERVEUR] Reset GLOBAL effectué.');
-    res.status(200).json({ message: 'Reset All OK' });
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-});
-
-// Route pour récupérer la progression
-app.get('/api/player-progress/:playerId', async (req, res) => {
-  try {
-    const player = await Player.findById(req.params.playerId);
-    if (!player) return res.status(404).json({ message: 'Joueur non trouvé.' });
-    
-    // On renvoie tel quel, le front se débrouillera
-    res.status(200).json({
-      validatedLevels: player.validatedLevels,
-      validatedQuestions: player.validatedQuestions,
-    });
-  } catch (err) {
-    console.error('[SERVEUR] Erreur /api/player-progress:', err);
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-});
-
-// Reset Chapitre
-app.post('/api/reset-player-chapter', async (req, res) => {
-  try {
-    const { playerId, levelIds } = req.body;
-    const player = await Player.findById(playerId);
-    if (!player) return res.status(404).json({ message: 'Joueur non trouvé.' });
-
-    // Filtre compatible String/Objet
-    player.validatedLevels = player.validatedLevels.filter(l => {
-      const id = (typeof l === 'string') ? l : l.levelId;
-      return !levelIds.includes(id);
-    });
-
-    player.validatedQuestions = player.validatedQuestions.filter(q => 
-      !levelIds.some(lvlId => q.startsWith(lvlId + '-'))
-    );
-
-    player.markModified('validatedLevels');
-    await player.save();
-    console.log(`[SERVEUR] Chapitre réinitialisé pour ${player.firstName}`);
-
-    res.status(200).json({ message: 'Chapitre réinitialisé.' });
-  } catch (err) {
-    console.error('[SERVEUR] Erreur reset chapter:', err);
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-});
-
-// ====== START SERVER =======
-app.listen(port, () => {
-  console.log(`✅ Serveur Express lancé sur http://localhost:${port}`);
-});
+app.listen(port, () => console.log(`✅ Serveur démarré port ${port}`));

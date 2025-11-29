@@ -1,296 +1,311 @@
 <template id="template-zombie-game">
   <style>
-    #arena { 
-      position: relative; 
-      height: clamp(180px, 36vh, 320px); 
-      margin-top: 10px; 
-      background: linear-gradient(#f0f9ff, #e0f2fe); 
-      border-radius: 12px; 
-      overflow: hidden; 
-      box-shadow: inset 0 -6px 0 #cbd5e1; 
-    }
-    #hero, #zombie, #projectile { 
-      position: absolute; 
-      bottom: 0; 
-      height: clamp(90px, 26vh, 200px); 
-      max-width: 32vw; 
-      object-fit: contain; 
-      user-select: none; 
-      pointer-events: none; 
-    }
+    #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
+    #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; user-select: none; pointer-events: none; }
     #hero { left: min(3vw, 24px); }
     #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
-    #projectile { 
-      width: clamp(18px, 3vh, 28px); 
-      height: clamp(18px, 3vh, 28px); 
-      background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); 
-      border-radius: 50%; 
-      display: none; 
-      bottom: calc(clamp(90px, 26vh, 200px) * 0.55); 
-      z-index: 10;
-    }
+    #projectile { width: clamp(18px, 3vh, 28px); height: clamp(18px, 3vh, 28px); background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: calc(clamp(90px, 26vh, 200px) * 0.55); z-index: 10; }
+    
     .question-zone { 
-      margin-bottom: 20px; 
-      font-size: 1.5em; 
-      text-align: center; 
-      min-height: 2.5em; 
-      color: #334155;
-      font-weight: 600;
-      margin-top: 15px; 
+      margin-bottom: 10px; font-size: 1.3em; text-align: center; min-height: 2em; 
+      color: #334155; font-weight: 600; margin-top: 15px; 
     }
-    .choices-zone { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 12px; 
-      justify-content: center; 
-    }
-    .choice { 
-      padding: 12px 20px; 
-      border: 2px solid #e2e8f0; 
-      border-radius: 12px; 
-      cursor: pointer; 
-      transition: all 0.2s; 
-      background: white; 
-      font-size: 1.1em;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    .choice:hover { transform: translateY(-2px); border-color: #94a3b8; }
-    .choice:active { transform: translateY(0); }
-    .choice.correct { background: #dcfce7; border-color: #22c55e; color: #15803d; }
-    .choice.wrong { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
 
-    #freeInputZone { display: none; text-align: center; margin-top: 8px; }
-    #answer { 
-      padding: 12px 14px; 
-      width: min(680px, 90%); 
-      font-size: 16px; 
-      border-radius: 10px; 
-      border: 2px solid #cbd5e1; 
-      outline: none;
+    #ai-input-zone {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      width: 100%; max-width: 600px; margin: 0 auto;
+      position: relative;
     }
-    #answer:focus { border-color: #3b82f6; }
-    #submit { 
-      margin-top: 12px; 
-      padding: 12px 24px; 
-      background: #2563eb; 
-      color: #fff; 
-      border: 0; 
-      border-radius: 8px; 
-      font-size: 16px; 
-      cursor: pointer; 
-      font-weight: 600;
+    
+    textarea#answer {
+      width: 100%; padding: 12px; font-size: 16px; border-radius: 10px;
+      border: 2px solid #cbd5e1; resize: none; height: 80px; font-family: inherit;
     }
-    #submit:hover { background: #1d4ed8; }
+    textarea#answer:focus { border-color: #3b82f6; outline: none; }
+    
+    .buttons-row {
+      display: flex; gap: 10px; width: 100%; justify-content: center;
+    }
+
+    button {
+      padding: 10px 20px; border: 0; border-radius: 8px; 
+      font-size: 15px; cursor: pointer; font-weight: 600; transition: 0.2s;
+    }
+
+    #submit { background: #2563eb; color: #fff; flex: 1; }
+    #submit:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    #giveup { 
+      background: #fef2f2; color: #dc2626; border: 2px solid #fca5a5;
+      flex: 1;
+    }
+    #giveup:hover { background: #fee2e2; }
+
+    /* --- NOUVEAUX FEEDBACKS --- */
+
+    #bravo-badge {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: #2563eb; color: white;
+      padding: 8px 16px; border-radius: 20px;
+      font-weight: bold; font-size: 14px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      display: none;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 50;
+    }
+
+    #solution-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95); 
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      border-radius: 12px;
+      animation: fadeIn 0.2s;
+    }
+    #solution-overlay h3 { color: #ef4444; margin-bottom: 10px; font-size: 24px; }
+    #solution-text { font-size: 18px; font-weight: 500; line-height: 1.5; }
+
+    #analysis-msg {
+      display: none; color: #2563eb; font-weight: bold; margin-top: 5px;
+    }
+
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .choices-zone { display: none !important; }
+    #freeInputZone { display: none !important; }
   </style>
   
-  <div id="arena">
-    <img id="hero" src="images/hero.png" alt="Héros" />
-    <img id="zombie" src="images/zombi.png" alt="Zombie" />
-    <div id="projectile"></div>
+  <div id="arena"> 
+    <img id="hero" src="images/hero.png" alt="Héros" /> 
+    <img id="zombie" src="images/zombi.png" alt="Zombie" /> 
+    <div id="projectile"></div> 
+    
+    <div id="bravo-badge">🎉 Bravo !</div>
+    <div id="solution-overlay">
+      <h3>Dommage !</h3>
+      <div id="solution-text">La réponse était...</div>
+    </div>
   </div>
+
   <div id="question" class="question-zone"></div>
-  <div id="choices" class="choices-zone"></div>
   
-  <div id="freeInputZone">
-    <input type="text" id="answer" placeholder="Écris ta réponse ici" autocomplete="off" />
-    <br /><button id="submit">Valider</button>
+  <div id="ai-input-zone">
+    <textarea id="answer" placeholder="Explique ta réponse ici..." autocomplete="off"></textarea>
+    
+    <div class="buttons-row">
+      <button id="submit">Envoyer à l'IA 🤖</button>
+      <button id="giveup">Je ne sais pas (-1 pt)</button>
+    </div>
+    
+    <div id="analysis-msg">🧠 L'IA analyse ta réponse...</div>
   </div>
 </template>
 
 <script>
 class ZombieGame {
-  constructor(container, controller) {
-    this.container = container; 
-    this.controller = controller;
+  constructor(c, ctrl) {
+    this.c = c; this.ctrl = ctrl;
+    this.hero = c.querySelector("#hero"); this.zombie = c.querySelector("#zombie");
+    this.projectile = c.querySelector("#projectile"); this.arena = c.querySelector("#arena");
+    this.qEl = c.querySelector("#question");
     
-    this.hero = container.querySelector("#hero"); 
-    this.zombie = container.querySelector("#zombie");
-    this.projectile = container.querySelector("#projectile"); 
-    this.arena = container.querySelector("#arena");
+    this.input = c.querySelector("#answer");
+    this.subBtn = c.querySelector("#submit");
+    this.giveUpBtn = c.querySelector("#giveup");
     
-    this.questionElement = container.querySelector("#question"); 
-    this.choicesZone = container.querySelector("#choices");
-    this.freeInputZone = container.querySelector("#freeInputZone"); 
-    this.inputElement = container.querySelector("#answer");
-    this.submitButton = container.querySelector("#submit");
+    this.bravoBadge = c.querySelector("#bravo-badge");
+    this.solutionOverlay = c.querySelector("#solution-overlay");
+    this.solutionText = c.querySelector("#solution-text");
+    this.analysisMsg = c.querySelector("#analysis-msg");
+
+    this.zInt = null; this.pInt = null; this.zPos = 20; this.zPaused = false; this.resetting = false;
     
-    this.zombieInterval = null; 
-    this.projectileInterval = null; 
-    this.zombiePosition = 20;
-    this.zombiePaused = false;
-    this.isResetting = false; 
-    this.hasAnswered = false; // Sécurité anti double-clic
-    
-    this.submitButton.addEventListener("click", () => this.onSubmitClick());
-    this.inputElement.addEventListener("keydown", (e) => { if(e.key === 'Enter') this.onSubmitClick(); });
+    this.subBtn.onclick = () => this.askAI();
+    this.giveUpBtn.onclick = () => this.processIncorrect(); 
+
+    this.input.onkeydown = (e) => { 
+      if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.askAI(); } 
+    };
   }
 
-  loadQuestion(q){
-    this.isResetting = false; 
-    this.hasAnswered = false; // Reset pour la nouvelle question
+  loadQuestion(q) {
+    this.resetting = false; 
+    this.qEl.textContent = q.q; 
     
-    this.questionElement.textContent = q.q;
-    this.inputElement.value = "";
+    // RESET TOTAL DU CHAMP TEXTE
+    this.input.value = "";
+    this.input.placeholder = "Explique ta réponse ici...";
+    this.input.disabled = false;
     
-    // Récupération sécurisée des scores
-    const score = (typeof localScores !== 'undefined' && typeof currentIndex !== 'undefined') ? localScores[currentIndex] : 0;
-    const req = (typeof levels !== 'undefined' && typeof currentLevel !== 'undefined') ? levels[currentLevel].requiredPerQuestion : 3;
+    this.subBtn.disabled = false;
+    this.subBtn.textContent = "Envoyer à l'IA 🤖";
     
-    if(score >= req - 1){
-      this.choicesZone.style.display = "none";
-      this.freeInputZone.style.display = "block";
-      setTimeout(() => this.inputElement.focus(), 100);
-    } else {
-      this.freeInputZone.style.display = "none";
-      this.choicesZone.style.display = "flex";
-      this.choicesZone.innerHTML = "";
-      [...q.options].sort(() => 0.5 - Math.random()).forEach(opt => {
-        const div = document.createElement("div");
-        div.className = "choice";
-        div.textContent = opt;
-        // Utilisation de mousedown pour être plus réactif que click
-        div.addEventListener("mousedown", () => this.onChoiceClick(div, opt, q));
-        this.choicesZone.appendChild(div);
-      });
-    }
-  }
-
-  onChoiceClick(btn, text, q){
-    // Si déjà répondu ou verrouillé, on sort
-    if(this.hasAnswered || this.controller.getState().isLocked) return;
-    this.hasAnswered = true;
-
-    const correct = this._isCorrect(text, q);
-    if(correct) {
-      btn.classList.add("correct");
-      this.playSuccessAnimation(); // Lancement visuel
-      this.controller.notifyCorrectAnswer(); // Notification LOGIQUE importante
-    } else {
-      btn.classList.add("wrong");
-      this.controller.notifyWrongAnswer(q);
-    }
-  }
-
-  onSubmitClick(){
-    if(this.hasAnswered || this.controller.getState().isLocked) return;
-    this.hasAnswered = true;
-
-    // Récupération de la question courante depuis global si non passée
-    const q = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
-    if(!q) return; 
-
-    const correct = this._isCorrect(this.inputElement.value, q, true);
-    if(correct) {
-      this.playSuccessAnimation();
-      this.controller.notifyCorrectAnswer();
-    } else {
-      if(typeof localScores !== 'undefined') localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
-      if(typeof updateBars !== 'undefined') updateBars();
-      this.controller.notifyWrongAnswer(q);
-    }
-  }
-
-  _normalize(txt){ return (txt || "").toLowerCase().trim(); }
-  
-  _isCorrect(input, qObj, strict = false){
-    const i = this._normalize(input);
-    const a = this._normalize(qObj.a);
-    if(strict){
-      const accepts = (qObj.acceptable || []).map(x => this._normalize(x));
-      return accepts.includes(i) || i.includes(a);
-    }
-    return i === a;
-  }
-
-  startAnimation(){ 
-    this.startZombieMovement(); 
-  }
-  
-  resetAnimation(){ 
-    this.stopZombieMovement(); 
-  }
-  
-  playSuccessAnimation(){ 
-    this.attack(); 
-  }
-
-  startZombieMovement(){
-    if(this.zombieInterval) return;
+    this.bravoBadge.style.display = "none";
+    this.solutionOverlay.style.display = "none";
+    this.analysisMsg.style.display = "none";
     
+    this.zPos = 20;
+    this.zombie.style.right = "20px";
     this.zombie.style.display = "block";
-    this.zombie.style.opacity = "1";
+    this.zPaused = false; 
 
-    const arenaW = this.arena.offsetWidth;
-    const maxDist = arenaW - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
-    const speedFactor = maxDist / 50000; 
+    setTimeout(() => this.input.focus(), 100);
+  }
 
-    this.zombieInterval = setInterval(() => {
-      if(this.isResetting) return;
-      if(this.controller.getState().isLocked || this.zombiePaused) return;
+  async askAI() {
+    if(this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
+    
+    this.zPaused = true; 
+    this.input.disabled = true;
+    this.subBtn.disabled = true;
+    this.analysisMsg.style.display = "block";
+
+    const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
+    if(!currentQ) return;
+
+    try {
+      const res = await fetch('/api/verify-answer-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: currentQ.q,
+          userAnswer: this.input.value,
+          expectedAnswer: currentQ.a 
+        })
+      });
+
+      const data = await res.json();
+      this.analysisMsg.style.display = "none"; 
+
+      if (data.status === "correct") {
+        this.bravoBadge.textContent = "🎉 " + data.feedback;
+        this.bravoBadge.style.display = "block"; 
+        this.win(); 
+        setTimeout(() => { this.ctrl.notifyCorrectAnswer(); }, 2000);
+
+      } else if (data.status === "imprecise") {
+        this.input.disabled = false;
+        this.subBtn.disabled = false;
+        this.subBtn.textContent = "Réessayer";
+        
+        // On vide le champ et on met l'indice en placeholder
+        this.input.value = "";
+        this.input.placeholder = "💡 " + data.feedback;
+        this.input.focus();
+        
+        this.zPaused = true; // On reste en pause
+
+      } else {
+        this.processIncorrect(data.feedback);
+      }
+
+    } catch (err) {
+      console.error(err);
+      this.zPaused = false; 
+      this.input.disabled = false;
+      this.subBtn.disabled = false;
+      this.analysisMsg.style.display = "none";
+    }
+  }
+
+  processIncorrect(feedbackIA = null) {
+    const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
+    if(!currentQ) return;
+
+    // pénalité de score
+    if(typeof localScores !== 'undefined') {
+        localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
+    }
+    if(typeof updateBars !== 'undefined') updateBars();
+
+    // Affichage de la solution
+    this.solutionOverlay.style.display = "flex";
+    if (feedbackIA) {
+        this.solutionText.innerHTML = `❌ ${feedbackIA}<br><br>Bonne réponse : <strong>${currentQ.a}</strong>`;
+    } else {
+        this.solutionText.innerHTML = `❌ Pas de souci.<br><br>La bonne réponse était : <strong>${currentQ.a}</strong>`;
+    }
+
+    // On bloque les entrées sur cette question
+    this.zPaused = true; 
+    this.input.disabled = true;
+    this.subBtn.disabled = true;
+    this.analysisMsg.style.display = "none";
+
+    // Après un délai, on passe à UNE AUTRE QUESTION
+    setTimeout(() => {
+        this.solutionOverlay.style.display = "none";
+        if (this.ctrl && typeof this.ctrl.notifyWrongAnswer === 'function') {
+          this.ctrl.notifyWrongAnswer(feedbackIA || null);
+        }
+    }, 3500);
+  }
+
+  startAnimation(){ this.moveZ(); } 
+  resetAnimation(){ this.stop(); }
+  
+  moveZ() {
+    if(this.zInt) return;
+    this.zombie.style.display="block"; this.zombie.style.opacity="1";
+    const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
+    const step = max / 50000; 
+    this.zInt = setInterval(() => {
+      if(this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
       
-      this.zombiePosition += speedFactor * 20; 
-      this.zombie.style.right = this.zombiePosition + "px";
+      this.zPos += step * 20; 
+      this.zombie.style.right = this.zPos + "px";
       
-      if(this.zombiePosition >= maxDist) {
-        this.controller.notifyWrongAnswer(null);
+      if(this.zPos >= max) {
+          this.ctrl.notifyWrongAnswer(null); 
       }
     }, 20);
   }
 
-  stopZombieMovement(){
-    this.isResetting = true;
-    this.hasAnswered = false; // Reset du flag réponse
-
-    if(this.zombieInterval) { clearInterval(this.zombieInterval); this.zombieInterval = null; }
-    if(this.projectileInterval) { clearInterval(this.projectileInterval); this.projectileInterval = null; }
-
-    this.zombiePosition = 20;
-    this.zombiePaused = false;
+  stop() {
+    this.resetting = true;
+    if(this.zInt) { clearInterval(this.zInt); this.zInt = null; }
+    if(this.pInt) { clearInterval(this.pInt); this.pInt = null; }
+    this.zPos = 20; this.zPaused = false;
     
-    if(this.zombie) {
-        this.zombie.style.right = "20px";
-        this.zombie.style.display = "block";
-        this.zombie.style.opacity = "1";
+    if(this.zombie) { this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; }
+    if(this.projectile) { this.projectile.style.display = "none"; this.projectile.style.left = "0px"; }
+    
+    if(this.input) { 
+      this.input.disabled = false; 
+      this.input.value = ""; 
+      this.input.placeholder = "Explique ta réponse ici...";
     }
-    if(this.projectile) {
-        this.projectile.style.display = "none";
-        this.projectile.style.left = "0px";
-    }
+    if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }
+    
+    this.bravoBadge.style.display = "none";
+    this.solutionOverlay.style.display = "none";
+    this.analysisMsg.style.display = "none";
   }
 
-  attack(){
-    if(this.projectileInterval) return;
-    
-    this.zombiePaused = true;
+  win() { this.shoot(); }
+
+  shoot() {
+    if(this.pInt) return;
     this.projectile.style.display = "block";
-    
-    let pPos = this.hero.offsetWidth; 
+    let p = this.hero.offsetWidth;
     const zRight = parseFloat(this.zombie.style.right) || 20;
-    const impactPoint = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
-
-    // Animation très rapide pour éviter de bloquer l'utilisateur
-    this.projectileInterval = setInterval(() => {
-      if(this.isResetting) {
-         clearInterval(this.projectileInterval);
-         this.projectileInterval = null;
-         return;
-      }
-
-      pPos += 40; // Vitesse x2 par rapport à avant
-      this.projectile.style.left = pPos + "px";
-      
-      if(pPos >= impactPoint) {
-        clearInterval(this.projectileInterval);
-        this.projectileInterval = null;
-        
-        this.projectile.style.display = "none";
-        this.projectile.style.left = "0px";
-        
-        if(!this.isResetting) {
-           this.zombie.style.display = "none"; 
-        }
-        // On ne remet PAS zombiePaused à false ici, car on attend le chargement de la prochaine question
-        // C'est loadQuestion qui resettera tout.
+    const hit = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
+    this.pInt = setInterval(() => {
+      if(this.resetting) { clearInterval(this.pInt); this.pInt = null; return; }
+      p += 25; this.projectile.style.left = p + "px";
+      if(p >= hit) {
+        clearInterval(this.pInt); this.pInt = null;
+        this.projectile.style.display = "none"; this.projectile.style.left = "0px";
+        if(!this.resetting) this.zombie.style.display = "none";
       }
     }, 20);
   }

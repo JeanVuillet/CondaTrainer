@@ -41,8 +41,6 @@
     }
     #giveup:hover { background: #fee2e2; }
 
-    /* --- NOUVEAUX FEEDBACKS --- */
-
     #bravo-badge {
       position: absolute;
       top: 10px; right: 10px;
@@ -55,30 +53,11 @@
       z-index: 50;
     }
 
-    #solution-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.95); 
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      border-radius: 12px;
-      animation: fadeIn 0.2s;
-    }
-    #solution-overlay h3 { color: #ef4444; margin-bottom: 10px; font-size: 24px; }
-    #solution-text { font-size: 18px; font-weight: 500; line-height: 1.5; }
-
     #analysis-msg {
       display: none; color: #2563eb; font-weight: bold; margin-top: 5px;
     }
 
     @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .choices-zone { display: none !important; }
     #freeInputZone { display: none !important; }
@@ -90,10 +69,6 @@
     <div id="projectile"></div> 
     
     <div id="bravo-badge">🎉 Bravo !</div>
-    <div id="solution-overlay">
-      <h3>Dommage !</h3>
-      <div id="solution-text">La réponse était...</div>
-    </div>
   </div>
 
   <div id="question" class="question-zone"></div>
@@ -123,25 +98,35 @@ class ZombieGame {
     this.giveUpBtn = c.querySelector("#giveup");
     
     this.bravoBadge = c.querySelector("#bravo-badge");
-    this.solutionOverlay = c.querySelector("#solution-overlay");
-    this.solutionText = c.querySelector("#solution-text");
     this.analysisMsg = c.querySelector("#analysis-msg");
 
-    this.zInt = null; this.pInt = null; this.zPos = 20; this.zPaused = false; this.resetting = false;
+    this.zInt = null; 
+    this.pInt = null; 
+    this.zPos = 20; 
+    this.zPaused = false; 
+    this.resetting = false;
     
     this.subBtn.onclick = () => this.askAI();
-    this.giveUpBtn.onclick = () => this.processIncorrect(); 
+    this.giveUpBtn.onclick = () => this.processIncorrect(); // Abandon = Erreur standard
 
+    // Entrée : Enter envoie à l'IA
     this.input.onkeydown = (e) => { 
-      if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.askAI(); } 
+      if(e.key === 'Enter' && !e.shiftKey) { 
+        e.preventDefault(); 
+        this.askAI(); 
+      } 
     };
+    
+    // Dès qu'il y a du texte, on met pause au zombie
+    this.input.addEventListener("input", () => {
+      this.zPaused = (this.input.value.length > 0);
+    });
   }
 
   loadQuestion(q) {
     this.resetting = false; 
     this.qEl.textContent = q.q; 
     
-    // RESET TOTAL DU CHAMP TEXTE
     this.input.value = "";
     this.input.placeholder = "Explique ta réponse ici...";
     this.input.disabled = false;
@@ -150,11 +135,16 @@ class ZombieGame {
     this.subBtn.textContent = "Envoyer à l'IA 🤖";
     
     this.bravoBadge.style.display = "none";
-    this.solutionOverlay.style.display = "none";
     this.analysisMsg.style.display = "none";
     
-    this.zPos = 20;
-    this.zombie.style.right = "20px";
+    // Si le zombie était arrivé au bout (game over sur la question précédente),
+    // on le remet au départ. Sinon il garde sa position.
+    const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
+    if (this.zPos >= max) {
+      this.zPos = 20;
+      this.zombie.style.right = "20px";
+    }
+    
     this.zombie.style.display = "block";
     this.zPaused = false; 
 
@@ -186,26 +176,33 @@ class ZombieGame {
       const data = await res.json();
       this.analysisMsg.style.display = "none"; 
 
-      if (data.status === "correct") {
-        this.bravoBadge.textContent = "🎉 " + data.feedback;
+      // --- Gestion du format { status: "correct"|"incorrect"|"imprecise", feedback } ---
+      const status = data.status || (data.correct ? "correct" : "incorrect");
+
+      if (status === "correct") {
+        this.bravoBadge.textContent = "🎉 " + (data.feedback || "Bravo, c'est bien répondu !");
         this.bravoBadge.style.display = "block"; 
         this.win(); 
         setTimeout(() => { this.ctrl.notifyCorrectAnswer(); }, 2000);
 
-      } else if (data.status === "imprecise") {
+      } else if (status === "imprecise") {
+        // On aide l'élève : pause, indice dans le placeholder, pas de nouvelle question
         this.input.disabled = false;
         this.subBtn.disabled = false;
         this.subBtn.textContent = "Réessayer";
         
-        // On vide le champ et on met l'indice en placeholder
         this.input.value = "";
-        this.input.placeholder = "💡 " + data.feedback;
+        this.input.placeholder = "💡 " + (data.feedback || "Ta réponse est partielle, précise-la.");
         this.input.focus();
         
-        this.zPaused = true; // On reste en pause
+        this.zPaused = true; // on reste en pause tant qu'il retravaille sa réponse
 
       } else {
-        this.processIncorrect(data.feedback);
+        // Réponse incorrecte : on laisse main.js gérer le gros overlay + bonne réponse
+        this.zPaused = false; 
+        this.input.disabled = false;
+        this.subBtn.disabled = false;
+        this.processIncorrect();
       }
 
     } catch (err) {
@@ -217,37 +214,18 @@ class ZombieGame {
     }
   }
 
-  processIncorrect(feedbackIA = null) {
+  processIncorrect() {
     const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
     if(!currentQ) return;
 
-    // pénalité de score
+    // petite pénalité de score locale
     if(typeof localScores !== 'undefined') {
-        localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
+      localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
     }
     if(typeof updateBars !== 'undefined') updateBars();
 
-    // Affichage de la solution
-    this.solutionOverlay.style.display = "flex";
-    if (feedbackIA) {
-        this.solutionText.innerHTML = `❌ ${feedbackIA}<br><br>Bonne réponse : <strong>${currentQ.a}</strong>`;
-    } else {
-        this.solutionText.innerHTML = `❌ Pas de souci.<br><br>La bonne réponse était : <strong>${currentQ.a}</strong>`;
-    }
-
-    // On bloque les entrées sur cette question
-    this.zPaused = true; 
-    this.input.disabled = true;
-    this.subBtn.disabled = true;
-    this.analysisMsg.style.display = "none";
-
-    // Après un délai, on passe à UNE AUTRE QUESTION
-    setTimeout(() => {
-        this.solutionOverlay.style.display = "none";
-        if (this.ctrl && typeof this.ctrl.notifyWrongAnswer === 'function') {
-          this.ctrl.notifyWrongAnswer(feedbackIA || null);
-        }
-    }, 3500);
+    // On passe la bonne réponse à main.js => super div affiche "bonne réponse : ..."
+    this.ctrl.notifyWrongAnswer({ a: currentQ.a });
   }
 
   startAnimation(){ this.moveZ(); } 
@@ -255,9 +233,12 @@ class ZombieGame {
   
   moveZ() {
     if(this.zInt) return;
-    this.zombie.style.display="block"; this.zombie.style.opacity="1";
+    this.zombie.style.display="block"; 
+    this.zombie.style.opacity="1";
+
     const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
     const step = max / 50000; 
+    
     this.zInt = setInterval(() => {
       if(this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
       
@@ -265,7 +246,8 @@ class ZombieGame {
       this.zombie.style.right = this.zPos + "px";
       
       if(this.zPos >= max) {
-          this.ctrl.notifyWrongAnswer(null); 
+        // Ici, c'est le "vrai" échec : cœur perdu, etc. géré par main.js
+        this.ctrl.notifyWrongAnswer(null);
       }
     }, 20);
   }
@@ -274,20 +256,30 @@ class ZombieGame {
     this.resetting = true;
     if(this.zInt) { clearInterval(this.zInt); this.zInt = null; }
     if(this.pInt) { clearInterval(this.pInt); this.pInt = null; }
-    this.zPos = 20; this.zPaused = false;
     
-    if(this.zombie) { this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; }
-    if(this.projectile) { this.projectile.style.display = "none"; this.projectile.style.left = "0px"; }
+    this.zPaused = false;
+    
+    // NE PAS remettre this.zPos à 20 : le zombie garde sa position
+    if(this.zombie) { 
+      this.zombie.style.display = "block"; 
+      this.zombie.style.opacity = "1"; 
+    }
+    if(this.projectile) { 
+      this.projectile.style.display = "none"; 
+      this.projectile.style.left = "0px"; 
+    }
     
     if(this.input) { 
       this.input.disabled = false; 
       this.input.value = ""; 
       this.input.placeholder = "Explique ta réponse ici...";
     }
-    if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }
+    if(this.subBtn) { 
+      this.subBtn.disabled = false; 
+      this.subBtn.textContent = "Envoyer à l'IA 🤖"; 
+    }
     
     this.bravoBadge.style.display = "none";
-    this.solutionOverlay.style.display = "none";
     this.analysisMsg.style.display = "none";
   }
 
@@ -300,11 +292,18 @@ class ZombieGame {
     const zRight = parseFloat(this.zombie.style.right) || 20;
     const hit = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
     this.pInt = setInterval(() => {
-      if(this.resetting) { clearInterval(this.pInt); this.pInt = null; return; }
-      p += 25; this.projectile.style.left = p + "px";
+      if(this.resetting) { 
+        clearInterval(this.pInt); 
+        this.pInt = null; 
+        return; 
+      }
+      p += 25; 
+      this.projectile.style.left = p + "px";
       if(p >= hit) {
-        clearInterval(this.pInt); this.pInt = null;
-        this.projectile.style.display = "none"; this.projectile.style.left = "0px";
+        clearInterval(this.pInt); 
+        this.pInt = null;
+        this.projectile.style.display = "none"; 
+        this.projectile.style.left = "0px";
         if(!this.resetting) this.zombie.style.display = "none";
       }
     }, 20);

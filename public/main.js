@@ -493,13 +493,30 @@ function incrementProgress(v) {
   updateBars();
 }
 
+// ⚠️ ICI : on rend la fonction robuste pour afficher la bonne réponse
 function wrongAnswerFlow(q) {
   if(!isGameActive) return;
   if(currentGameModuleInstance) currentGameModuleInstance.resetAnimation();
-  lives = Math.max(0, lives-1); renderLives();
-  if(lives === 0) overlay.style.display = "flex";
-  else if(q) { correctionText.textContent = q.a; correctionOverlay.style.display = "flex"; }
-  else { locked=true; setTimeout(() => nextQuestion(false), 1500); }
+
+  lives = Math.max(0, lives-1);
+  renderLives();
+
+  if(lives === 0) {
+    overlay.style.display = "flex";
+  } else {
+    // récupérer le texte de la bonne réponse quel que soit le format
+    let answerText = "";
+    if (q) {
+      if (typeof q === "string") {
+        answerText = q;
+      } else if (typeof q === "object") {
+        if (q.a) answerText = q.a;
+        else if (q.expectedAnswer) answerText = q.expectedAnswer;
+      }
+    }
+    correctionText.textContent = answerText || "";
+    correctionOverlay.style.display = "flex";
+  }
 }
 
 closeCorrectionBtn.addEventListener("click", () => { correctionOverlay.style.display="none"; nextQuestion(true); });

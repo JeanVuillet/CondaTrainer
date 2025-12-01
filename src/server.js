@@ -1,13 +1,16 @@
-// ====== CONFIG ET POLYFILL FETCH ======
+// ====== CONFIG GENERALE ======
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer'); // Gestion des fichiers
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
-const nodeFetch = require('node-fetch');
+// Polyfill Fetch
+const fetch = require('node-fetch');
 if (!global.fetch) {
-  global.fetch = nodeFetch;
-  global.Headers = nodeFetch.Headers;
-  global.Request = nodeFetch.Request;
-  global.Response = nodeFetch.Response;
+  global.fetch = fetch;
+  global.Headers = fetch.Headers;
+  global.Request = fetch.Request;
+  global.Response = fetch.Response;
 }
 
 const express = require('express');
@@ -20,11 +23,15 @@ const port = process.env.PORT || 3000;
 const mongoUri = process.env.MONGODB_URI;
 const geminiKey = process.env.GEMINI_API_KEY;
 
+// Config Multer
+const upload = multer({ dest: 'uploads/' });
+if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
+
 if (!mongoUri) { console.error('❌ MONGODB_URI manquant'); process.exit(1); }
 
 console.log("------------------------------------------------");
-if (geminiKey) console.log("🔑 Clé API détectée (Mode IA activé)");
-else console.log("🔕 Pas de clé API (Mode Algo Local uniquement)");
+if (geminiKey) console.log("🔑 Clé API détectée (IA Active)");
+else console.log("🔕 Pas de clé API (Mode Secours)");
 console.log("------------------------------------------------");
 
 app.use(express.json());
@@ -46,20 +53,22 @@ const PlayerSchema = new mongoose.Schema({
 
 const Player = mongoose.model('Player', PlayerSchema, 'players');
 
-// ====== UTILITAIRES LOCAL ======
-function normalizeBase(str) { return (str || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').trim().toLowerCase(); }
-function nameTokens(str) { return normalizeBase(str).split(/[\s-']+/).filter(t => t.length >= 2); }
+// ====== UTILITAIRES ======
+function normalizeBase(str) {
+  return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g," ").replace(/\s{2,}/g," ").trim().toLowerCase();
+}
+function nameTokens(str) { return normalizeBase(str).split(" ").filter(t => t.length >= 2); }
 function normalizeClassroom(c) { return normalizeBase(c).replace(/(?<=\d)(e|de|d)/, '').toUpperCase(); }
 
-function calculateSimilarity(s1, s2) {
-  let longer = s1; let shorter = s2;
-  if (s1.length < s2.length) { longer = s2; shorter = s1; }
+// Algo Local
+function getSimilarity(s1, s2) {
+  let longer = s1.toLowerCase(); let shorter = s2.toLowerCase();
+  if (s1.length < s2.length) { longer = s2.toLowerCase(); shorter = s1.toLowerCase(); }
   const longerLength = longer.length;
   if (longerLength === 0) return 1.0;
   return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
 }
 function editDistance(s1, s2) {
-  s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
   let costs = new Array();
   for (let i = 0; i <= s1.length; i++) {
     let lastValue = i;
@@ -79,7 +88,37 @@ function editDistance(s1, s2) {
   return costs[s2.length];
 }
 
-// ====== ROUTES ======
+function detectSpellingCorrections(userAnswer, expectedAnswer) {
+  const rawUserTokens = (userAnswer || '').split(/\s+/).filter(t => t.length > 0);
+  const rawExpectedTokens = (expectedAnswer || '').split(/\s+/).filter(t => t.length > 0);
+  const normUserTokens = rawUserTokens.map(t => normalizeBase(t));
+  const normExpectedTokens = rawExpectedTokens.map(t => normalizeBase(t));
+  const corrections = [];
+  const alreadyAdded = new Set();
+
+  normUserTokens.forEach((uTokNorm, idxU) => {
+    if (uTokNorm.length <= 2) return;
+    let bestIdx = -1;
+    let bestScore = 0;
+    normExpectedTokens.forEach((eTokNorm, idxE) => {
+      const score = getSimilarity(uTokNorm, eTokNorm);
+      if (score > bestScore) { bestScore = score; bestIdx = idxE; }
+    });
+    if (bestIdx !== -1 && bestScore > 0.7 && uTokNorm !== normExpectedTokens[bestIdx]) {
+      const wrong = rawUserTokens[idxU];
+      const correct = rawExpectedTokens[bestIdx];
+      const key = wrong + '→' + correct;
+      if (!alreadyAdded.has(key)) {
+        alreadyAdded.add(key);
+        corrections.push({ wrong, correct });
+      }
+    }
+  });
+  return corrections;
+}
+
+// ====== ROUTES STANDARD ======
+
 app.post('/api/register', async (req, res) => {
   try {
     const { firstName, lastName, classroom } = req.body;
@@ -94,10 +133,7 @@ app.post('/api/register', async (req, res) => {
       return inputFirst.some(t => dbFirst.includes(t)) && inputLast.some(t => dbLast.includes(t));
     });
     if (!found) return res.status(404).json({ ok: false });
-    
-    // --- C'est ici qu'il y avait l'erreur, voici la ligne corrigée : ---
     return res.json({ ok: true, id: found._id, firstName: found.firstName, lastName: found.lastName, classroom: found.classroom });
-  
   } catch (e) { res.status(500).json({ ok: false }); }
 });
 
@@ -154,96 +190,136 @@ app.post('/api/reset-player-chapter', async (req, res) => {
 app.post('/api/reset-player', async (req, res) => { await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
 app.post('/api/reset-all-players', async (req, res) => { await Player.updateMany({}, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
 
-
 // ============================================================
-// IA HYBRIDE (Version Corrigée : Gemini 2.0 + Local "Imprécis")
+// ROUTE 1 : VÉRIFICATION TEXTE
 // ============================================================
 app.post('/api/verify-answer-ai', async (req, res) => {
   const { question, userAnswer, expectedAnswer } = req.body;
-  console.log(`[IA] Analyse : "${userAnswer}" (Attendu: ${expectedAnswer})`);
+  console.log(`[TEXTE] Q: ${question} | Rep: ${userAnswer}`);
 
-  let useLocalAlgo = true; 
-
+  // --- PARTIE 1 : ESSAI IA (Gemini Pro - Texte seul) ---
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
-      // On utilise Gemini 2.0 Flash (qui fonctionne avec ta clé)
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Modèle Texte Stable
 
       const prompt = `
-        Tu es un professeur correcteur bienveillant pour des collégiens.
-        
+        Agis comme un professeur.
         Question : "${question}"
         Réponse attendue : "${expectedAnswer}"
         Réponse de l'élève : "${userAnswer}"
         
-        Règles :
-        - Si la réponse est bonne (même avec fautes ou synonymes) -> "correct".
-        - Si la réponse est fausse ou n'a rien à voir -> "incorrect".
-        - Si la réponse est incomplète, partielle ou un peu floue -> "imprecise".
+        Consignes :
+        - Si le sens est bon (même avec fautes) -> status="correct".
+        - Si faux -> status="incorrect".
+        - Si incomplet -> status="imprecise".
         
-        Donne un feedback court (15 mots max).
-        Si "imprecise", donne un indice SANS donner la réponse.
-        
-        Réponds UNIQUEMENT au format JSON : { "status": "correct" | "incorrect" | "imprecise", "feedback": "string" }
+        Si "correct", liste les fautes d'orthographe dans le tableau "corrections" : { "wrong": "mot_eleve", "correct": "mot_juste" }.
+
+        Format JSON : { "status": "...", "feedback": "...", "corrections": [] }
       `;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      let text = response.text();
-      
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      let text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
       const jsonResponse = JSON.parse(text);
       
-      console.log("[IA-GEMINI] Succès :", jsonResponse);
-      return res.json(jsonResponse); 
+      console.log("[IA-GEMINI] Texte Succès :", jsonResponse.status);
+      return res.json(jsonResponse);
 
     } catch (error) {
-      console.error("[IA-GEMINI] Erreur (Passage au mode Local) :", error.message);
-      useLocalAlgo = true; 
+      console.error("[IA-GEMINI] Erreur Texte (Passage Local) :", error.message);
     }
   }
 
-  // 2. ALGO LOCAL AMÉLIORÉ (Si l'IA plante ou n'est pas là)
-  if (useLocalAlgo) {
-    console.log("[IA-LOCALE] Algorithme de secours intelligent.");
-    
-    const cleanUser = normalizeBase(userAnswer);
-    const cleanExpected = normalizeBase(expectedAnswer);
-    
-    let status = "incorrect";
-    let feedback = "";
+  // --- PARTIE 2 : ALGO LOCAL (Secours) ---
+  const cleanUser = normalizeBase(userAnswer);
+  const cleanExpected = normalizeBase(expectedAnswer);
+  const expectedWords = cleanExpected.split(" ").filter(w => w.length > 2);
+  const userWordsRaw = (userAnswer||'').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g," ").split(" ");
+  
+  let foundCount = 0;
+  let corrections = detectSpellingCorrections(userAnswer, expectedAnswer);
 
-    // A. Copie parfaite ou presque
-    if (cleanUser.includes(cleanExpected) || calculateSimilarity(cleanUser, cleanExpected) > 0.75) {
-        status = "correct";
-        feedback = "Excellent, c'est tout à fait ça.";
-    } 
-    else {
-      // B. Analyse des mots clés pour détecter "IMPRÉCIS"
-      // On ignore les petits mots (le, la, de...)
-      const keyWords = cleanExpected.split(/[\s,;]+/).filter(w => w.length > 3);
-      const foundWords = keyWords.filter(kw => cleanUser.includes(kw));
+  expectedWords.forEach(target => {
+     if (cleanUser.includes(target) || userWordsRaw.some(u => getSimilarity(normalizeBase(u), target) > 0.75)) {
+       foundCount++;
+     }
+  });
+
+  let status = "incorrect";
+  let feedback = "Ce n'est pas ça.";
+
+  if (foundCount === expectedWords.length) { status = "correct"; feedback = "Parfait !"; }
+  else if (foundCount >= 1) { status = "imprecise"; feedback = "Incomplet."; }
+  
+  if (cleanUser === cleanExpected) { status = "correct"; feedback = "Excellent !"; corrections = []; }
+
+  console.log(`[IA-LOCALE] Résultat : ${status}`);
+  res.json({ status, feedback, corrections: status === "correct" ? corrections : [] });
+});
+
+
+// ============================================================
+// ROUTE 2 : VÉRIFICATION AUDIO
+// ============================================================
+app.post('/api/verify-audio', upload.single('audio'), async (req, res) => {
+  const { question, expectedAnswer } = req.body;
+  const audioFile = req.file;
+
+  console.log(`[AUDIO] Fichier reçu (${audioFile.size} bytes).`);
+
+  if (!geminiKey) {
+    if (fs.existsSync(audioFile.path)) fs.unlinkSync(audioFile.path);
+    return res.json({ status: "imprecise", feedback: "IA Audio non disponible (Clé manquante)." });
+  }
+
+  try {
+    const audioData = fs.readFileSync(audioFile.path);
+    const base64Audio = audioData.toString('base64');
+    const mimeType = audioFile.mimetype;
+
+    const genAI = new GoogleGenerativeAI(geminiKey);
+    // POUR L'AUDIO, ON DOIT UTILISER GEMINI 1.5 (Pro ou Flash)
+    // Si Flash plante, on tente Pro.
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+    const prompt = `
+      Écoute cet élève. Transcris sa réponse.
+      Question : "${question}"
+      Réponse attendue : "${expectedAnswer}"
+
+      Règles :
+      1. Transcris ce qu'il dit dans le champ "transcript".
+      2. Compare le SENS avec la réponse attendue.
       
-      if (keyWords.length > 0) {
-         // Si on a trouvé tous les mots clés
-         if (foundWords.length === keyWords.length) {
-            status = "correct";
-            feedback = "Bonne réponse !";
-         }
-         // Si on en a trouvé au moins un (mais pas tous) -> IMPRÉCIS
-         else if (foundWords.length > 0) {
-            status = "imprecise";
-            feedback = `Tu as trouvé "${foundWords[0]}", mais ta réponse est incomplète.`;
-         }
+      Sortie JSON :
+      {
+        "transcript": "texte transcrit",
+        "status": "correct" | "incorrect" | "imprecise",
+        "feedback": "commentaire court",
+        "corrections": [] 
       }
-    }
+    `;
 
-    if (status === "incorrect") {
-        feedback = `Ce n'est pas ça. La réponse attendue était : ${expectedAnswer}`;
-    }
+    const result = await model.generateContent([
+      prompt,
+      { inlineData: { data: base64Audio, mimeType: mimeType } }
+    ]);
 
-    return res.json({ status: status, feedback: feedback });
+    const response = await result.response;
+    let text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    const jsonResponse = JSON.parse(text);
+
+    console.log("[IA-AUDIO] Succès :", jsonResponse.status);
+    fs.unlinkSync(audioFile.path);
+    res.json(jsonResponse);
+
+  } catch (err) {
+    console.error("[IA-AUDIO] Erreur :", err.message);
+    if (fs.existsSync(audioFile.path)) fs.unlinkSync(audioFile.path);
+    // En cas d'erreur audio, on dit à l'élève de réessayer
+    res.json({ status: "imprecise", feedback: "Je n'ai pas bien entendu, réessaie ou écris ta réponse." });
   }
 });
 

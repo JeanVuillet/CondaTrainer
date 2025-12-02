@@ -1,10 +1,8 @@
-// ====== CONFIG GENERALE ======
+// ====== CONFIG .env ======
 const path = require('path');
-const fs = require('fs');
-const multer = require('multer'); // Gestion des fichiers
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
-// Polyfill Fetch
+// --- POLYFILL FETCH (Pour Node < 18) ---
 const fetch = require('node-fetch');
 if (!global.fetch) {
   global.fetch = fetch;
@@ -23,15 +21,17 @@ const port = process.env.PORT || 3000;
 const mongoUri = process.env.MONGODB_URI;
 const geminiKey = process.env.GEMINI_API_KEY;
 
-// Config Multer
-const upload = multer({ dest: 'uploads/' });
-if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
+// Modèle IA utilisé
+const MODEL_NAME = "gemini-2.0-flash"; 
 
-if (!mongoUri) { console.error('❌ MONGODB_URI manquant'); process.exit(1); }
+if (!mongoUri) { 
+    console.error('❌ ERREUR : MONGODB_URI manquant dans le fichier .env'); 
+    process.exit(1); 
+}
 
 console.log("------------------------------------------------");
-if (geminiKey) console.log("🔑 Clé API détectée (IA Active)");
-else console.log("🔕 Pas de clé API (Mode Secours)");
+if (geminiKey) console.log(`🔑 Clé API détectée. Modèle ciblé : ${MODEL_NAME}`);
+else console.log("⚠️ Pas de clé API détectée (Mode IA Locale uniquement)");
 console.log("------------------------------------------------");
 
 app.use(express.json());
@@ -55,20 +55,20 @@ const Player = mongoose.model('Player', PlayerSchema, 'players');
 
 // ====== UTILITAIRES ======
 function normalizeBase(str) {
-  return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g," ").replace(/\s{2,}/g," ").trim().toLowerCase();
+  return (str || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').trim().toLowerCase();
 }
-function nameTokens(str) { return normalizeBase(str).split(" ").filter(t => t.length >= 2); }
+function nameTokens(str) { return normalizeBase(str).split(/[\s-']+/).filter(t => t.length >= 2); }
 function normalizeClassroom(c) { return normalizeBase(c).replace(/(?<=\d)(e|de|d)/, '').toUpperCase(); }
 
-// Algo Local
-function getSimilarity(s1, s2) {
-  let longer = s1.toLowerCase(); let shorter = s2.toLowerCase();
-  if (s1.length < s2.length) { longer = s2.toLowerCase(); shorter = s1.toLowerCase(); }
+function calculateSimilarity(s1, s2) { 
+  let longer = s1; let shorter = s2;
+  if (s1.length < s2.length) { longer = s2; shorter = s1; }
   const longerLength = longer.length;
   if (longerLength === 0) return 1.0;
   return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
 }
 function editDistance(s1, s2) {
+  s1 = s1.toLowerCase(); s2 = s2.toLowerCase();
   let costs = new Array();
   for (let i = 0; i <= s1.length; i++) {
     let lastValue = i;
@@ -88,36 +88,7 @@ function editDistance(s1, s2) {
   return costs[s2.length];
 }
 
-function detectSpellingCorrections(userAnswer, expectedAnswer) {
-  const rawUserTokens = (userAnswer || '').split(/\s+/).filter(t => t.length > 0);
-  const rawExpectedTokens = (expectedAnswer || '').split(/\s+/).filter(t => t.length > 0);
-  const normUserTokens = rawUserTokens.map(t => normalizeBase(t));
-  const normExpectedTokens = rawExpectedTokens.map(t => normalizeBase(t));
-  const corrections = [];
-  const alreadyAdded = new Set();
-
-  normUserTokens.forEach((uTokNorm, idxU) => {
-    if (uTokNorm.length <= 2) return;
-    let bestIdx = -1;
-    let bestScore = 0;
-    normExpectedTokens.forEach((eTokNorm, idxE) => {
-      const score = getSimilarity(uTokNorm, eTokNorm);
-      if (score > bestScore) { bestScore = score; bestIdx = idxE; }
-    });
-    if (bestIdx !== -1 && bestScore > 0.7 && uTokNorm !== normExpectedTokens[bestIdx]) {
-      const wrong = rawUserTokens[idxU];
-      const correct = rawExpectedTokens[bestIdx];
-      const key = wrong + '→' + correct;
-      if (!alreadyAdded.has(key)) {
-        alreadyAdded.add(key);
-        corrections.push({ wrong, correct });
-      }
-    }
-  });
-  return corrections;
-}
-
-// ====== ROUTES STANDARD ======
+// ====== ROUTES ======
 
 app.post('/api/register', async (req, res) => {
   try {
@@ -142,6 +113,8 @@ app.post('/api/save-progress', async (req, res) => {
   try {
     const player = await Player.findById(playerId);
     if (!player) return res.status(404).json({ message: 'Introuvable' });
+    
+    // Nettoyage automatique
     let cleanLevels = [];
     if (Array.isArray(player.validatedLevels)) {
       for (let item of player.validatedLevels) {
@@ -150,6 +123,7 @@ app.post('/api/save-progress', async (req, res) => {
       }
     }
     player.validatedLevels = cleanLevels;
+    
     let changed = false;
     if (progressType === 'level') {
       const existingIndex = player.validatedLevels.findIndex(l => l.levelId === value);
@@ -190,137 +164,92 @@ app.post('/api/reset-player-chapter', async (req, res) => {
 app.post('/api/reset-player', async (req, res) => { await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
 app.post('/api/reset-all-players', async (req, res) => { await Player.updateMany({}, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
 
+
 // ============================================================
-// ROUTE 1 : VÉRIFICATION TEXTE
+// IA HYBRIDE (Avec logique Proche/Indice et Corrections)
 // ============================================================
 app.post('/api/verify-answer-ai', async (req, res) => {
   const { question, userAnswer, expectedAnswer } = req.body;
-  console.log(`[TEXTE] Q: ${question} | Rep: ${userAnswer}`);
+  console.log(`\n[TEXTE] Q: "${question}" | Élève: "${userAnswer}"`);
 
-  // --- PARTIE 1 : ESSAI IA (Gemini Pro - Texte seul) ---
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Modèle Texte Stable
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
       const prompt = `
-        Agis comme un professeur.
-        Question : "${question}"
-        Réponse attendue : "${expectedAnswer}"
-        Réponse de l'élève : "${userAnswer}"
+        Tu es un professeur bienveillant.
         
-        Consignes :
-        - Si le sens est bon (même avec fautes) -> status="correct".
-        - Si faux -> status="incorrect".
-        - Si incomplet -> status="imprecise".
-        
-        Si "correct", liste les fautes d'orthographe dans le tableau "corrections" : { "wrong": "mot_eleve", "correct": "mot_juste" }.
+        CONTEXTE :
+        - Question : "${question}"
+        - Réponse attendue : "${expectedAnswer}"
+        - Réponse de l'élève : "${userAnswer}"
 
-        Format JSON : { "status": "...", "feedback": "...", "corrections": [] }
+        TA MISSION :
+        1. Analyse la réponse.
+        2. Choisis le statut :
+           - "correct" : Si le sens est bon (même avec fautes).
+           - "close" : Si c'est incomplet ou presque ça (donne un indice).
+           - "incorrect" : Si c'est faux.
+        3. Si "correct", liste les fautes d'orthographe dans "corrections".
+
+        FORMAT JSON OBLIGATOIRE :
+        {
+          "status": "correct" | "close" | "incorrect",
+          "feedback": "Phrase courte de commentaire ou indice",
+          "corrections": [ { "wrong": "motFaux", "correct": "motJuste" } ]
+        }
       `;
 
       const result = await model.generateContent(prompt);
-      const response = await result.response;
-      let text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+      let text = result.response.text();
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
       const jsonResponse = JSON.parse(text);
       
-      console.log("[IA-GEMINI] Texte Succès :", jsonResponse.status);
+      console.log(`[IA-GEMINI] Succès :`, jsonResponse);
       return res.json(jsonResponse);
 
     } catch (error) {
-      console.error("[IA-GEMINI] Erreur Texte (Passage Local) :", error.message);
+      console.error(`[IA-GEMINI] ❌ Erreur : ${error.message}`);
+      console.log("👉 Bascule sur le mode Local...");
     }
   }
 
-  // --- PARTIE 2 : ALGO LOCAL (Secours) ---
+  // MODE LOCAL (Secours)
   const cleanUser = normalizeBase(userAnswer);
   const cleanExpected = normalizeBase(expectedAnswer);
-  const expectedWords = cleanExpected.split(" ").filter(w => w.length > 2);
-  const userWordsRaw = (userAnswer||'').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g," ").split(" ");
+  const sim = calculateSimilarity(cleanUser, cleanExpected);
   
-  let foundCount = 0;
-  let corrections = detectSpellingCorrections(userAnswer, expectedAnswer);
+  let response = { status: "incorrect", feedback: `Non, attendu : ${expectedAnswer}`, corrections: [] };
 
-  expectedWords.forEach(target => {
-     if (cleanUser.includes(target) || userWordsRaw.some(u => getSimilarity(normalizeBase(u), target) > 0.75)) {
-       foundCount++;
-     }
-  });
-
-  let status = "incorrect";
-  let feedback = "Ce n'est pas ça.";
-
-  if (foundCount === expectedWords.length) { status = "correct"; feedback = "Parfait !"; }
-  else if (foundCount >= 1) { status = "imprecise"; feedback = "Incomplet."; }
-  
-  if (cleanUser === cleanExpected) { status = "correct"; feedback = "Excellent !"; corrections = []; }
-
-  console.log(`[IA-LOCALE] Résultat : ${status}`);
-  res.json({ status, feedback, corrections: status === "correct" ? corrections : [] });
-});
-
-
-// ============================================================
-// ROUTE 2 : VÉRIFICATION AUDIO
-// ============================================================
-app.post('/api/verify-audio', upload.single('audio'), async (req, res) => {
-  const { question, expectedAnswer } = req.body;
-  const audioFile = req.file;
-
-  console.log(`[AUDIO] Fichier reçu (${audioFile.size} bytes).`);
-
-  if (!geminiKey) {
-    if (fs.existsSync(audioFile.path)) fs.unlinkSync(audioFile.path);
-    return res.json({ status: "imprecise", feedback: "IA Audio non disponible (Clé manquante)." });
+  if (cleanUser.includes(cleanExpected) || sim > 0.8) {
+    response.status = "correct";
+    response.feedback = "Bonne réponse !";
+  } else if (sim > 0.4 || (cleanUser.length > 3 && cleanExpected.includes(cleanUser))) {
+    response.status = "close";
+    response.feedback = "C'est presque ça, vérifie l'orthographe.";
   }
 
-  try {
-    const audioData = fs.readFileSync(audioFile.path);
-    const base64Audio = audioData.toString('base64');
-    const mimeType = audioFile.mimetype;
-
-    const genAI = new GoogleGenerativeAI(geminiKey);
-    // POUR L'AUDIO, ON DOIT UTILISER GEMINI 1.5 (Pro ou Flash)
-    // Si Flash plante, on tente Pro.
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    const prompt = `
-      Écoute cet élève. Transcris sa réponse.
-      Question : "${question}"
-      Réponse attendue : "${expectedAnswer}"
-
-      Règles :
-      1. Transcris ce qu'il dit dans le champ "transcript".
-      2. Compare le SENS avec la réponse attendue.
-      
-      Sortie JSON :
-      {
-        "transcript": "texte transcrit",
-        "status": "correct" | "incorrect" | "imprecise",
-        "feedback": "commentaire court",
-        "corrections": [] 
-      }
-    `;
-
-    const result = await model.generateContent([
-      prompt,
-      { inlineData: { data: base64Audio, mimeType: mimeType } }
-    ]);
-
-    const response = await result.response;
-    let text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    const jsonResponse = JSON.parse(text);
-
-    console.log("[IA-AUDIO] Succès :", jsonResponse.status);
-    fs.unlinkSync(audioFile.path);
-    res.json(jsonResponse);
-
-  } catch (err) {
-    console.error("[IA-AUDIO] Erreur :", err.message);
-    if (fs.existsSync(audioFile.path)) fs.unlinkSync(audioFile.path);
-    // En cas d'erreur audio, on dit à l'élève de réessayer
-    res.json({ status: "imprecise", feedback: "Je n'ai pas bien entendu, réessaie ou écris ta réponse." });
-  }
+  console.log(`[IA-LOCALE] Statut : ${response.status}`);
+  res.json(response);
 });
 
-app.listen(port, () => console.log(`✅ Serveur démarré port ${port}`));
+// TEST AU DÉMARRAGE
+async function testGeminiConnection() {
+    if (!geminiKey) return;
+    console.log("📡 [TEST STARTUP] Test de connexion Gemini...");
+    try {
+        const genAI = new GoogleGenerativeAI(geminiKey);
+        const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+        const result = await model.generateContent("Dis 'OK'");
+        const text = result.response.text();
+        console.log(`✅ [TEST STARTUP] GEMINI CONNECTÉ ! Réponse : "${text.trim()}"`);
+    } catch (error) {
+        console.error(`❌ [TEST STARTUP] ÉCHEC GEMINI : ${error.message}`);
+    }
+}
+
+app.listen(port, () => {
+  console.log(`✅ Serveur démarré port ${port}`);
+  testGeminiConnection();
+});

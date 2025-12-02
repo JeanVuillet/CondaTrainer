@@ -40,6 +40,7 @@
       margin-top: 15px; 
     }
 
+    /* Zone Saisie */
     #ai-input-zone { 
       display: flex; 
       flex-direction: column; 
@@ -75,52 +76,56 @@
     }
     #submit { background: #2563eb; color: #fff; flex: 1; }
     #submit:disabled { background: #94a3b8; cursor: not-allowed; }
-    
-    /* BADGE BRAVO (Vert) */
-    #bravo-badge {
-      position: absolute; 
-      top: 10px; right: 10px; 
-      background: #ffffff; color: #1e293b;
-      padding: 12px 16px; border-radius: 12px; 
-      font-weight: bold; font-size: 14px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-      display: none; animation: popIn 0.3s ease-out;
-      z-index: 50; max-width: 320px; text-align: left; 
-      border: 2px solid #22c55e;
-    }
-    
-    .spelling-list { 
-      margin: 8px 0 0; padding: 0; list-style: none; 
-      font-size: 0.9em; background: #f0fdf4; 
-      padding: 8px; border-radius: 8px; border: 1px solid #bbf7d0;
-    }
-    .spelling-item { display: block; margin-bottom: 4px; }
-    .wrong-word { color: #ef4444; text-decoration: line-through; margin-right: 6px; opacity: 0.7; }
-    .right-word { color: #15803d; font-weight: 800; text-transform: uppercase; }
-    
-    /* FEEDBACK IA (Sous la zone de texte) */
-    #analysis-msg { 
-      display: none; 
-      margin-top: 5px; 
-      padding: 10px; 
-      border-radius: 8px; 
-      font-size: 14px; 
-      width: 100%;
-      text-align: center;
-      line-height: 1.4;
-    }
-    .msg-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .msg-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-    .msg-hint { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; font-weight: bold; }
 
-    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    /* --- FEEDBACK NON INTRUSIF --- */
+    #feedback-bubble {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 400px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 14px;
+      text-align: center;
+      display: none;
+      z-index: 20;
+      border: 2px solid transparent;
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 10px; opacity: 1; } }
+
+    .fb-success { border-color: #22c55e; color: #166534; }
+    .fb-error { border-color: #ef4444; color: #991b1b; }
+    .fb-hint { border-color: #f59e0b; color: #92400e; }
+    .fb-loading { border-color: #3b82f6; color: #1e40af; }
+
+    .spelling-list {
+      margin-top: 8px;
+      padding: 5px;
+      background: #f0fdf4;
+      border-radius: 6px;
+      list-style: none;
+      font-size: 0.9em;
+      text-align: left;
+    }
+    .spelling-item { margin-bottom: 2px; }
+    .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; }
+    .right-word { font-weight: bold; color: #15803d; }
+
   </style>
   
   <div id="arena"> 
     <img id="hero" src="images/hero.png" alt="Héros" /> 
     <img id="zombie" src="images/zombi.png" alt="Zombie" /> 
     <div id="projectile"></div> 
-    <div id="bravo-badge"></div>
+    
+    <!-- La bulle de feedback est DANS l'arène, en haut -->
+    <div id="feedback-bubble"></div>
   </div>
 
   <div id="question" class="question-zone"></div>
@@ -130,7 +135,6 @@
     <div class="buttons-row">
       <button id="submit">Envoyer à l'IA 🤖</button>
     </div>
-    <div id="analysis-msg"></div>
   </div>
 </template>
 
@@ -146,8 +150,7 @@ class ZombieGame {
     
     this.input = c.querySelector("#answer");
     this.subBtn = c.querySelector("#submit");
-    this.bravoBadge = c.querySelector("#bravo-badge");
-    this.analysisMsg = c.querySelector("#analysis-msg");
+    this.fbBubble = c.querySelector("#feedback-bubble");
 
     this.zInt = null; this.pInt = null; 
     this.zPos = 20; 
@@ -156,11 +159,9 @@ class ZombieGame {
     
     this.subBtn.onclick = () => this.askAI();
     this.input.onkeydown = (e) => { 
-        // Entrée valide, sauf si Shift (pour retour ligne)
         if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.askAI(); } 
     };
     this.input.addEventListener("input", () => { 
-        // Pause auto quand on tape
         this.zPaused = (this.input.value.length > 0); 
     });
   }
@@ -172,10 +173,8 @@ class ZombieGame {
     this.input.disabled = false;
     this.subBtn.disabled = false; 
     this.subBtn.textContent = "Envoyer à l'IA 🤖";
-    this.bravoBadge.style.display = "none"; 
-    this.analysisMsg.style.display = "none";
+    this.fbBubble.style.display = "none";
     
-    // RESET
     this.zPos = 20; 
     this.zombie.style.right = "20px"; 
     this.zombie.style.display = "block"; 
@@ -188,13 +187,12 @@ class ZombieGame {
   async askAI() {
     if(this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
     
-    // UI Chargement
     this.zPaused = true; 
     this.input.disabled = true; 
     this.subBtn.disabled = true;
-    this.analysisMsg.className = "msg-info";
-    this.analysisMsg.textContent = "🧠 L'IA analyse ta réponse..."; 
-    this.analysisMsg.style.display = "block";
+    
+    // Feedback "Chargement"
+    this.showFeedback("🧠 Analyse...", "loading");
 
     const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
     if(!currentQ) return;
@@ -214,57 +212,55 @@ class ZombieGame {
       console.error(err); 
       this.input.disabled = false; 
       this.subBtn.disabled = false; 
-      this.analysisMsg.className = "msg-error";
-      this.analysisMsg.textContent = "Erreur connexion IA.";
+      this.showFeedback("Erreur connexion.", "error");
     }
   }
 
   handleResponse(data) {
-    this.analysisMsg.style.display = "none"; 
+    const status = data.status || (data.correct ? "correct" : "incorrect");
 
     // 1. SUCCÈS
-    if (data.status === "correct") {
-      let html = `<div style="color:#166534">🎉 ${data.feedback || "Bravo !"}</div>`;
+    if (status === "correct") {
+      let html = `<strong>🎉 ${data.feedback || "Bravo !"}</strong>`;
       
       if (data.corrections && data.corrections.length > 0) {
         html += `<ul class="spelling-list">`;
         data.corrections.forEach(c => {
             html += `<li class="spelling-item">
                         <span class="wrong-word">${c.wrong}</span> 
-                        → <span class="right-word">${c.correct}</span>
+                        <span class="right-word">${c.correct}</span>
                      </li>`;
         });
         html += `</ul>`;
       }
-
-      this.bravoBadge.innerHTML = html;
-      this.bravoBadge.style.display = "block"; 
       
-      this.win(); // Tire le projectile
+      this.showFeedback(html, "success", true); // True = contient du HTML
+      
+      // On tire TOUT DE SUITE pour ne pas bloquer le visuel
+      this.win(); 
 
+      // On laisse le message affiché 4s puis on passe à la suite
       setTimeout(() => { 
           this.ctrl.notifyCorrectAnswer(); 
       }, 4000);
     } 
-    // 2. C'EST PROCHE (INDICE)
-    else if (data.status === "close") {
-      this.analysisMsg.className = "msg-hint";
-      this.analysisMsg.innerHTML = `💡 <strong>Indice :</strong> ${data.feedback}`;
-      this.analysisMsg.style.display = "block";
+    
+    // 2. INDICE (Proche)
+    else if (status === "close") {
+      this.showFeedback(`💡 <strong>Indice :</strong> ${data.feedback}`, "hint", true);
       
-      // On ne pénalise PAS, on ne redémarre PAS le zombie.
-      // On rend juste la main à l'élève pour qu'il corrige.
-      this.input.disabled = false;
-      this.subBtn.disabled = false;
-      this.subBtn.textContent = "Réessayer";
-      this.input.focus();
-      this.zPaused = true; // On garde la pause pour qu'il lise
-    }
-    // 3. C'EST FAUX
+      setTimeout(() => {
+          this.input.disabled = false;
+          this.subBtn.disabled = false;
+          this.subBtn.textContent = "Réessayer";
+          this.input.focus();
+          // On laisse le zombie en pause pour qu'il lise
+      }, 2000);
+    } 
+    
+    // 3. ERREUR
     else {
-      this.analysisMsg.className = "msg-error";
-      this.analysisMsg.innerHTML = `❌ ${data.feedback || "Incorrect."}`;
-      this.analysisMsg.style.display = "block";
+      this.showFeedback(`❌ ${data.feedback || "Incorrect."}`, "error");
       
       if(typeof localScores !== 'undefined') {
           localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
@@ -277,8 +273,20 @@ class ZombieGame {
           this.subBtn.disabled = false;
           this.subBtn.textContent = "Réessayer";
           this.input.focus();
-      }, 2500);
+          // On cache le message d'erreur pour libérer la vue
+          this.fbBubble.style.display = "none";
+      }, 3000);
     }
+  }
+
+  showFeedback(msg, type, isHtml = false) {
+    this.fbBubble.className = ""; // Reset classes
+    this.fbBubble.classList.add(`fb-${type}`);
+    
+    if(isHtml) this.fbBubble.innerHTML = msg;
+    else this.fbBubble.textContent = msg;
+    
+    this.fbBubble.style.display = "block";
   }
 
   startAnimation(){ this.moveZ(); } 
@@ -323,8 +331,7 @@ class ZombieGame {
     
     if(this.input) { this.input.disabled = false; this.input.value = ""; }
     if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }
-    if(this.bravoBadge) this.bravoBadge.style.display = "none"; 
-    if(this.analysisMsg) this.analysisMsg.style.display = "none";
+    if(this.fbBubble) this.fbBubble.style.display = "none";
   }
 
   win() { this.shoot(); }

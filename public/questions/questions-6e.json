@@ -2,80 +2,61 @@
   {
     "id": "ch1-lvl1-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 1 (Les grandes définitions)",
+    "title": "Chapitre 1 - Niveau 1 (Définitions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🏙️ 1. Les mots importants de la ville</h3><ul><li><strong>1. Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants et d'activités.</li><li><strong>2. Urbanisation :</strong> Augmentation de la population qui vit en ville.</li><li><strong>3. Ghetto :</strong> Quartier où une population vit à l'écart du reste de la ville (souvent pauvre).</li><li><strong>4. Bidonville :</strong> Quartier très pauvre construit illégalement avec des matériaux de récupération.</li><li><strong>5. Quartier résidentiel :</strong> Quartier où l'on trouve surtout des logements pour habiter.</li><li><strong>6. Quartier d'affaires :</strong> Quartier avec des bureaux, des tours et des banques.</li></ul>",
+    "lesson": "<h3>📖 1. Les mots à connaître</h3><ul><li><strong>Métropole :</strong> Très grande ville qui concentre beaucoup d'habitants, d'activités et de pouvoirs.</li><li><strong>Urbain :</strong> Qui concerne la <strong>ville</strong>.</li><li><strong>Rural :</strong> Qui concerne la <strong>campagne</strong>.</li><li><strong>Bidonville :</strong> Habitations faites avec des matériaux de récupération (pauvreté).</li><li><strong>Quartier des affaires :</strong> Quartier de gratte-ciels (bureaux).</li><li><strong>Croissance urbaine :</strong> Augmentation du nombre d'habitants en ville.</li></ul>",
     "questions": [
-      { "q": "Comment appelle-t-on une très grande ville qui concentre habitants et pouvoirs ?", "a": "métropole", "options": ["zone périurbaine", "ville moyenne", "métropole", "bourg rural"] },
-      { "q": "Quel mot désigne l'augmentation de la population en ville ?", "a": "urbanisation", "options": ["migration", "urbanisation", "mondialisation", "exode rural"] },
-      { "q": "Quel quartier désigne un lieu où une population vit à l'écart (souvent pauvre) ?", "a": "ghetto", "options": ["quartier résidentiel", "ghetto", "centre-ville", "zone pavillonnaire"] },
-      { "q": "Quel quartier est construit avec des matériaux de récupération ?", "a": "bidonville", "options": ["quartier d'affaires", "centre historique", "banlieue pavillonnaire", "bidonville"] },
-      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "résidentiel", "options": ["résidentiel", "administratif", "commercial", "industriel"] },
-      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "affaires", "options": ["touristique", "résidentiel", "affaires", "historique"] }
+      { "q": "Qu'est-ce qu'une métropole ?", "a": "grande ville", "options": ["grande ville", "village", "campagne", "station balnéaire"] },
+      { "q": "Que signifie le mot 'Urbain' ?", "a": "ville", "options": ["ville", "campagne", "désert", "montagne"] },
+      { "q": "Que signifie le mot 'Rural' ?", "a": "campagne", "options": ["campagne", "ville", "océan", "industriel"] },
+      { "q": "Qu'est-ce qu'un bidonville ?", "a": "habitat pauvre", "options": ["habitat pauvre", "quartier riche", "gratte-ciels", "centre historique"] },
+      { "q": "Que signifie la croissance urbaine ?", "a": "augmentation", "options": ["augmentation", "diminution", "stagnation", "exode"] },
+      { "q": "Que trouve-t-on dans un quartier des affaires ?", "a": "gratte-ciels", "options": ["gratte-ciels", "champs", "usines", "maisons"] }
     ]
   },
-
   {
     "id": "ch1-lvl2-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 2 (Les fonctions urbaines)",
+    "title": "Chapitre 1 - Niveau 2 (Les pays riches)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🏗️ 2. Les fonctions de la ville</h3><ul><li>...</li></ul>",
+    "lesson": "<h3>🏙️ 2. Les métropoles des pays riches</h3><ul><li><strong>Exemple :</strong> <strong>Sydney</strong> (Australie).</li><li><strong>Localisation :</strong> Majorité dans l'hémisphère <strong>Nord</strong> (Europe, Amérique).</li><li><strong>Urbanisation :</strong> Le taux est déjà <strong>élevé</strong> (beaucoup de gens en ville).</li><li><strong>Croissance :</strong> Elle est <strong>très faible</strong> (la ville ne grandit plus trop).</li><li><strong>Paysage :</strong> Banlieues pavillonnaires (maisons individuelles) et quartiers d'affaires (Skyline).</li><li><strong>Problèmes :</strong> Loyers élevés, pollution.</li></ul>",
     "questions": [
-      { "q": "Quelle fonction correspond au fait d'habiter en ville ?", "a": "résidentielle", "options": ["commerciale", "résidentielle", "administrative", "industrielle"] },
-      { "q": "Quelle fonction correspond aux magasins et aux achats ?", "a": "commerciale", "options": ["résidentielle", "culturelle", "politique", "commerciale"] },
-      { "q": "Quelle fonction correspond aux musées et aux théâtres ?", "a": "culturelle", "options": ["culturelle", "industrielle", "financière", "administrative"] },
-      { "q": "Quelle fonction correspond à la mairie ou au gouvernement ?", "a": "politique", "options": ["résidentielle", "commerciale", "politique", "culturelle"] },
-      { "q": "Quelle fonction correspond aux bureaux et aux entreprises ?", "a": "économique", "options": ["économique", "religieuse", "scolaire", "résidentielle"] },
-      { "q": "Quelle fonction correspond aux gares et aéroports ?", "a": "transport", "options": ["loisir", "transport", "commerce", "logement"] }
+      { "q": "Où se situent la majorité des grandes métropoles riches ?", "a": "nord", "options": ["nord", "sud", "pôle", "équateur"] },
+      { "q": "Quel est l'exemple de métropole riche étudié ?", "a": "Sydney", "options": ["Sydney", "Lagos", "Mexico", "Mumbai"] },
+      { "q": "Comment est le taux d'urbanisation dans les pays riches ?", "a": "élevé", "options": ["élevé", "faible", "nul", "moyen"] },
+      { "q": "Comment est la croissance urbaine dans les pays riches ?", "a": "faible", "options": ["faible", "forte", "rapide", "explosive"] },
+      { "q": "Quel habitat trouve-t-on dans les banlieues riches ?", "a": "maisons", "options": ["maisons", "bidonvilles", "tentes", "usines"] },
+      { "q": "Quelle difficulté rencontrent les habitants (logement) ?", "a": "loyers élevés", "options": ["loyers élevés", "manque d'eau", "manque d'électricité", "guerre"] }
     ]
   },
-
   {
     "id": "ch1-lvl3-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 3 (Défis et problèmes)",
+    "title": "Chapitre 1 - Niveau 3 (Les pays en développement)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🚧 3. Les défis des grandes villes</h3><ul><li>...</li></ul>",
+    "lesson": "<h3>🚧 3. Les métropoles en développement</h3><ul><li><strong>Exemple :</strong> <strong>Mexico</strong> ou Lagos.</li><li><strong>Continents :</strong> Surtout en <strong>Afrique</strong> et <strong>Asie</strong>.</li><li><strong>Urbanisation :</strong> Taux encore faible mais <strong>croissance forte</strong> (exode rural).</li><li><strong>Paysage :</strong> Contraste entre quartiers modernes et <strong>bidonvilles</strong>.</li><li><strong>Problèmes :</strong> Accès difficile à l'<strong>eau potable</strong>, gestion des <strong>déchets</strong>, inégalités de richesses.</li></ul>",
     "questions": [
-      { "q": "Quel problème est causé par les gaz d'échappement des voitures ?", "a": "pollution", "options": ["végétalisation", "pollution", "densité", "urbanisation"] },
-      { "q": "Comment appelle-t-on les bouchons sur la route ?", "a": "embouteillages", "options": ["carrefours", "transports", "embouteillages", "migrations"] },
-      { "q": "Quel est le problème principal pour habiter dans une métropole ?", "a": "logement", "options": ["commerce", "emploi", "logement", "climat"] },
-      { "q": "Qu'est-ce qui manque souvent dans les bidonvilles ?", "a": "eau potable", "options": ["eau potable", "soleil", "habitants", "télévision"] },
-      { "q": "Comment appelle-t-on le départ de la campagne vers la ville ?", "a": "exode rural", "options": ["exode rural", "voyage", "tourisme", "migration pendulaire"] },
-      { "q": "Que doit-on réduire entre les quartiers riches et pauvres ?", "a": "inégalités", "options": ["constructions", "espaces verts", "inégalités", "distances"] }
+      { "q": "Quel est l'exemple de métropole en développement ?", "a": "Mexico", "options": ["Mexico", "New-York", "Tokyo", "Londres"] },
+      { "q": "Où la croissance urbaine est-elle la plus forte ?", "a": "Afrique et Asie", "options": ["Afrique et Asie", "Europe", "Amérique du Nord", "Océanie"] },
+      { "q": "Comment évolue la population des villes dans les pays pauvres ?", "a": "croissance forte", "options": ["croissance forte", "baisse", "stable", "lente"] },
+      { "q": "Quel type d'habitat pauvre se développe rapidement ?", "a": "bidonvilles", "options": ["bidonvilles", "villas", "châteaux", "palaces"] },
+      { "q": "Quel service de base manque souvent ?", "a": "eau potable", "options": ["eau potable", "internet", "télévision", "cinéma"] },
+      { "q": "Quel autre problème environnemental est cité ?", "a": "déchets", "options": ["déchets", "neige", "silence", "vide"] }
     ]
   },
-
   {
     "id": "ch1-lvl4-6e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 4 (Métropoles dans le monde)",
+    "title": "Chapitre 1 - Niveau 4 (Synthèse mondiale)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🌍 4. Les métropoles mondiales</h3><ul><li>...</li></ul>",
+    "lesson": "<h3>🌍 4. Ce qu'il faut retenir</h3><ul><li><strong>Population :</strong> <strong>55%</strong> des humains vivent en ville.</li><li><strong>Banlieue :</strong> Quartier éloigné du centre-ville.</li><li><strong>Inégalités :</strong> Problème commun à TOUTES les métropoles (riches ou pauvres).</li><li><strong>Carte :</strong> Lagos est en <strong>Afrique</strong>, Shanghai est en <strong>Asie</strong>, New-York en Amérique.</li><li><strong>Croissance :</strong> Une croissance forte veut dire que la ville grandit très vite.</li></ul>",
     "questions": [
-      { "q": "Pourquoi les métropoles attirent-elles les gens ?", "a": "travail", "options": ["calme", "travail", "nature", "agriculture"] },
-      { "q": "Quel pouvoir possèdent les grandes métropoles ?", "a": "influence", "options": ["influence", "faiblesse", "isolement", "autonomie"] },
-      { "q": "Quel moyen de transport connecte les métropoles au monde ?", "a": "avion", "options": ["bus", "tramway", "vélo", "avion"] },
-      { "q": "Dans quelle partie du monde sont les villes les plus riches ?", "a": "nord", "options": ["nord", "désert", "montagne", "sud"] },
-      { "q": "Où la croissance des villes est-elle la plus forte ?", "a": "sud", "options": ["campagne", "nord", "europe", "sud"] },
-      { "q": "Où vit aujourd'hui plus de la moitié de la population mondiale ?", "a": "ville", "options": ["montagne", "campagne", "ville", "désert"] }
-    ]
-  },
-
-  {
-    "id": "ch2-lvl1-6e",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 1 (Les grandes définitions)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🏙️ ...</h3>",
-    "questions": [
-      { "q": "Qu'est-ce qu'une métropole ?", "a": "une très grande ville qui concentre habitants, activités et pouvoirs", "options": ["une zone rurale peu peuplée", "une ville moyenne sans influence régionale", "un ensemble de villages agricoles", "une très grande ville qui concentre habitants, activités et pouvoirs"] },
-      { "q": "Qu'est-ce que l'urbanisation ?", "a": "l'augmentation de la population vivant en ville", "options": ["le développement de l'agriculture", "la diminution de la taille des villes", "l'augmentation de la population vivant en ville", "le départ des habitants vers la campagne"] },
-      { "q": "Quel espace correspond au cœur animé d'une ville ?", "a": "le centre-ville", "options": ["le centre-ville", "la zone industrielle", "la banlieue lointaine", "le quartier résidentiel calme"] },
-      { "q": "Comment appelle-t-on les zones construites autour du centre-ville ?", "a": "la banlieue", "options": ["la zone rurale", "le centre historique", "la banlieue", "le quartier d'affaires"] },
-      { "q": "Quel type de quartier regroupe surtout des logements ?", "a": "un quartier résidentiel", "options": ["une zone industrielle", "un centre commercial", "un quartier résidentiel", "un quartier d'affaires"] },
-      { "q": "Quel quartier concentre les bureaux et les banques ?", "a": "le quartier d'affaires", "options": ["le quartier résidentiel", "le quartier d'affaires", "la zone pavillonnaire", "le centre historique"] }
+      { "q": "Quelle part de la population mondiale vit en ville ?", "a": "55%", "options": ["55%", "10%", "25%", "90%"] },
+      { "q": "Qu'est-ce qu'une banlieue ?", "a": "quartier éloigné", "options": ["quartier éloigné", "centre-ville", "désert", "campagne"] },
+      { "q": "Quel problème est commun aux villes riches et pauvres ?", "a": "inégalités", "options": ["inégalités", "famine", "manque d'électricité", "guerre"] },
+      { "q": "Sur la carte, où se trouve Lagos ?", "a": "Afrique", "options": ["Afrique", "Europe", "Asie", "Amérique"] },
+      { "q": "Sur la carte, où se trouve Shanghai ?", "a": "Asie", "options": ["Asie", "Afrique", "Europe", "Océanie"] },
+      { "q": "Que signifie une croissance urbaine forte ?", "a": "grandit vite", "options": ["grandit vite", "rétrécit", "disparait", "ne change pas"] }
     ]
   }
 ]

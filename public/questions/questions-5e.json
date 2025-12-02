@@ -2,577 +2,61 @@
   {
     "id": "ch1-lvl1-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 1 (Notions de base)",
+    "title": "Chapitre 1 - Niveau 1 (Les définitions)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🟦 1. Les bases de la démographie</h3><ul><li><strong>1. Démographie :</strong> C'est l'étude de la population.</li><li><strong>2. Développement :</strong> C'est l'enrichissement d'un pays pour satisfaire les besoins de sa population.</li><li><strong>3. Besoins vitaux :</strong> Alimentation, santé, logement, éducation.</li><li><strong>4. Croissance :</strong> Elle est forte dans les pays en <strong>développement</strong>.</li><li><strong>5. Émergents :</strong> La majorité se situe au <strong>Sud</strong>.</li><li><strong>6. Cause :</strong> La croissance s'explique par les progrès de la <strong>médecine</strong> et de l'<strong>enrichissement</strong>.</li></ul>",
+    "lesson": "<h3>📚 1. Les mots importants</h3><ul><li><strong>Démographie :</strong> Étude de la population.</li><li><strong>Croissance démographique :</strong> Population qui augmente.</li><li><strong>Explosion démographique :</strong> Très forte augmentation de la population.</li><li><strong>Pays développés :</strong> Pays riches.</li><li><strong>Pays en développement :</strong> Pays moins riches.</li><li><strong>Pays émergents :</strong> Pays en développement qui s'enrichissent.</li></ul>",
     "questions": [
-      {
-        "q": "Dans quel type de pays y a-t-il une forte croissance démographique ?",
-        "a": "pays en développement",
-        "options": ["pays développés", "pays en développement", "pays du Nord", "pays de l'Ouest"]
-      },
-      {
-        "q": "Quels sont les besoins vitaux des populations ?",
-        "a": "alimentation, santé, logement, éducation",
-        "options": [
-          "alimentation, santé, luxe, éducation",
-          "alimentation, retraite, logement, éducation",
-          "épargne, santé, logement, éducation",
-          "alimentation, santé, logement, éducation"
-        ]
-      },
-      {
-        "q": "Où sont situés la majorité des pays émergents ?",
-        "a": "sud",
-        "options": ["nord", "est", "ouest", "sud"]
-      },
-      {
-        "q": "Qu'est-ce que le développement ?",
-        "a": "enrichissement => satisfaire les besoins",
-        "options": [
-          "enrichissement => satisfaire les besoins",
-          "immigration => augmenter le PIB",
-          "croissance démographique => main d'œuvre",
-          "vieillissement => hausse des dépenses"
-        ]
-      },
-      {
-        "q": "Qu'est-ce que la démographie ?",
-        "a": "étude de la population",
-        "options": [
-          "étude de la richesse",
-          "étude de l'emploi",
-          "étude de la population",
-          "étude du développement"
-        ]
-      },
-      {
-        "q": "Quel facteur principal explique la forte croissance démographique ?",
-        "a": "médecine et enrichissement",
-        "options": [
-          "médecine seulement",
-          "enrichissement seulement",
-          "médecine et enrichissement",
-          "ni médecine ni enrichissement"
-        ]
-      }
+      { "q": "Comment appelle-t-on l'étude de la population ?", "a": "démographie", "options": ["démographie", "géographie", "histoire", "biologie"] },
+      { "q": "Comment appelle-t-on une population qui augmente ?", "a": "croissance", "options": ["croissance", "baisse", "stagnation", "disparition"] },
+      { "q": "Comment appelle-t-on une très forte augmentation de la population ?", "a": "explosion", "options": ["explosion", "implosion", "réduction", "stabilisation"] },
+      { "q": "Quel adjectif qualifie les pays riches ?", "a": "développés", "options": ["développés", "pauvres", "émergents", "isolés"] },
+      { "q": "Quel type de pays est moins riche avec une population jeune ?", "a": "développement", "options": ["développement", "développé", "nord", "riche"] },
+      { "q": "Comment appelle-t-on un pays en développement qui s'enrichit ?", "a": "émergent", "options": ["émergent", "pauvre", "développé", "recuilé"] }
     ]
   },
   {
     "id": "ch1-lvl2-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 2 (Études de cas)",
+    "title": "Chapitre 1 - Niveau 2 (Localisation)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🟩 2. Situations dans le monde</h3><ul><li><strong>1. Pays développés :</strong> La natalité baisse grâce à l'<strong>éducation</strong>.</li><li><strong>2. Chine :</strong> Baisse due à la politique de l'<strong>enfant unique</strong>.</li><li><strong>3. Défi du Sud :</strong> Répondre aux <strong>besoins vitaux</strong> des populations.</li><li><strong>4. Explosion :</strong> Le <strong>Nigeria</strong> connaît une très forte croissance.</li><li><strong>5. Stagnation :</strong> La population de l'<strong>Allemagne</strong> n'augmente plus.</li><li><strong>6. Frein :</strong> Le manque d'argent empêche d'investir.</li></ul>",
+    "lesson": "<h3>🌍 2. Où la population augmente-t-elle ?</h3><ul><li><strong>Pays en développement / émergents :</strong> Explosion démographique <strong>forte</strong>.</li><li><strong>Exemples :</strong> Nigeria, Inde.</li><li><strong>Pays développés :</strong> Explosion démographique <strong>faible</strong> (voire nulle).</li><li><strong>Exemples :</strong> Allemagne, Chine.</li><li><strong>Cause pays riches :</strong> Il y a <strong>peu</strong> d'enfants par famille (vieillissement).</li><li><strong>Cause pays pauvres :</strong> Les familles sont <strong>nombreuses</strong>.</li></ul>",
     "questions": [
-      {
-        "q": "Quel facteur explique la baisse de la natalité dans les pays développés ?",
-        "a": "éducation",
-        "options": ["pauvreté", "climat", "éducation", "religion"]
-      },
-      {
-        "q": "Pourquoi la natalité a-t-elle fortement baissé en Chine ?",
-        "a": "politique de l'enfant unique",
-        "options": [
-          "politique de l'éducation",
-          "politique de l'enrichissement",
-          "politique de l'enfant unique",
-          "politique de la médecine"
-        ]
-      },
-      {
-        "q": "Lequel de ces problèmes est typique des pays en développement ?",
-        "a": "répondre aux besoins de la pop",
-        "options": [
-          "vieillissement de la pop",
-          "répondre aux besoins de la pop",
-          "hausse des dépenses de santé",
-          "baisse des investissements"
-        ]
-      },
-      {
-        "q": "Lequel de ces pays a connu une explosion démographique ?",
-        "a": "Nigeria",
-        "options": ["Angleterre", "Nigeria", "Japon", "Chine"]
-      },
-      {
-        "q": "Quel pays a connu une stagnation de sa population ?",
-        "a": "Allemagne",
-        "options": ["Inde", "Brésil", "Nigeria", "Allemagne"]
-      },
-      {
-        "q": "Pourquoi le Nigeria a-t-il du mal à se développer ?",
-        "a": "manque d'argent",
-        "options": ["guerre", "sécheresse", "manque d'argent", "sous-population"]
-      }
+      { "q": "Comment est la croissance démographique dans les pays en développement ?", "a": "forte", "options": ["forte", "faible", "nulle", "négative"] },
+      { "q": "Comment est la croissance démographique dans les pays développés ?", "a": "faible", "options": ["faible", "énorme", "rapide", "explosive"] },
+      { "q": "Cite un pays où la population augmente très vite (exemple du cours).", "a": "Nigeria", "options": ["Nigeria", "Allemagne", "France", "Japon"] },
+      { "q": "Cite un pays où la population vieillit (exemple du cours).", "a": "Allemagne", "options": ["Allemagne", "Inde", "Nigeria", "Brésil"] },
+      { "q": "Combien d'enfants par famille y a-t-il dans les pays développés ?", "a": "peu", "options": ["peu", "beaucoup", "énormément", "aucun"] },
+      { "q": "Cite un pays émergent très peuplé (exemple du cours).", "a": "Inde", "options": ["Inde", "France", "Italie", "Canada"] }
     ]
   },
   {
     "id": "ch1-lvl3-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 3 (Défis et dynamiques)",
+    "title": "Chapitre 1 - Niveau 3 (Causes et Besoins)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🟧 3. Défis et Solutions</h3><ul><li><strong>1. Nord :</strong> Le problème principal est le <strong>vieillissement</strong>.</li><li><strong>2. Solution :</strong> L'<strong>immigration</strong> aide les pays vieillissants.</li><li><strong>3. Sud :</strong> Il faut investir dans l'<strong>éducation</strong>.</li><li><strong>4. Avantage :</strong> La croissance apporte de la <strong>main-d'œuvre</strong>.</li><li><strong>5. Croissance :</strong> Quand la natalité dépasse la mortalité.</li><li><strong>6. Décroissance :</strong> Quand la mortalité dépasse la natalité.</li></ul>",
+    "lesson": "<h3>🏥 3. Pourquoi ça augmente ?</h3><ul><li><strong>Médecine :</strong> Les progrès permettent de soigner les gens.</li><li><strong>Vie :</strong> On vit plus longtemps (espérance de vie).</li><li><strong>Conditions :</strong> Les conditions de vie sont meilleures.</li></ul><h3>🍞 4. Les besoins vitaux</h3><ul><li>Se <strong>nourrir</strong>.</li><li>Se <strong>soigner</strong>.</li><li>Se <strong>loger</strong>.</li><li>Être <strong>éduqué</strong>.</li></ul>",
     "questions": [
-      {
-        "q": "Quel problème touche particulièrement les pays développés ?",
-        "a": "vieillissement",
-        "options": ["famine", "guerre civile", "manque d'eau", "vieillissement"]
-      },
-      {
-        "q": "Quelle est une solution au vieillissement dans les pays développés ?",
-        "a": "immigration",
-        "options": ["guerre", "mortalité", "immigration", "isolement"]
-      },
-      {
-        "q": "Pour améliorer leur situation, les pays en développement doivent investir dans...",
-        "a": "éducation",
-        "options": ["finance", "armement", "tourisme", "éducation"]
-      },
-      {
-        "q": "Quel avantage donne une forte croissance démographique ?",
-        "a": "main-d'œuvre",
-        "options": ["plus de demandes", "plus de services", "main-d'œuvre", "plus de PIB"]
-      },
-      {
-        "q": "Qu'arrive-t-il si la natalité est supérieure à la mortalité ?",
-        "a": "croissance",
-        "options": ["décroissance", "stagnation", "croissance", "explosion"]
-      },
-      {
-        "q": "Qu'arrive-t-il si la mortalité est supérieure à la natalité ?",
-        "a": "décroissance",
-        "options": ["stagnation", "croissance", "décroissance", "explosion"]
-      }
+      { "q": "Quel progrès scientifique explique l'augmentation de la population ?", "a": "médecine", "options": ["médecine", "internet", "transport", "sport"] },
+      { "q": "Grâce à la médecine, comment vit-on aujourd'hui ?", "a": "longtemps", "options": ["longtemps", "moins", "mal", "vite"] },
+      { "q": "Quel est le besoin vital lié à la nourriture ?", "a": "nourrir", "options": ["nourrir", "courir", "dormir", "jouer"] },
+      { "q": "Quel est le besoin vital lié à la santé ?", "a": "soigner", "options": ["soigner", "voyager", "danser", "parler"] },
+      { "q": "Quel est le besoin vital lié à l'habitat ?", "a": "loger", "options": ["loger", "nager", "voler", "conduire"] },
+      { "q": "Quel est le besoin vital lié à l'école ?", "a": "éduqué", "options": ["éduqué", "habillé", "coiffé", "musclé"] }
     ]
   },
   {
     "id": "ch1-lvl4-5e",
     "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 4 (Dynamiques approfondies)",
+    "title": "Chapitre 1 - Niveau 4 (Synthèse)",
     "requiredPerQuestion": 3,
-    "lesson": "<h3>🟥 4. Comprendre les dynamiques</h3><ul><li><strong>1. Stagnation :</strong> Quand natalité et mortalité sont égales.</li><li><strong>2. Pays du Sud :</strong> Ils ont une croissance démographique <strong>forte</strong>.</li><li><strong>3. Pays du Nord :</strong> Ils ont une croissance démographique <strong>faible</strong>.</li><li><strong>4. Jeunesse :</strong> Une population jeune offre beaucoup de <strong>main-d'œuvre</strong>.</li><li><strong>5. Nigeria :</strong> Il n'a pas besoin de rajeunir sa population.</li><li><strong>6. Environnement :</strong> Plus de population = plus de ressources consommées.</li></ul>",
+    "lesson": "<h3>📝 4. Synthèse du chapitre</h3><ul><li><strong>Population jeune :</strong> Caractéristique des pays en développement (familles nombreuses).</li><li><strong>Vieillissement :</strong> Caractéristique des pays riches (ex: Chine, Allemagne).</li><li><strong>Défis :</strong> Les pays en croissance doivent construire des écoles et des hôpitaux.</li><li><strong>Richesse :</strong> Les pays émergents sont ceux qui s'enrichissent le plus vite.</li></ul>",
     "questions": [
-      {
-        "q": "Qu'arrive-t-il si la natalité et la mortalité sont égales ?",
-        "a": "stagnation",
-        "options": ["décroissance", "stagnation", "croissance", "explosion"]
-      },
-      {
-        "q": "Les pays en développement ont généralement une croissance démographique...",
-        "a": "forte",
-        "options": ["stagnation", "décroissance", "faible", "forte"]
-      },
-      {
-        "q": "Les pays développés ont une croissance démographique...",
-        "a": "faible",
-        "options": ["forte", "faible", "proportionnelle", "très forte"]
-      },
-      {
-        "q": "Quel est l'avantage d'une population jeune ?",
-        "a": "main-d'œuvre",
-        "options": ["plus de retraités", "moins de travailleurs", "main-d'œuvre", "moins d'écoles"]
-      },
-      {
-        "q": "Quel défi le Nigeria ne doit-il PAS affronter ?",
-        "a": "rajeunir",
-        "options": ["nourrir", "loger", "transporter", "rajeunir"]
-      },
-      {
-        "q": "Lequel de ces arguments est FAUX sur l'explosion démographique ?",
-        "a": "explosion démographique = plus d'usines polluantes",
-        "options": [
-          "explosion démographique = plus d'usines polluantes",
-          "explosion démographique = plus de ressources prélevées",
-          "explosion démographique = plus de déchets",
-          "explosion démographique = population moins éduquée à l'environnement"
-        ]
-      }
-    ]
-  },
-
-  {
-    "id": "ch2-lvl1-5e",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 1 (Notions de base)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟦 1. Les bases de la démographie</h3><ul><li><strong>1. Démographie :</strong> C'est l'étude de la population.</li><li><strong>2. Développement :</strong> C'est l'enrichissement d'un pays pour satisfaire les besoins de sa population.</li><li><strong>3. Besoins vitaux :</strong> Alimentation, santé, logement, éducation.</li><li><strong>4. Croissance :</strong> Elle est forte dans les pays en <strong>développement</strong>.</li><li><strong>5. Émergents :</strong> La majorité se situe au <strong>Sud</strong>.</li><li><strong>6. Cause :</strong> La croissance s'explique par les progrès de la <strong>médecine</strong> et de l'<strong>enrichissement</strong>.</li></ul>",
-    "questions": [
-      {
-        "q": "Dans quel type de pays y a-t-il une forte croissance démographique ?",
-        "a": "pays en développement",
-        "options": ["pays développés", "pays en développement", "pays du Nord", "pays de l'Ouest"]
-      },
-      {
-        "q": "Quels sont les besoins vitaux des populations ?",
-        "a": "alimentation, santé, logement, éducation",
-        "options": [
-          "alimentation, santé, luxe, éducation",
-          "alimentation, retraite, logement, éducation",
-          "épargne, santé, logement, éducation",
-          "alimentation, santé, logement, éducation"
-        ]
-      },
-      {
-        "q": "Où sont situés la majorité des pays émergents ?",
-        "a": "sud",
-        "options": ["nord", "est", "ouest", "sud"]
-      },
-      {
-        "q": "Qu'est-ce que le développement ?",
-        "a": "enrichissement => satisfaire les besoins",
-        "options": [
-          "enrichissement => satisfaire les besoins",
-          "immigration => augmenter le PIB",
-          "croissance démographique => main d'œuvre",
-          "vieillissement => hausse des dépenses"
-        ]
-      },
-      {
-        "q": "Qu'est-ce que la démographie ?",
-        "a": "étude de la population",
-        "options": [
-          "étude de la richesse",
-          "étude de l'emploi",
-          "étude de la population",
-          "étude du développement"
-        ]
-      },
-      {
-        "q": "Quel facteur principal explique la forte croissance démographique ?",
-        "a": "médecine et enrichissement",
-        "options": [
-          "médecine seulement",
-          "enrichissement seulement",
-          "médecine et enrichissement",
-          "ni médecine ni enrichissement"
-        ]
-      }
-    ]
-  },
-  {
-    "id": "ch2-lvl2-5e",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 2 (Études de cas)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟩 2. Situations dans le monde</h3><ul><li><strong>1. Pays développés :</strong> La natalité baisse grâce à l'<strong>éducation</strong>.</li><li><strong>2. Chine :</strong> Baisse due à la politique de l'<strong>enfant unique</strong>.</li><li><strong>3. Défi du Sud :</strong> Répondre aux <strong>besoins vitaux</strong> des populations.</li><li><strong>4. Explosion :</strong> Le <strong>Nigeria</strong> connaît une très forte croissance.</li><li><strong>5. Stagnation :</strong> La population de l'<strong>Allemagne</strong> n'augmente plus.</li><li><strong>6. Frein :</strong> Le manque d'argent empêche d'investir.</li></ul>",
-    "questions": [
-      {
-        "q": "Quel facteur explique la baisse de la natalité dans les pays développés ?",
-        "a": "éducation",
-        "options": ["pauvreté", "climat", "éducation", "religion"]
-      },
-      {
-        "q": "Pourquoi la natalité a-t-elle fortement baissé en Chine ?",
-        "a": "politique de l'enfant unique",
-        "options": [
-          "politique de l'éducation",
-          "politique de l'enrichissement",
-          "politique de l'enfant unique",
-          "politique de la médecine"
-        ]
-      },
-      {
-        "q": "Lequel de ces problèmes est typique des pays en développement ?",
-        "a": "répondre aux besoins de la pop",
-        "options": [
-          "vieillissement de la pop",
-          "répondre aux besoins de la pop",
-          "hausse des dépenses de santé",
-          "baisse des investissements"
-        ]
-      },
-      {
-        "q": "Lequel de ces pays a connu une explosion démographique ?",
-        "a": "Nigeria",
-        "options": ["Angleterre", "Nigeria", "Japon", "Chine"]
-      },
-      {
-        "q": "Quel pays a connu une stagnation de sa population ?",
-        "a": "Allemagne",
-        "options": ["Inde", "Brésil", "Nigeria", "Allemagne"]
-      },
-      {
-        "q": "Pourquoi le Nigeria a-t-il du mal à se développer ?",
-        "a": "manque d'argent",
-        "options": ["guerre", "sécheresse", "manque d'argent", "sous-population"]
-      }
-    ]
-  },
-  {
-    "id": "ch2-lvl3-5e",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 3 (Défis et dynamiques)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟧 3. Défis et Solutions</h3><ul><li><strong>1. Nord :</strong> Le problème principal est le <strong>vieillissement</strong>.</li><li><strong>2. Solution :</strong> L'<strong>immigration</strong> aide les pays vieillissants.</li><li><strong>3. Sud :</strong> Il faut investir dans l'<strong>éducation</strong>.</li><li><strong>4. Avantage :</strong> La croissance apporte de la <strong>main-d'œuvre</strong>.</li><li><strong>5. Croissance :</strong> Quand la natalité dépasse la mortalité.</li><li><strong>6. Décroissance :</strong> Quand la mortalité dépasse la natalité.</li></ul>",
-    "questions": [
-      {
-        "q": "Quel problème touche particulièrement les pays développés ?",
-        "a": "vieillissement",
-        "options": ["famine", "guerre civile", "manque d'eau", "vieillissement"]
-      },
-      {
-        "q": "Quelle est une solution au vieillissement dans les pays développés ?",
-        "a": "immigration",
-        "options": ["guerre", "mortalité", "immigration", "isolement"]
-      },
-      {
-        "q": "Pour améliorer leur situation, les pays en développement doivent investir dans...",
-        "a": "éducation",
-        "options": ["finance", "armement", "tourisme", "éducation"]
-      },
-      {
-        "q": "Quel avantage donne une forte croissance démographique ?",
-        "a": "main-d'œuvre",
-        "options": ["plus de demandes", "plus de services", "main-d'œuvre", "plus de PIB"]
-      },
-      {
-        "q": "Qu'arrive-t-il si la natalité est supérieure à la mortalité ?",
-        "a": "croissance",
-        "options": ["décroissance", "stagnation", "croissance", "explosion"]
-      },
-      {
-        "q": "Qu'arrive-t-il si la mortalité est supérieure à la natalité ?",
-        "a": "décroissance",
-        "options": ["stagnation", "croissance", "décroissance", "explosion"]
-      }
-    ]
-  },
-  {
-    "id": "ch2-lvl4-5e",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 4 (Dynamiques approfondies)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟥 4. Comprendre les dynamiques</h3><ul><li><strong>1. Stagnation :</strong> Quand natalité et mortalité sont égales.</li><li><strong>2. Pays du Sud :</strong> Ils ont une croissance démographique <strong>forte</strong>.</li><li><strong>3. Pays du Nord :</strong> Ils ont une croissance démographique <strong>faible</strong>.</li><li><strong>4. Jeunesse :</strong> Une population jeune offre beaucoup de <strong>main-d'œuvre</strong>.</li><li><strong>5. Nigeria :</strong> Il n'a pas besoin de rajeunir sa population.</li><li><strong>6. Environnement :</strong> Plus de population = plus de ressources consommées.</li></ul>",
-    "questions": [
-      {
-        "q": "Qu'arrive-t-il si la natalité et la mortalité sont égales ?",
-        "a": "stagnation",
-        "options": ["décroissance", "stagnation", "croissance", "explosion"]
-      },
-      {
-        "q": "Les pays en développement ont généralement une croissance démographique...",
-        "a": "forte",
-        "options": ["stagnation", "décroissance", "faible", "forte"]
-      },
-      {
-        "q": "Les pays développés ont une croissance démographique...",
-        "a": "faible",
-        "options": ["forte", "faible", "proportionnelle", "très forte"]
-      },
-      {
-        "q": "Quel est l'avantage d'une population jeune ?",
-        "a": "main-d'œuvre",
-        "options": ["plus de retraités", "moins de travailleurs", "main-d'œuvre", "moins d'écoles"]
-      },
-      {
-        "q": "Quel défi le Nigeria ne doit-il PAS affronter ?",
-        "a": "rajeunir",
-        "options": ["nourrir", "loger", "transporter", "rajeunir"]
-      },
-      {
-        "q": "Lequel de ces arguments est FAUX sur l'explosion démographique ?",
-        "a": "explosion démographique = plus d'usines polluantes",
-        "options": [
-          "explosion démographique = plus d'usines polluantes",
-          "explosion démographique = plus de ressources prélevées",
-          "explosion démographique = plus de déchets",
-          "explosion démographique = population moins éduquée à l'environnement"
-        ]
-      }
-    ]
-  },
-
-  {
-    "id": "ch3-lvl1-5e",
-    "chapterId": "ch3-jumper",
-    "title": "Chapitre 3 - Niveau 1 (Notions de base)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟦 1. Les bases de la démographie</h3><ul><li><strong>1. Démographie :</strong> C'est l'étude de la population.</li><li><strong>2. Développement :</strong> C'est l'enrichissement d'un pays pour satisfaire les besoins de sa population.</li><li><strong>3. Besoins vitaux :</strong> Alimentation, santé, logement, éducation.</li><li><strong>4. Croissance :</strong> Elle est forte dans les pays en <strong>développement</strong>.</li><li><strong>5. Émergents :</strong> La majorité se situe au <strong>Sud</strong>.</li><li><strong>6. Cause :</strong> La croissance s'explique par les progrès de la <strong>médecine</strong> et de l'<strong>enrichissement</strong>.</li></ul>",
-    "questions": [
-      {
-        "q": "Dans quel type de pays y a-t-il une forte croissance démographique ?",
-        "a": "pays en développement",
-        "options": ["pays développés", "pays en développement", "pays du Nord", "pays de l'Ouest"]
-      },
-      {
-        "q": "Quels sont les besoins vitaux des populations ?",
-        "a": "alimentation, santé, logement, éducation",
-        "options": [
-          "alimentation, santé, luxe, éducation",
-          "alimentation, retraite, logement, éducation",
-          "épargne, santé, logement, éducation",
-          "alimentation, santé, logement, éducation"
-        ]
-      },
-      {
-        "q": "Où sont situés la majorité des pays émergents ?",
-        "a": "sud",
-        "options": ["nord", "est", "ouest", "sud"]
-      },
-      {
-        "q": "Qu'est-ce que le développement ?",
-        "a": "enrichissement => satisfaire les besoins",
-        "options": [
-          "enrichissement => satisfaire les besoins",
-          "immigration => augmenter le PIB",
-          "croissance démographique => main d'œuvre",
-          "vieillissement => hausse des dépenses"
-        ]
-      },
-      {
-        "q": "Qu'est-ce que la démographie ?",
-        "a": "étude de la population",
-        "options": [
-          "étude de la richesse",
-          "étude de l'emploi",
-          "étude de la population",
-          "étude du développement"
-        ]
-      },
-      {
-        "q": "Quel facteur principal explique la forte croissance démographique ?",
-        "a": "médecine et enrichissement",
-        "options": [
-          "médecine seulement",
-          "enrichissement seulement",
-          "médecine et enrichissement",
-          "ni médecine ni enrichissement"
-        ]
-      }
-    ]
-  },
-  {
-    "id": "ch3-lvl2-5e",
-    "chapterId": "ch3-jumper",
-    "title": "Chapitre 3 - Niveau 2 (Études de cas)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟩 2. Situations dans le monde</h3><ul><li><strong>1. Pays développés :</strong> La natalité baisse grâce à l'<strong>éducation</strong>.</li><li><strong>2. Chine :</strong> Baisse due à la politique de l'<strong>enfant unique</strong>.</li><li><strong>3. Défi du Sud :</strong> Répondre aux <strong>besoins vitaux</strong> des populations.</li><li><strong>4. Explosion :</strong> Le <strong>Nigeria</strong> connaît une très forte croissance.</li><li><strong>5. Stagnation :</strong> La population de l'<strong>Allemagne</strong> n'augmente plus.</li><li><strong>6. Frein :</strong> Le manque d'argent empêche d'investir.</li></ul>",
-    "questions": [
-      {
-        "q": "Quel facteur explique la baisse de la natalité dans les pays développés ?",
-        "a": "éducation",
-        "options": ["pauvreté", "climat", "éducation", "religion"]
-      },
-      {
-        "q": "Pourquoi la natalité a-t-elle fortement baissé en Chine ?",
-        "a": "politique de l'enfant unique",
-        "options": [
-          "politique de l'éducation",
-          "politique de l'enrichissement",
-          "politique de l'enfant unique",
-          "politique de la médecine"
-        ]
-      },
-      {
-        "q": "Lequel de ces problèmes est typique des pays en développement ?",
-        "a": "répondre aux besoins de la pop",
-        "options": [
-          "vieillissement de la pop",
-          "répondre aux besoins de la pop",
-          "hausse des dépenses de santé",
-          "baisse des investissements"
-        ]
-      },
-      {
-        "q": "Lequel de ces pays a connu une explosion démographique ?",
-        "a": "Nigeria",
-        "options": ["Angleterre", "Nigeria", "Japon", "Chine"]
-      },
-      {
-        "q": "Quel pays a connu une stagnation de sa population ?",
-        "a": "Allemagne",
-        "options": ["Inde", "Brésil", "Nigeria", "Allemagne"]
-      },
-      {
-        "q": "Pourquoi le Nigeria a-t-il du mal à se développer ?",
-        "a": "manque d'argent",
-        "options": ["guerre", "sécheresse", "manque d'argent", "sous-population"]
-      }
-    ]
-  },
-  {
-    "id": "ch3-lvl3-5e",
-    "chapterId": "ch3-jumper",
-    "title": "Chapitre 3 - Niveau 3 (Défis et dynamiques)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟧 3. Défis et Solutions</h3><ul><li><strong>1. Nord :</strong> Le problème principal est le <strong>vieillissement</strong>.</li><li><strong>2. Solution :</strong> L'<strong>immigration</strong> aide les pays vieillissants.</li><li><strong>3. Sud :</strong> Il faut investir dans l'<strong>éducation</strong>.</li><li><strong>4. Avantage :</strong> La croissance apporte de la <strong>main-d'œuvre</strong>.</li><li><strong>5. Croissance :</strong> Quand la natalité dépasse la mortalité.</li><li><strong>6. Décroissance :</strong> Quand la mortalité dépasse la natalité.</li></ul>",
-    "questions": [
-      {
-        "q": "Quel problème touche particulièrement les pays développés ?",
-        "a": "vieillissement",
-        "options": ["famine", "guerre civile", "manque d'eau", "vieillissement"]
-      },
-      {
-        "q": "Quelle est une solution au vieillissement dans les pays développés ?",
-        "a": "immigration",
-        "options": ["guerre", "mortalité", "immigration", "isolement"]
-      },
-      {
-        "q": "Pour améliorer leur situation, les pays en développement doivent investir dans...",
-        "a": "éducation",
-        "options": ["finance", "armement", "tourisme", "éducation"]
-      },
-      {
-        "q": "Quel avantage donne une forte croissance démographique ?",
-        "a": "main-d'œuvre",
-        "options": ["plus de demandes", "plus de services", "main-d'œuvre", "plus de PIB"]
-      },
-      {
-        "q": "Qu'arrive-t-il si la natalité est supérieure à la mortalité ?",
-        "a": "croissance",
-        "options": ["décroissance", "stagnation", "croissance", "explosion"]
-      },
-      {
-        "q": "Qu'arrive-t-il si la mortalité est supérieure à la natalité ?",
-        "a": "décroissance",
-        "options": ["stagnation", "croissance", "décroissance", "explosion"]
-      }
-    ]
-  },
-  {
-    "id": "ch3-lvl4-5e",
-    "chapterId": "ch3-jumper",
-    "title": "Chapitre 3 - Niveau 4 (Dynamiques approfondies)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🟥 4. Comprendre les dynamiques</h3><ul><li><strong>1. Stagnation :</strong> Quand natalité et mortalité sont égales.</li><li><strong>2. Pays du Sud :</strong> Ils ont une croissance démographique <strong>forte</strong>.</li><li><strong>3. Pays du Nord :</strong> Ils ont une croissance démographique <strong>faible</strong>.</li><li><strong>4. Jeunesse :</strong> Une population jeune offre beaucoup de <strong>main-d'œuvre</strong>.</li><li><strong>5. Nigeria :</strong> Il n'a pas besoin de rajeunir sa population.</li><li><strong>6. Environnement :</strong> Plus de population = plus de ressources consommées.</li></ul>",
-    "questions": [
-      {
-        "q": "Qu'arrive-t-il si la natalité et la mortalité sont égales ?",
-        "a": "stagnation",
-        "options": ["décroissance", "stagnation", "croissance", "explosion"]
-      },
-      {
-        "q": "Les pays en développement ont généralement une croissance démographique...",
-        "a": "forte",
-        "options": ["stagnation", "décroissance", "faible", "forte"]
-      },
-      {
-        "q": "Les pays développés ont une croissance démographique...",
-        "a": "faible",
-        "options": ["forte", "faible", "proportionnelle", "très forte"]
-      },
-      {
-        "q": "Quel est l'avantage d'une population jeune ?",
-        "a": "main-d'œuvre",
-        "options": ["plus de retraités", "moins de travailleurs", "main-d'œuvre", "moins d'écoles"]
-      },
-      {
-        "q": "Quel défi le Nigeria ne doit-il PAS affronter ?",
-        "a": "rajeunir",
-        "options": ["nourrir", "loger", "transporter", "rajeunir"]
-      },
-      {
-        "q": "Lequel de ces arguments est FAUX sur l'explosion démographique ?",
-        "a": "explosion démographique = plus d'usines polluantes",
-        "options": [
-          "explosion démographique = plus d'usines polluantes",
-          "explosion démographique = plus de ressources prélevées",
-          "explosion démographique = plus de déchets",
-          "explosion démographique = population moins éduquée à l'environnement"
-        ]
-      }
+      { "q": "Comment est la population dans les pays en développement ?", "a": "jeune", "options": ["jeune", "vieille", "riche", "diminue"] },
+      { "q": "Quel problème touche la Chine et l'Allemagne ?", "a": "vieillissement", "options": ["vieillissement", "famine", "guerre", "manque d'eau"] },
+      { "q": "Que font les pays émergents ?", "a": "enrichissent", "options": ["enrichissent", "appauvrissent", "disparaissent", "rétrécissent"] },
+      { "q": "Que faut-il construire quand la population augmente (éducation) ?", "a": "écoles", "options": ["écoles", "cinémas", "stades", "musées"] },
+      { "q": "Que faut-il construire quand la population augmente (santé) ?", "a": "hôpitaux", "options": ["hôpitaux", "parcs", "piscines", "gares"] },
+      { "q": "Quelle est la caractéristique des familles dans les pays en développement ?", "a": "nombreuses", "options": ["nombreuses", "petites", "isolées", "riches"] }
     ]
   }
 ]
-

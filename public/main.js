@@ -1,6 +1,5 @@
-// public/main.js - VERSION FINALE (MODIFIEE: Envoi ne reprend pas le jeu)
+// public/main.js - VERSION FINALE (AVEC FAUTES ORTHOGRAPHE)
 
-// --- SECTION 0: UI & State ---
 window.isGlobalPaused = false; 
 const $ = (sel) => document.querySelector(sel);
 
@@ -29,6 +28,12 @@ const bugModal = $("#bugModal");
 const sendBugBtn = $("#sendBugBtn");
 const resumeGameBtn = $("#resumeGameBtn");
 
+// [NOUVEAU] UI Fautes
+const myMistakesBtn = $("#myMistakesBtn");
+const mistakesModal = $("#mistakesModal");
+const closeMistakesBtn = $("#closeMistakesBtn");
+const mistakesList = $("#mistakesList");
+
 window.allQuestionsData = {}; 
 
 let isProfessorMode = false;
@@ -44,197 +49,143 @@ let allPlayersData = [];
 let levelTimer = null, levelTimeTotal = 180000, levelTimeRemaining = 180000;
 let pendingLaunch = null; 
 
+// --- CHEAT CODES (R+T) ---
+let isRKeyDown = false; 
+let isTKeyDown = false;
+document.addEventListener("keydown", (e) => { if (!e || !e.key) return; if (e.key.toLowerCase() === "r") isRKeyDown = true; if (e.key.toLowerCase() === "t") isTKeyDown = true; });
+document.addEventListener("keyup", (e) => { if (!e || !e.key) return; if (e.key.toLowerCase() === "r") isRKeyDown = false; if (e.key.toLowerCase() === "t") isTKeyDown = false; });
+$("#mainProgress")?.addEventListener("click", () => { if (!isGameActive) return; if (!isRKeyDown || !isTKeyDown) return; updateTimeBar(); const lvl = levels[currentLevel]; if(lvl) { general = lvl.questions.length; nextQuestion(false); } });
+
 // --- INITIALISATION ---
 
-// Gestion Retour Prof
-if (backToProfBtn) {
-    backToProfBtn.addEventListener("click", () => {
-      localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" }));
-      window.location.reload();
+if(backToProfBtn) {
+    backToProfBtn.addEventListener("click", () => { localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); window.location.reload(); });
+}
+
+if(iAmReadyBtn) iAmReadyBtn.addEventListener("click", () => { if(lessonModal) lessonModal.style.display = "none"; if (pendingLaunch) { pendingLaunch(); pendingLaunch = null; } });
+if(closeLessonBtn) closeLessonBtn.addEventListener("click", () => { if(lessonModal) lessonModal.style.display = "none"; pendingLaunch = null; });
+if(openLessonBtn) openLessonBtn.addEventListener("click", () => { if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; if (lessonModal) lessonModal.style.display = "flex"; });
+
+// --- [NOUVEAU] GESTION DES FAUTES ---
+if(myMistakesBtn) {
+    myMistakesBtn.addEventListener("click", async () => {
+        if(!currentPlayerId) return;
+        mistakesList.innerHTML = "Chargement...";
+        mistakesModal.style.display = "flex";
+        
+        try {
+            const res = await fetch(`/api/player-progress/${currentPlayerId}`);
+            const data = await res.json();
+            const mistakes = data.spellingMistakes || [];
+            
+            if(mistakes.length === 0) {
+                mistakesList.innerHTML = "<p style='text-align:center;'>Bravo ! Aucune faute enregistrée pour l'instant. 🎉</p>";
+            } else {
+                let html = "<ul style='list-style:none; padding:0;'>";
+                mistakes.forEach(m => {
+                    html += `
+                    <li style="background:#fff1f2; margin-bottom:8px; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #fecaca;">
+                        <div>
+                            <span style="text-decoration:line-through; color:#ef4444; margin-right:10px;">${m.wrong}</span>
+                            👉 <strong style="color:#16a34a;">${m.correct}</strong>
+                        </div>
+                        <button class="delete-mistake-btn" data-word="${m.wrong}" style="background:transparent; border:none; color:#666; font-size:18px; cursor:pointer;" title="J'ai appris ce mot !">✅</button>
+                    </li>`;
+                });
+                html += "</ul>";
+                mistakesList.innerHTML = html;
+                
+                // Clic sur "J'ai appris"
+                document.querySelectorAll(".delete-mistake-btn").forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const word = e.target.dataset.word;
+                        e.target.closest("li").remove();
+                        await fetch(`/api/spelling-mistake/${currentPlayerId}/${word}`, { method: 'DELETE' });
+                    };
+                });
+            }
+        } catch(e) { mistakesList.innerHTML = "Erreur chargement."; }
     });
 }
+if(closeMistakesBtn) closeMistakesBtn.addEventListener("click", () => mistakesModal.style.display = "none");
 
-// Gestion Modal Leçon
-if (iAmReadyBtn) iAmReadyBtn.addEventListener("click", () => {
-  if(lessonModal) lessonModal.style.display = "none";
-  if (pendingLaunch) { pendingLaunch(); pendingLaunch = null; }
-});
-if (closeLessonBtn) closeLessonBtn.addEventListener("click", () => {
-  if(lessonModal) lessonModal.style.display = "none";
-  pendingLaunch = null; 
-});
-if (openLessonBtn) openLessonBtn.addEventListener("click", () => {
-  if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; 
-  if (lessonModal) lessonModal.style.display = "flex";
-});
 
-// Barre de temps
-function updateTimeBar() {
-  const ratio = Math.max(0, levelTimeRemaining / levelTimeTotal);
-  if(mainBar) mainBar.style.width = ratio * 100 + "%";
-}
+// --- FONCTIONS JEU ---
+function updateTimeBar() { const ratio = Math.max(0, levelTimeRemaining / levelTimeTotal); if(mainBar) mainBar.style.width = ratio * 100 + "%"; }
+function startLevelTimer() { stopLevelTimer(); levelTimeRemaining = levelTimeTotal; updateTimeBar(); levelTimer = setInterval(() => { if(window.isGlobalPaused) return; levelTimeRemaining = Math.max(0, levelTimeRemaining - 100); updateTimeBar(); }, 100); }
+function stopLevelTimer() { if (levelTimer) { clearInterval(levelTimer); levelTimer = null; } }
+function calculateGrade() { const ratio = levelTimeRemaining / levelTimeTotal; if (ratio > 0.75) return "A+"; if (ratio > 0.5) return "A"; if (ratio > 0.25) return "B"; return "C"; }
+function showLevelGrade(grade) { let cssClass = "grade-c"; if (grade === "A+") cssClass = "grade-a-plus"; else if (grade === "A") cssClass = "grade-a"; else if (grade === "B") cssClass = "grade-b"; let el = document.getElementById("levelGrade"); if (!el) { el = document.createElement("div"); el.id = "levelGrade"; el.className = "grade-badge"; gameModuleContainer.appendChild(el); } el.textContent = grade; el.className = `grade-badge ${cssClass}`; el.style.opacity = "1"; el.style.transform = "translate(-50%, -50%) scale(1)"; }
+function renderLives() { if(livesWrap) livesWrap.innerHTML = Array(MAX_LIVES).fill(0).map((_,i) => `<div class="heart ${i<lives?'':'off'}"></div>`).join(''); }
 
-function startLevelTimer() {
-  stopLevelTimer();
-  levelTimeRemaining = levelTimeTotal;
-  updateTimeBar();
-  levelTimer = setInterval(() => {
-    if(window.isGlobalPaused) return; // PAUSE
-    levelTimeRemaining = Math.max(0, levelTimeRemaining - 100);
-    updateTimeBar();
-  }, 100);
-}
-
-function stopLevelTimer() {
-  if (levelTimer) { clearInterval(levelTimer); levelTimer = null; }
-}
-
-// Grades & Vies
-function calculateGrade() {
-  const ratio = levelTimeRemaining / levelTimeTotal;
-  if (ratio > 0.75) return "A+"; if (ratio > 0.5) return "A"; if (ratio > 0.25) return "B"; return "C";
-}
-
-function showLevelGrade(grade) {
-  let cssClass = "grade-c";
-  if (grade === "A+") cssClass = "grade-a-plus"; else if (grade === "A") cssClass = "grade-a"; else if (grade === "B") cssClass = "grade-b";
-  let el = document.getElementById("levelGrade");
-  if (!el) { el = document.createElement("div"); el.id = "levelGrade"; el.className = "grade-badge"; gameModuleContainer.appendChild(el); }
-  el.textContent = grade; el.className = `grade-badge ${cssClass}`;
-  el.style.opacity = "1"; el.style.transform = "translate(-50%, -50%) scale(1)";
-}
-
-function renderLives() {
-  if(livesWrap) livesWrap.innerHTML = Array(MAX_LIVES).fill(0).map((_,i) => `<div class="heart ${i<lives?'':'off'}"></div>`).join('');
-}
-
-// Connexion
 function showStudent(stu) {
   if(studentBadge) studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
   if(logoutBtn) logoutBtn.style.display = "block";
-  if (stu.firstName === "Eleve" && stu.lastName === "Test") {
-    if(backToProfBtn) backToProfBtn.style.display = "block";
-  }
+  
+  // Affiche le bouton fautes si c'est un élève
+  if(myMistakesBtn && stu.id !== "prof" && stu.id !== "test") myMistakesBtn.style.display = "block";
+  
+  if (stu.firstName === "Eleve" && stu.lastName === "Test") { if(backToProfBtn) backToProfBtn.style.display = "block"; }
 }
 if(logoutBtn) logoutBtn.addEventListener("click", () => { localStorage.removeItem("player"); window.location.reload(); });
 
-function getClassKey(classroom) {
-  if (!classroom) return null;
-  const c = classroom.toUpperCase();
-  if (c.startsWith("6")) return "6e"; if (c.startsWith("5")) return "5e"; if (c.startsWith("2")) return "2de";
-  return "prof";
-}
+function getClassKey(classroom) { if (!classroom) return null; const c = classroom.toUpperCase(); if (c.startsWith("6")) return "6e"; if (c.startsWith("5")) return "5e"; if (c.startsWith("2")) return "2de"; return "prof"; }
+async function loadQuestions(classKey) { try { const res = await fetch(`/questions/questions-${classKey}.json`); if (!res.ok) throw new Error("404"); levels = await res.json(); } catch (err) { levels = []; console.error("Erreur chargement questions:", err); } }
+async function loadAllQuestionsForProf() { const keys = ["5e", "6e", "2de"]; if (!window.allQuestionsData) window.allQuestionsData = {}; try { const resArr = await Promise.all(keys.map(k => fetch(`/questions/questions-${k}.json`))); const jsonArr = await Promise.all(resArr.map(r => r.json())); keys.forEach((k, i) => { window.allQuestionsData[k] = jsonArr[i]; }); } catch (e) { console.error("Erreur chargement global", e); } }
 
-// Chargement
-async function loadQuestions(classKey) {
-  try {
-    const res = await fetch(`/questions/questions-${classKey}.json`);
-    if (!res.ok) throw new Error("404");
-    levels = await res.json();
-  } catch (err) { levels = []; console.error("Erreur chargement questions:", err); }
-}
-
-async function loadAllQuestionsForProf() {
-  const keys = ["5e", "6e", "2de"];
-  if (!window.allQuestionsData) window.allQuestionsData = {};
-  try {
-    const resArr = await Promise.all(keys.map(k => fetch(`/questions/questions-${k}.json`)));
-    const jsonArr = await Promise.all(resArr.map(r => r.json()));
-    keys.forEach((k, i) => { window.allQuestionsData[k] = jsonArr[i]; });
-  } catch (e) { console.error("Erreur chargement global", e); }
-}
-
-// UI Selection Chapitre
 async function updateChapterSelectionUI(player) {
-  const classKey = getClassKey(player.classroom);
-  if(!classKey) return;
+  const classKey = getClassKey(player.classroom); if(!classKey) return;
   if (!window.allQuestionsData[classKey]) await loadAllQuestionsForProf();
-  
   const allLevelsForClass = window.allQuestionsData[classKey] || [];
   const validatedLevelsRaw = player.validatedLevels || [];
   const gradesMap = {}; const validatedIds = [];
-
-  validatedLevelsRaw.forEach(item => {
-    if (typeof item === 'string') { gradesMap[item] = "Validé"; validatedIds.push(item); } 
-    else if (item && item.levelId) { gradesMap[item.levelId] = item.grade || "Validé"; validatedIds.push(item.levelId); }
-  });
+  validatedLevelsRaw.forEach(item => { if (typeof item === 'string') { gradesMap[item] = "Validé"; validatedIds.push(item); } else if (item && item.levelId) { gradesMap[item.levelId] = item.grade || "Validé"; validatedIds.push(item.levelId); } });
 
   document.querySelectorAll(".chapter-box").forEach((box) => {
     const chapterId = box.dataset.chapter;
     const chapterLevels = allLevelsForClass.filter(l => l.chapterId === chapterId);
-    
     const oldProg = box.querySelector(".chapter-progress"); if(oldProg) oldProg.style.display = "none";
     const oldStatus = box.querySelector(".chapter-status-text"); if(oldStatus) oldStatus.style.display = "none";
-    
     const container = box.querySelector(".chapter-levels");
-    if (chapterLevels.length === 0) {
-      if(container) container.innerHTML = "<small>Aucun niveau dispo</small>"; return;
-    }
+    if (chapterLevels.length === 0) { if(container) container.innerHTML = "<small>Aucun niveau dispo</small>"; return; }
     if (container) {
       container.style.display = "block";
       container.innerHTML = chapterLevels.map((lvl, idx) => {
         const grade = gradesMap[lvl.id];
         let badgeClass = "grade-none"; let badgeText = "Non validé";
-        if (grade) {
-          badgeText = grade;
-          if (grade.includes("A")) badgeClass = "grade-a"; else if (grade.includes("B")) badgeClass = "grade-b"; else if (grade.includes("C")) badgeClass = "grade-c"; else badgeClass = "grade-a";
-        }
+        if (grade) { badgeText = grade; if (grade.includes("A")) badgeClass = "grade-a"; else if (grade.includes("B")) badgeClass = "grade-b"; else if (grade.includes("C")) badgeClass = "grade-c"; else badgeClass = "grade-a"; }
         return `<div class="chapter-level-row"><span class="chapter-level-label">Niveau ${idx + 1}</span><span class="chapter-level-grade ${badgeClass}">${badgeText}</span></div>`;
       }).join('');
     }
-
     const isFinished = chapterLevels.every(l => validatedIds.includes(l.id));
     const btn = box.querySelector(".chapter-action-btn");
-    
     const triggerGameStart = async () => {
       const startGame = async () => {
-        chapterSelection.style.display = "none";
-        game.style.display = "block";
-        // AFFICHER BOUTON PAUSE
+        chapterSelection.style.display = "none"; game.style.display = "block";
         if(pauseReportBtn) pauseReportBtn.style.display = "block"; 
-        
+        if(myMistakesBtn) myMistakesBtn.style.display = "none"; // On cache le bouton fautes en jeu
         await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
         setTimeout(() => { game.scrollIntoView({ behavior: "smooth", block: "center" }); }, 100);
       };
       let fullLessonHTML = ""; let hasLesson = false;
-      chapterLevels.forEach((lvl, index) => {
-        if (lvl.lesson) {
-          hasLesson = true;
-          const cleanTitle = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*Niveau\s+\d+\s*[-—–]\s*/i, "");
-          fullLessonHTML += `<div class="lesson-level-title">NIVEAU ${index + 1} : ${cleanTitle}</div>${lvl.lesson}<hr class="lesson-separator" />`;
-        }
-      });
+      chapterLevels.forEach((lvl, index) => { if (lvl.lesson) { hasLesson = true; const cleanTitle = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*Niveau\s+\d+\s*[-—–]\s*/i, ""); fullLessonHTML += `<div class="lesson-level-title">NIVEAU ${index + 1} : ${cleanTitle}</div>${lvl.lesson}<hr class="lesson-separator" />`; } });
       if (fullLessonHTML.endsWith('<hr class="lesson-separator" />')) fullLessonHTML = fullLessonHTML.slice(0, -31);
       if (!hasLesson) fullLessonHTML = "<h3>🚀 Prêt pour la mission ?</h3><p>Concentre-toi bien et bonne chance !</p>";
       lessonText.innerHTML = fullLessonHTML;
-      if(iAmReadyBtn) iAmReadyBtn.style.display = "block";
-      if(lessonModal) lessonModal.style.display = "flex";
+      if(iAmReadyBtn) iAmReadyBtn.style.display = "block"; if(lessonModal) lessonModal.style.display = "flex";
       pendingLaunch = startGame;
     };
-
     if (btn) {
-      if (isFinished) {
-        btn.textContent = "REJOUER";
-        btn.onclick = async (e) => {
-          e.stopPropagation();
-          await fetch("/api/reset-player-chapter", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ playerId: player.id || player._id, levelIds: chapterLevels.map(l=>l.id) }) });
-          await triggerGameStart();
-        };
-      } else {
-        btn.textContent = "JOUER";
-        btn.onclick = async (e) => { e.stopPropagation(); await triggerGameStart(); };
-      }
+      if (isFinished) { btn.textContent = "REJOUER"; btn.onclick = async (e) => { e.stopPropagation(); await fetch("/api/reset-player-chapter", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ playerId: player.id || player._id, levelIds: chapterLevels.map(l=>l.id) }) }); await triggerGameStart(); }; } 
+      else { btn.textContent = "JOUER"; btn.onclick = async (e) => { e.stopPropagation(); await triggerGameStart(); }; }
     }
   });
 }
 
-// Auto-Login
 (async () => {
   if (saved && saved.id) {
     if (saved.id === "prof") {
-      showStudent(saved); isProfessorMode = true; 
-      if(registerCard) registerCard.style.display = "none";
-      await loadAllQuestionsForProf(); fetchPlayers(); addProfBugButton();
+      showStudent(saved); isProfessorMode = true; if(registerCard) registerCard.style.display = "none"; await loadAllQuestionsForProf(); fetchPlayers(); addProfBugButton();
     } else {
       if(registerCard) registerCard.style.display = "none";
       try {
@@ -249,7 +200,6 @@ async function updateChapterSelectionUI(player) {
   } else { if(registerCard) registerCard.style.display = "block"; }
 })();
 
-// Charger Chapitre
 async function loadChapter(chapId, classKey, templateId, gameClass) {
   if(gameModuleContainer) gameModuleContainer.innerHTML = "Chargement...";
   await loadQuestions(classKey);
@@ -262,16 +212,9 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const tpl = doc.querySelector(`#${templateId}`);
     const script = doc.querySelector("script");
-    if(gameModuleContainer) {
-        gameModuleContainer.innerHTML = "";
-        gameModuleContainer.appendChild(tpl.content.cloneNode(true));
-    }
+    if(gameModuleContainer) { gameModuleContainer.innerHTML = ""; gameModuleContainer.appendChild(tpl.content.cloneNode(true)); }
     eval(script.textContent);
-    const ctrl = {
-      notifyCorrectAnswer: () => { if(isGameActive) { incrementProgress(1); setTimeout(() => nextQuestion(false), 900); } },
-      notifyWrongAnswer: (d) => { if(isGameActive) wrongAnswerFlow(d); },
-      getState: () => ({ isLocked: locked })
-    };
+    const ctrl = { notifyCorrectAnswer: () => { if(isGameActive) { incrementProgress(1); setTimeout(() => nextQuestion(false), 900); } }, notifyWrongAnswer: (d) => { if(isGameActive) wrongAnswerFlow(d); }, getState: () => ({ isLocked: locked }) };
     currentGameModuleInstance = new window[gameClass](gameModuleContainer, ctrl);
     initQuiz();
   } catch(e) { console.error(e); if(gameModuleContainer) gameModuleContainer.innerHTML = "Erreur chargement module."; }
@@ -279,7 +222,6 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
 
 async function initQuiz() { if (!levels.length) return; setupLevel(0); }
 
-// Logique Jeu
 function setupLevel(idx) {
   isGameActive = true; currentLevel = idx;
   if (!levels[currentLevel]) { if(gameModuleContainer) gameModuleContainer.innerHTML = "<h1>🎉 Chapitre Terminé !</h1><button onclick='window.location.reload()'>Retour au menu</button>"; return; }
@@ -296,64 +238,35 @@ function setupLevel(idx) {
   if(subBarsContainer) {
       subBarsContainer.innerHTML = "";
       lvl.questions.forEach((_, i) => {
-        const d = document.createElement("div"); d.className = "subProgress";
-        d.innerHTML = `<div class="subBar" id="subBar${i}"></div><div class="subLabel">${i+1}</div>`;
-        d.onclick = () => handleBarClick(i);
-        subBarsContainer.appendChild(d);
+        const d = document.createElement("div"); d.className = "subProgress"; d.innerHTML = `<div class="subBar" id="subBar${i}"></div><div class="subLabel">${i+1}</div>`; d.onclick = () => handleBarClick(i); subBarsContainer.appendChild(d);
       });
   }
   updateBars(); startLevelTimer(); nextQuestion(false);
 }
 
-function updateBars() {
-  if (!levels[currentLevel]) return;
-  const lvl = levels[currentLevel];
-  if(generalText) generalText.textContent = `Compteur : ${general}/${lvl.questions.length}`;
-  lvl.questions.forEach((_, i) => {
-    const b = $(`#subBar${i}`);
-    if(b) b.style.width = (Math.min(localScores[i], lvl.requiredPerQuestion)/lvl.requiredPerQuestion)*100 + "%";
-  });
-}
-
-function findNextIndex(from) {
-  const lvl = levels[currentLevel];
-  for(let i=from+1; i<lvl.questions.length; i++) if(localScores[i]<lvl.requiredPerQuestion) return i;
-  for(let i=0; i<=from; i++) if(localScores[i]<lvl.requiredPerQuestion) return i;
-  return null;
-}
+function updateBars() { if (!levels[currentLevel]) return; const lvl = levels[currentLevel]; if(generalText) generalText.textContent = `Compteur : ${general}/${lvl.questions.length}`; lvl.questions.forEach((_, i) => { const b = $(`#subBar${i}`); if(b) b.style.width = (Math.min(localScores[i], lvl.requiredPerQuestion)/lvl.requiredPerQuestion)*100 + "%"; }); }
+function findNextIndex(from) { const lvl = levels[currentLevel]; for(let i=from+1; i<lvl.questions.length; i++) if(localScores[i]<lvl.requiredPerQuestion) return i; for(let i=0; i<=from; i++) if(localScores[i]<lvl.requiredPerQuestion) return i; return null; }
 
 async function nextQuestion(keep) {
   if(currentGameModuleInstance && !keep) currentGameModuleInstance.resetAnimation();
   locked = false; const lvl = levels[currentLevel];
   if(general >= lvl.questions.length) {
-    stopLevelTimer(); const grade = calculateGrade(); showLevelGrade(grade);
-    await saveProgress("level", lvl.id, grade);
+    stopLevelTimer(); const grade = calculateGrade(); showLevelGrade(grade); await saveProgress("level", lvl.id, grade);
     if(currentLevel < levels.length - 1) { setTimeout(() => { if(isGameActive) { $("#levelGrade").style.opacity="0"; setupLevel(currentLevel+1); } }, 2600); } 
     else { setTimeout(() => { if(isGameActive) gameModuleContainer.innerHTML="<h1>🎉 Chapitre Terminé !</h1><button onclick='window.location.reload()'>Retour au menu</button>"; }, 2600); }
     return;
   }
   currentIndex = findNextIndex(currentIndex);
-  if(currentIndex !== null && currentGameModuleInstance) {
-    currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]);
-    currentGameModuleInstance.startAnimation();
-  }
+  if(currentIndex !== null && currentGameModuleInstance) { currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]); currentGameModuleInstance.startAnimation(); }
 }
 
-function incrementProgress(v) {
-  if (!isGameActive) return; const lvl = levels[currentLevel]; const req = lvl.requiredPerQuestion;
-  if (typeof localScores[currentIndex] === 'undefined') localScores[currentIndex] = 0;
-  const oldScore = localScores[currentIndex];
-  localScores[currentIndex] = Math.min(req, oldScore + v);
-  if (oldScore < req && localScores[currentIndex] >= req) { general++; saveProgress("question", `${lvl.id}-${currentIndex}`); }
-  updateBars();
-}
+function incrementProgress(v) { if (!isGameActive) return; const lvl = levels[currentLevel]; const req = lvl.requiredPerQuestion; if (typeof localScores[currentIndex] === 'undefined') localScores[currentIndex] = 0; const oldScore = localScores[currentIndex]; localScores[currentIndex] = Math.min(req, oldScore + v); if (oldScore < req && localScores[currentIndex] >= req) { general++; saveProgress("question", `${lvl.id}-${currentIndex}`); } updateBars(); }
 
 function wrongAnswerFlow(q) {
   if(!isGameActive) return; if(currentGameModuleInstance) currentGameModuleInstance.resetAnimation();
   lives = Math.max(0, lives-1); renderLives();
   if(lives === 0) { if(overlay) overlay.style.display = "flex"; } else {
-    let answerText = "";
-    if (q) { if (typeof q === "string") { answerText = q; } else if (typeof q === "object") { if (q.a) answerText = q.a; else if (q.expectedAnswer) answerText = q.expectedAnswer; } }
+    let answerText = ""; if (q) { if (typeof q === "string") { answerText = q; } else if (typeof q === "object") { if (q.a) answerText = q.a; else if (q.expectedAnswer) answerText = q.expectedAnswer; } }
     if(correctionText) correctionText.textContent = answerText || ""; 
     if(correctionOverlay) correctionOverlay.style.display = "flex";
   }
@@ -364,41 +277,28 @@ if(restartBtn) restartBtn.addEventListener("click", () => { overlay.style.displa
 
 if(backToMenuBtn) backToMenuBtn.addEventListener("click", async () => {
   isGameActive = false; stopLevelTimer();
-  if(overlay) overlay.style.display = "none"; 
-  if(correctionOverlay) correctionOverlay.style.display = "none";
+  if(overlay) overlay.style.display = "none"; if(correctionOverlay) correctionOverlay.style.display = "none";
   if(lessonModal) lessonModal.style.display = "none";
   const lg = $("#levelGrade"); if(lg) lg.style.opacity="0";
   if(currentGameModuleInstance?.resetAnimation) try{currentGameModuleInstance.resetAnimation()}catch(e){}
   if(game) game.style.display = "none"; 
   if(chapterSelection) chapterSelection.style.display = "block";
-  
-  // CACHER BOUTON PAUSE
   if(pauseReportBtn) pauseReportBtn.style.display = "none";
-  
-  if(currentPlayerId && currentPlayerId !== "prof") {
-    try { const res = await fetch(`/api/player-progress/${currentPlayerId}`); if(res.ok) updateChapterSelectionUI({ ...saved, ...(await res.json()) }); } catch(e){}
-  }
+  if(myMistakesBtn) myMistakesBtn.style.display = "block"; // Réafficher bouton fautes
+  if(currentPlayerId && currentPlayerId !== "prof") { try { const res = await fetch(`/api/player-progress/${currentPlayerId}`); if(res.ok) updateChapterSelectionUI({ ...saved, ...(await res.json()) }); } catch(e){} }
 });
 
-async function saveProgress(type, val, grade) {
-  if(!currentPlayerId || currentPlayerId==="prof") return;
-  try { await fetch("/api/save-progress", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ playerId: currentPlayerId, progressType: type, value: val, grade: grade }) }); } catch(e) { console.error(e); }
-}
+async function saveProgress(type, val, grade) { if(!currentPlayerId || currentPlayerId==="prof") return; try { await fetch("/api/save-progress", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ playerId: currentPlayerId, progressType: type, value: val, grade: grade }) }); } catch(e) { console.error(e); } }
 
 async function handleBarClick(i) {
-  // CLIC SUR LES BARRES (SANS CHEAT CODE)
-  // J'ai enlevé la restriction R+T ici pour éviter le crash des touches
-  // Si vous voulez remettre le cheat code, il faut utiliser la version sécurisée des touches plus haut.
-  // Pour l'instant, je le laisse "ouvert" pour éviter tout bug.
   if(locked || !isGameActive) return;
-  
+  if (!isRKeyDown || !isTKeyDown) return;
   locked = true; const lvl = levels[currentLevel];
   if (localScores[i] < lvl.requiredPerQuestion) {
     const old = localScores[i]; localScores[i]++; updateBars();
     if (old < lvl.requiredPerQuestion && localScores[i] >= lvl.requiredPerQuestion) { general++; saveProgress("question", `${lvl.id}-${i}`); }
     const bar = $(`#subBar${i}`).parentElement; bar.classList.add("saved-success"); setTimeout(()=>bar.classList.remove("saved-success"), 600);
-    if (general >= lvl.questions.length) nextQuestion(false);
-    else { currentIndex = i; if(currentGameModuleInstance) { currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]); currentGameModuleInstance.startAnimation(); } }
+    if (general >= lvl.questions.length) nextQuestion(false); else { currentIndex = i; if(currentGameModuleInstance) { currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]); currentGameModuleInstance.startAnimation(); } }
   }
   locked = false;
 }
@@ -414,45 +314,22 @@ if(form) form.addEventListener("submit", async (e) => {
   } catch(err) { formMsg.textContent = "❌ " + err.message; startBtn.disabled=false; }
 });
 
-$("#validateProfPasswordBtn")?.addEventListener("click", () => {
-  if($("#profPassword").value === "Clemenceau1919") {
-    localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" }));
-    window.location.reload();
-  }
-});
+$("#validateProfPasswordBtn")?.addEventListener("click", () => { if($("#profPassword").value === "Clemenceau1919") { localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); window.location.reload(); } });
 
-// Dashboard Prof
 async function fetchPlayers() {
   if (!profDashboard) return; profDashboard.style.display = "block";
   const table = $("#playersTable"); table.querySelectorAll("tbody").forEach((tbody) => tbody.remove());
   try {
-    const response = await fetch("/api/players", { cache: "no-store" });
-    if (!response.ok) throw new Error("Erreur réseau.");
+    const response = await fetch("/api/players", { cache: "no-store" }); if (!response.ok) throw new Error("Erreur réseau.");
     allPlayersData = await response.json(); applyFiltersAndRender();
   } catch (error) { console.error(error); }
 }
 
 function generateFullChapterProgress(allLevels, validatedLevelIds, gradesMap, validatedQuestions) {
-  if (!allLevels || allLevels.length === 0) return "N/A";
-  let html = '<div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">';
-  allLevels.forEach((lvl, idx) => {
-    const isDone = validatedLevelIds.includes(lvl.id);
-    if (isDone) {
-      const grade = gradesMap[lvl.id] || "?"; let cssClass = "grade-C";
-      if(grade.includes("A")) cssClass="grade-A"; else if(grade.includes("B")) cssClass="grade-B";
-      html += `<span class="table-grade-badge ${cssClass}" title="Niveau ${idx+1}">${idx+1}:${grade}</span>`;
-    }
-  });
+  if (!allLevels || allLevels.length === 0) return "N/A"; let html = '<div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">';
+  allLevels.forEach((lvl, idx) => { const isDone = validatedLevelIds.includes(lvl.id); if (isDone) { const grade = gradesMap[lvl.id] || "?"; let cssClass = "grade-C"; if(grade.includes("A")) cssClass="grade-A"; else if(grade.includes("B")) cssClass="grade-B"; html += `<span class="table-grade-badge ${cssClass}" title="Niveau ${idx+1}">${idx+1}:${grade}</span>`; } });
   const currentLvlObj = allLevels.find(lvl => !validatedLevelIds.includes(lvl.id));
-  if (currentLvlObj) {
-    html += `<div class="questions-list" style="display: inline-flex; gap: 2px; margin-left:4px;">`;
-    for (let i = 0; i < currentLvlObj.questions.length; i++) {
-      const qId = `${currentLvlObj.id}-${i}`; const isValid = validatedQuestions.includes(qId); const indicatorClass = isValid ? "question-valid" : "question-invalid";
-      html += `<div class="question-indicator ${indicatorClass}" title="Question ${i+1}">${i+1}</div>`;
-    }
-    html += `</div>`;
-  } else { if (allLevels.every(l => validatedLevelIds.includes(l.id))) { html += `<span style="margin-left:4px; font-size:14px;">🏆</span>`; } }
-  html += '</div>'; return html;
+  if (currentLvlObj) { html += `<div class="questions-list" style="display: inline-flex; gap: 2px; margin-left:4px;">`; for (let i = 0; i < currentLvlObj.questions.length; i++) { const qId = `${currentLvlObj.id}-${i}`; const isValid = validatedQuestions.includes(qId); const indicatorClass = isValid ? "question-valid" : "question-invalid"; html += `<div class="question-indicator ${indicatorClass}" title="Question ${i+1}">${i+1}</div>`; } html += `</div>`; } else { if (allLevels.every(l => validatedLevelIds.includes(l.id))) { html += `<span style="margin-left:4px; font-size:14px;">🏆</span>`; } } html += '</div>'; return html;
 }
 
 function renderPlayers(playersToRender) {
@@ -461,25 +338,16 @@ function renderPlayers(playersToRender) {
   const chaptersToDisplay = { "ch1-zombie": "Chapitre 1", "ch2-starship": "Chapitre 2", "ch3-jumper": "Chapitre 3" };
   playersToRender.sort((a, b) => a.lastName.localeCompare(b.lastName)).forEach((player) => {
       const playerTbody = document.createElement("tbody"); playerTbody.style.borderTop = "1px solid #e2e8f0";
-      const classKey = getClassKey(player.classroom);
-      const allLevelsForClass = (window.allQuestionsData && window.allQuestionsData[classKey]) || [];
+      const classKey = getClassKey(player.classroom); const allLevelsForClass = (window.allQuestionsData && window.allQuestionsData[classKey]) || [];
       const gradesMap = {}; const validatedLevelIds = [];
       (player.validatedLevels || []).forEach(l => { if(typeof l === 'string') { gradesMap[l] = "Validé"; validatedLevelIds.push(l); } else { gradesMap[l.levelId] = l.grade; validatedLevelIds.push(l.levelId); } });
       const validatedQuestions = player.validatedQuestions || [];
       let chapterRowsHtml = ""; let isFirstRow = true;
       for (const chapterId in chaptersToDisplay) {
-        const chapterLabel = chaptersToDisplay[chapterId];
-        const levelsInThisChapter = allLevelsForClass.filter(l => l.chapterId === chapterId);
+        const chapterLabel = chaptersToDisplay[chapterId]; const levelsInThisChapter = allLevelsForClass.filter(l => l.chapterId === chapterId);
         let progressHtml = ""; let levelTitleHtml = "";
-        if (levelsInThisChapter.length === 0) { progressHtml = "-"; levelTitleHtml = "-"; } 
-        else {
-          const currentLvl = levelsInThisChapter.find(l => !validatedLevelIds.includes(l.id));
-          levelTitleHtml = currentLvl ? currentLvl.title : "<strong>Terminé</strong>";
-          progressHtml = generateFullChapterProgress(levelsInThisChapter, validatedLevelIds, gradesMap, validatedQuestions);
-        }
-        if (isFirstRow) {
-          chapterRowsHtml += `<tr><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;"><strong>${player.firstName} ${player.lastName}</strong></td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${player.classroom}</td><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;"><button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">Réinitialiser</button></td></tr>`; isFirstRow = false;
-        } else { chapterRowsHtml += `<tr><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td></tr>`; }
+        if (levelsInThisChapter.length === 0) { progressHtml = "-"; levelTitleHtml = "-"; } else { const currentLvl = levelsInThisChapter.find(l => !validatedLevelIds.includes(l.id)); levelTitleHtml = currentLvl ? currentLvl.title : "<strong>Terminé</strong>"; progressHtml = generateFullChapterProgress(levelsInThisChapter, validatedLevelIds, gradesMap, validatedQuestions); }
+        if (isFirstRow) { chapterRowsHtml += `<tr><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;"><strong>${player.firstName} ${player.lastName}</strong></td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${player.classroom}</td><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;"><button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">Réinitialiser</button></td></tr>`; isFirstRow = false; } else { chapterRowsHtml += `<tr><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td></tr>`; }
       }
       playerTbody.innerHTML = chapterRowsHtml; table.appendChild(playerTbody);
     });
@@ -499,12 +367,7 @@ if(studentSearch) studentSearch.addEventListener("input", applyFiltersAndRender)
 if(testClassBtn) testClassBtn.addEventListener("click", async () => {
   const selectedClass = classFilter ? classFilter.value : "all";
   if (selectedClass === "all") { alert("Veuillez sélectionner une classe spécifique dans le menu déroulant avant de cliquer sur Tester."); return; }
-  try {
-    const res = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName: "Eleve", lastName: "Test", classroom: selectedClass }), });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Erreur lors de la connexion test.");
-    localStorage.setItem("player", JSON.stringify(data)); window.location.reload();
-  } catch (err) { console.error(err); alert("Impossible de trouver le compte 'Eleve Test'. Assurez-vous d'avoir relancé init-db.js."); }
+  try { const res = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName: "Eleve", lastName: "Test", classroom: selectedClass }), }); const data = await res.json(); if (!res.ok) throw new Error(data.error || "Erreur lors de la connexion test."); localStorage.setItem("player", JSON.stringify(data)); window.location.reload(); } catch (err) { console.error(err); alert("Impossible de trouver le compte 'Eleve Test'. Assurez-vous d'avoir relancé init-db.js."); }
 });
 
 if(resetAllBtn) resetAllBtn.addEventListener("click", async () => { if (confirm("⚠️ Réinitialiser TOUS les élèves ?")) { await fetch("/api/reset-all-players", { method: "POST" }); fetchPlayers(); } });
@@ -517,90 +380,34 @@ if(playersBody) playersBody.addEventListener("click", async (e) => {
   }
 });
 
-// --- LOGIQUE PAUSE & BUG (ENFIN ACCESSIBLE) ---
-
 if(pauseReportBtn) {
-  pauseReportBtn.addEventListener('click', () => {
-    if(isGameActive) {
-        window.isGlobalPaused = true;
-    }
-    if(bugModal) bugModal.style.display = 'flex';
-  });
+  pauseReportBtn.addEventListener('click', () => { if(isGameActive) { window.isGlobalPaused = true; } if(bugModal) bugModal.style.display = 'flex'; });
 }
-
 if(resumeGameBtn) {
-  resumeGameBtn.addEventListener('click', () => {
-    window.isGlobalPaused = false;
-    if(bugModal) bugModal.style.display = 'none';
-  });
+  resumeGameBtn.addEventListener('click', () => { window.isGlobalPaused = false; if(bugModal) bugModal.style.display = 'none'; });
 }
-
 if(sendBugBtn) {
   sendBugBtn.addEventListener('click', async () => {
-    const desc = $("#bugDescription").value.trim();
-    if(!desc) return alert("Veuillez décrire le problème.");
-    
+    const desc = $("#bugDescription").value.trim(); if(!desc) return alert("Veuillez décrire le problème.");
     sendBugBtn.textContent = "Envoi..."; sendBugBtn.disabled = true;
-    try {
-      await fetch('/api/report-bug', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          reporterName: currentPlayerData ? `${currentPlayerData.firstName} ${currentPlayerData.lastName}` : "Anonyme",
-          classroom: currentPlayerData ? currentPlayerData.classroom : "?",
-          description: desc,
-          gameChapter: isGameActive ? (levelTitle ? levelTitle.textContent : "Jeu") : "Menu Principal"
-        })
-      });
-      alert("Bug signalé avec succès ! Merci.");
-      $("#bugDescription").value = "";
-      
-      // MODIFICATION ICI : On ne reprend PAS le jeu automatiquement.
-      // Le joueur doit cliquer sur "Reprendre Jeu" lui-même.
-      
-    } catch(e) { alert("Erreur envoi."); }
-    sendBugBtn.textContent = "🐞 Envoyer Rapport"; sendBugBtn.disabled = false;
+    try { await fetch('/api/report-bug', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reporterName: currentPlayerData ? `${currentPlayerData.firstName} ${currentPlayerData.lastName}` : "Anonyme", classroom: currentPlayerData ? currentPlayerData.classroom : "?", description: desc, gameChapter: isGameActive ? (levelTitle ? levelTitle.textContent : "Jeu") : "Menu Principal" }) }); alert("Bug signalé avec succès ! Merci."); $("#bugDescription").value = ""; } catch(e) { alert("Erreur envoi."); } sendBugBtn.textContent = "🐞 Envoyer Rapport"; sendBugBtn.disabled = false;
   });
 }
 
-// Logique Liste Bugs (Prof)
 function addProfBugButton() {
-  const title = $("#profDashboard h2");
-  if(!title) return;
-  const bar = title.parentNode.querySelector("div");
-  if(bar && !$("#viewBugsBtn")) {
-    const btn = document.createElement("button");
-    btn.id = "viewBugsBtn"; btn.className = "action-btn";
-    btn.style.background = "#7c3aed"; btn.textContent = "🐛 Bugs";
-    btn.onclick = loadBugs;
-    bar.appendChild(btn);
-  }
+  const title = $("#profDashboard h2"); if(!title) return; const bar = title.parentNode.querySelector("div");
+  if(bar && !$("#viewBugsBtn")) { const btn = document.createElement("button"); btn.id = "viewBugsBtn"; btn.className = "action-btn"; btn.style.background = "#7c3aed"; btn.textContent = "🐛 Bugs"; btn.onclick = loadBugs; bar.appendChild(btn); }
 }
-const closeBugListBtn = $("#closeBugListBtn");
-const profBugListModal = $("#profBugListModal");
-if(closeBugListBtn) closeBugListBtn.onclick = () => profBugListModal.style.display = "none";
+const closeBugListBtn = $("#closeBugListBtn"); const profBugListModal = $("#profBugListModal"); if(closeBugListBtn) closeBugListBtn.onclick = () => profBugListModal.style.display = "none";
 
 async function loadBugs() {
-  const tbody = $("#bugsBody");
-  tbody.innerHTML = "Chargement...";
+  const tbody = $("#bugsBody"); tbody.innerHTML = "Chargement...";
   try {
-    const res = await fetch("/api/bugs");
-    const bugs = await res.json();
-    tbody.innerHTML = "";
+    const res = await fetch("/api/bugs"); const bugs = await res.json(); tbody.innerHTML = "";
     if(bugs.length === 0) { tbody.innerHTML = "<tr><td colspan='5'>Aucun bug.</td></tr>"; }
     else {
-      bugs.forEach(b => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${new Date(b.date).toLocaleDateString()}</td><td>${b.reporterName}<br><small>${b.classroom}</small></td><td>${b.gameChapter}</td><td>${b.description}</td><td><button class="action-btn reset-btn delete-bug" data-id="${b._id}">X</button></td>`;
-        tbody.appendChild(tr);
-      });
-      document.querySelectorAll(".delete-bug").forEach(btn => {
-        btn.onclick = async (e) => {
-          if(confirm("Supprimer ce rapport ?")) {
-            await fetch(`/api/bugs/${e.target.dataset.id}`, { method: 'DELETE' });
-            loadBugs();
-          }
-        };
-      });
+      bugs.forEach(b => { const tr = document.createElement("tr"); tr.innerHTML = `<td>${new Date(b.date).toLocaleDateString()}</td><td>${b.reporterName}<br><small>${b.classroom}</small></td><td>${b.gameChapter}</td><td>${b.description}</td><td><button class="action-btn reset-btn delete-bug" data-id="${b._id}">X</button></td>`; tbody.appendChild(tr); });
+      document.querySelectorAll(".delete-bug").forEach(btn => { btn.onclick = async (e) => { if(confirm("Supprimer ce rapport ?")) { await fetch(`/api/bugs/${e.target.dataset.id}`, { method: 'DELETE' }); loadBugs(); } }; });
     }
     if(profBugListModal) profBugListModal.style.display = "flex";
   } catch(e) { console.error(e); tbody.innerHTML = "Erreur."; }

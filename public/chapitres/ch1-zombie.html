@@ -123,14 +123,12 @@ class ZombieGame {
     this.zombie.style.opacity = "1";
     this.zPaused = false; 
     
-    // Attendre que la pause globale soit levée pour focus
     setTimeout(() => { 
         if(!window.isGlobalPaused) this.input.focus(); 
     }, 100);
   }
 
   async askAI() {
-    // PAUSE CHECK
     if(window.isGlobalPaused || this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
     
     this.zPaused = true; 
@@ -142,13 +140,17 @@ class ZombieGame {
     const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
     if(!currentQ) return;
 
+    // [IMPORTANT] Récupération de l'ID du joueur pour le lier aux fautes
+    const player = JSON.parse(localStorage.getItem('player') || '{}');
+
     try {
       const res = await fetch('/api/verify-answer-ai', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             question: currentQ.q, 
             userAnswer: this.input.value, 
-            expectedAnswer: currentQ.a 
+            expectedAnswer: currentQ.a,
+            playerId: player.id || player._id // <--- C'est ça qui manquait !
         })
       });
       const data = await res.json();
@@ -164,25 +166,34 @@ class ZombieGame {
   handleResponse(data) {
     const status = data.status || (data.correct ? "correct" : "incorrect");
 
+    // Génération de la liste des fautes
+    let correctionsHTML = "";
+    if (data.corrections && data.corrections.length > 0) {
+      correctionsHTML += `<ul class="spelling-list">`;
+      data.corrections.forEach(c => {
+          correctionsHTML += `<li class="spelling-item">
+              <span class="wrong-word">${c.wrong}</span> 
+              <span class="right-word">${c.correct}</span>
+          </li>`;
+      });
+      correctionsHTML += `</ul>`;
+    }
+
     if (status === "correct") {
       let html = `<strong>🎉 ${data.feedback || "Bravo !"}</strong>`;
-      if (data.corrections && data.corrections.length > 0) {
-        html += `<ul class="spelling-list">`;
-        data.corrections.forEach(c => {
-            html += `<li class="spelling-item"><span class="wrong-word">${c.wrong}</span> <span class="right-word">${c.correct}</span></li>`;
-        });
-        html += `</ul>`;
-      }
+      html += correctionsHTML;
       this.showFeedback(html, "success", true);
       this.win(); 
-      setTimeout(() => { this.ctrl.notifyCorrectAnswer(); }, 4000);
+      setTimeout(() => this.ctrl.notifyCorrectAnswer(), 4000);
     } else if (status === "close") {
-      this.showFeedback(`💡 <strong>Indice :</strong> ${data.feedback}`, "hint", true);
+      let html = `💡 <strong>Indice :</strong> ${data.feedback}`;
+      html += correctionsHTML;
+      this.showFeedback(html, "hint", true);
       setTimeout(() => {
           if(!window.isGlobalPaused) {
              this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus();
           }
-      }, 2000);
+      }, 3000);
     } else {
       this.showFeedback(`❌ ${data.feedback || "Incorrect."}`, "error");
       if(typeof localScores !== 'undefined') {
@@ -209,63 +220,41 @@ class ZombieGame {
 
   startAnimation(){ this.moveZ(); } 
   resetAnimation(){ this.stop(); }
-  
   moveZ() {
     if(this.zInt) return;
-    this.zombie.style.display="block"; 
-    this.zombie.style.opacity="1";
-    
+    this.zombie.style.display="block"; this.zombie.style.opacity="1";
     const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
     const step = max / 50000; 
-    
     this.zInt = setInterval(() => {
-      // ⚠️ C'EST CETTE LIGNE QUI FAIT LA PAUSE ⚠️
       if(window.isGlobalPaused || this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
-      
-      this.zPos += step * 20; 
-      this.zombie.style.right = this.zPos + "px";
-      
-      if(this.zPos >= max) { 
-          this.ctrl.notifyWrongAnswer(null); 
-      }
+      this.zPos += step * 20; this.zombie.style.right = this.zPos + "px";
+      if(this.zPos >= max) { this.ctrl.notifyWrongAnswer(null); }
     }, 20);
   }
-
   stop() {
     this.resetting = true;
     if(this.zInt) { clearInterval(this.zInt); this.zInt = null; }
     if(this.pInt) { clearInterval(this.pInt); this.pInt = null; }
-    this.zPos = 20; 
-    this.zPaused = false;
-    
+    this.zPos = 20; this.zPaused = false;
     if(this.zombie) { this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; }
     if(this.projectile) { this.projectile.style.display = "none"; this.projectile.style.left = "0px"; }
-    
     if(this.input) { this.input.disabled = false; this.input.value = ""; }
     if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }
     if(this.fbBubble) this.fbBubble.style.display = "none";
   }
-
   win() { this.shoot(); }
-
   shoot() {
     if(this.pInt) return;
     this.projectile.style.display = "block";
     let p = this.hero.offsetWidth;
     const zRight = parseFloat(this.zombie.style.right) || 20;
     const hit = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
-    
     this.pInt = setInterval(() => {
       if(this.resetting) { clearInterval(this.pInt); this.pInt = null; return; }
-      
-      p += 25; 
-      this.projectile.style.left = p + "px";
-      
+      p += 25; this.projectile.style.left = p + "px";
       if(p >= hit) {
-        clearInterval(this.pInt); 
-        this.pInt = null;
-        this.projectile.style.display = "none"; 
-        this.projectile.style.left = "0px";
+        clearInterval(this.pInt); this.pInt = null;
+        this.projectile.style.display = "none"; this.projectile.style.left = "0px";
         if(!this.resetting) this.zombie.style.display = "none";
       }
     }, 20);

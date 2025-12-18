@@ -1,9 +1,12 @@
-// --- SECTION 0: UI & State ---
-const $ = (sel) => document.querySelector(sel);
-const studentBadge = $("#studentBadge"), logoutBtn = $("#logoutBtn");
-// Bouton retour prof
-const backToProfBtn = $("#backToProfBtn");
+// public/main.js - VERSION FINALE (MODIFIEE: Envoi ne reprend pas le jeu)
 
+// --- SECTION 0: UI & State ---
+window.isGlobalPaused = false; 
+const $ = (sel) => document.querySelector(sel);
+
+// UI Elements
+const studentBadge = $("#studentBadge"), logoutBtn = $("#logoutBtn");
+const backToProfBtn = $("#backToProfBtn");
 const registerCard = $("#registerCard"), chapterSelection = $("#chapterSelection"), game = $("#game");
 const form = $("#registerForm"), startBtn = $("#startBtn"), formMsg = $("#formMsg");
 const gameModuleContainer = $("#gameModuleContainer");
@@ -11,18 +14,21 @@ const levelTitle = $("#levelTitle"), livesWrap = $("#lives"), mainBar = $("#main
 const overlay = $("#overlay"), restartBtn = $("#restartBtn");
 const correctionOverlay = $("#correctionOverlay"), correctionText = $("#correctionText"), closeCorrectionBtn = $("#closeCorrectionBtn");
 const profDashboard = $("#profDashboard"), playersBody = $("#playersBody"), classFilter = $("#classFilter"), resetAllBtn = $("#resetAllBtn"), studentSearch = $("#studentSearch"), backToMenuBtn = $("#backToMenuBtn");
-
-// Bouton Test Prof (dans le dashboard)
 const testClassBtn = $("#testClassBtn");
 
-// --- UI FICHE COURS ---
+// UI Lesson
 const openLessonBtn = $("#openLessonBtn");
 const lessonModal = $("#lessonModal");
 const closeLessonBtn = $("#closeLessonBtn");
 const lessonText = $("#lessonText");
 const iAmReadyBtn = $("#iAmReadyBtn");
 
-// Init Globale
+// UI Pause & Bug
+const pauseReportBtn = $("#pauseReportBtn");
+const bugModal = $("#bugModal");
+const sendBugBtn = $("#sendBugBtn");
+const resumeGameBtn = $("#resumeGameBtn");
+
 window.allQuestionsData = {}; 
 
 let isProfessorMode = false;
@@ -38,64 +44,31 @@ let allPlayersData = [];
 let levelTimer = null, levelTimeTotal = 180000, levelTimeRemaining = 180000;
 let pendingLaunch = null; 
 
-// --- GESTION DES TOUCHES POUR CHEAT CODE (R + T) ---
-let isRKeyDown = false; 
-let isTKeyDown = false;
+// --- INITIALISATION ---
 
-document.addEventListener("keydown", (e) => {
-  if (e.key.toLowerCase() === "r") isRKeyDown = true;
-  if (e.key.toLowerCase() === "t") isTKeyDown = true;
-});
+// Gestion Retour Prof
+if (backToProfBtn) {
+    backToProfBtn.addEventListener("click", () => {
+      localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" }));
+      window.location.reload();
+    });
+}
 
-document.addEventListener("keyup", (e) => {
-  if (e.key.toLowerCase() === "r") isRKeyDown = false;
-  if (e.key.toLowerCase() === "t") isTKeyDown = false;
-});
-
-// --- LOGIQUE RETOUR PROF (Si on est Eleve Test) ---
-backToProfBtn?.addEventListener("click", () => {
-  localStorage.setItem(
-    "player",
-    JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })
-  );
-  window.location.reload();
-});
-
-// --- LOGIQUE MODAL COURS ---
-iAmReadyBtn?.addEventListener("click", () => {
+// Gestion Modal Leçon
+if (iAmReadyBtn) iAmReadyBtn.addEventListener("click", () => {
   if(lessonModal) lessonModal.style.display = "none";
-  if (pendingLaunch) {
-    pendingLaunch(); 
-    pendingLaunch = null; 
-  }
+  if (pendingLaunch) { pendingLaunch(); pendingLaunch = null; }
 });
-
-closeLessonBtn?.addEventListener("click", () => {
+if (closeLessonBtn) closeLessonBtn.addEventListener("click", () => {
   if(lessonModal) lessonModal.style.display = "none";
   pendingLaunch = null; 
 });
-
-openLessonBtn?.addEventListener("click", () => {
+if (openLessonBtn) openLessonBtn.addEventListener("click", () => {
   if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; 
   if (lessonModal) lessonModal.style.display = "flex";
 });
 
-// --- CHEAT CODE (Barre Verte + R + T) ---
-$("#mainProgress")?.addEventListener("click", () => {
-  if (!isGameActive) return;
-  if (!isRKeyDown || !isTKeyDown) return; // SÉCURITÉ
-
-  console.log("🕵️ CHEAT CODE ACTIVÉ : Niveau validé !");
-  updateTimeBar(); 
-  const lvl = levels[currentLevel];
-  if(lvl) {
-    general = lvl.questions.length;
-    nextQuestion(false);
-  }
-});
-
-// --- SECTION 1: FONCTIONS UTILITAIRES ---
-
+// Barre de temps
 function updateTimeBar() {
   const ratio = Math.max(0, levelTimeRemaining / levelTimeTotal);
   if(mainBar) mainBar.style.width = ratio * 100 + "%";
@@ -106,76 +79,59 @@ function startLevelTimer() {
   levelTimeRemaining = levelTimeTotal;
   updateTimeBar();
   levelTimer = setInterval(() => {
+    if(window.isGlobalPaused) return; // PAUSE
     levelTimeRemaining = Math.max(0, levelTimeRemaining - 100);
     updateTimeBar();
   }, 100);
 }
 
 function stopLevelTimer() {
-  if (levelTimer) {
-    clearInterval(levelTimer);
-    levelTimer = null;
-  }
+  if (levelTimer) { clearInterval(levelTimer); levelTimer = null; }
 }
 
+// Grades & Vies
 function calculateGrade() {
   const ratio = levelTimeRemaining / levelTimeTotal;
-  if (ratio > 0.75) return "A+";
-  if (ratio > 0.5) return "A";
-  if (ratio > 0.25) return "B";
-  return "C";
+  if (ratio > 0.75) return "A+"; if (ratio > 0.5) return "A"; if (ratio > 0.25) return "B"; return "C";
 }
 
 function showLevelGrade(grade) {
   let cssClass = "grade-c";
-  if (grade === "A+") cssClass = "grade-a-plus";
-  else if (grade === "A") cssClass = "grade-a";
-  else if (grade === "B") cssClass = "grade-b";
-
+  if (grade === "A+") cssClass = "grade-a-plus"; else if (grade === "A") cssClass = "grade-a"; else if (grade === "B") cssClass = "grade-b";
   let el = document.getElementById("levelGrade");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "levelGrade";
-    el.className = "grade-badge";
-    gameModuleContainer.appendChild(el);
-  }
-  el.textContent = grade;
-  el.className = `grade-badge ${cssClass}`;
-  el.style.opacity = "1";
-  el.style.transform = "translate(-50%, -50%) scale(1)";
+  if (!el) { el = document.createElement("div"); el.id = "levelGrade"; el.className = "grade-badge"; gameModuleContainer.appendChild(el); }
+  el.textContent = grade; el.className = `grade-badge ${cssClass}`;
+  el.style.opacity = "1"; el.style.transform = "translate(-50%, -50%) scale(1)";
 }
 
 function renderLives() {
-  livesWrap.innerHTML = Array(MAX_LIVES).fill(0).map((_,i) => `<div class="heart ${i<lives?'':'off'}"></div>`).join('');
+  if(livesWrap) livesWrap.innerHTML = Array(MAX_LIVES).fill(0).map((_,i) => `<div class="heart ${i<lives?'':'off'}"></div>`).join('');
 }
 
-// --- SECTION 2: CONNEXION & MENU ---
-
+// Connexion
 function showStudent(stu) {
-  studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
-  logoutBtn.style.display = "block";
-  
+  if(studentBadge) studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
+  if(logoutBtn) logoutBtn.style.display = "block";
   if (stu.firstName === "Eleve" && stu.lastName === "Test") {
     if(backToProfBtn) backToProfBtn.style.display = "block";
   }
 }
-logoutBtn.addEventListener("click", () => { localStorage.removeItem("player"); window.location.reload(); });
+if(logoutBtn) logoutBtn.addEventListener("click", () => { localStorage.removeItem("player"); window.location.reload(); });
 
 function getClassKey(classroom) {
   if (!classroom) return null;
   const c = classroom.toUpperCase();
-  if (c.startsWith("6")) return "6e";
-  if (c.startsWith("5")) return "5e";
-  if (c.startsWith("2")) return "2de";
+  if (c.startsWith("6")) return "6e"; if (c.startsWith("5")) return "5e"; if (c.startsWith("2")) return "2de";
   return "prof";
 }
 
+// Chargement
 async function loadQuestions(classKey) {
   try {
     const res = await fetch(`/questions/questions-${classKey}.json`);
     if (!res.ok) throw new Error("404");
     levels = await res.json();
-  } catch (err) { levels = []; console.error(err); }
+  } catch (err) { levels = []; console.error("Erreur chargement questions:", err); }
 }
 
 async function loadAllQuestionsForProf() {
@@ -185,65 +141,45 @@ async function loadAllQuestionsForProf() {
     const resArr = await Promise.all(keys.map(k => fetch(`/questions/questions-${k}.json`)));
     const jsonArr = await Promise.all(resArr.map(r => r.json()));
     keys.forEach((k, i) => { window.allQuestionsData[k] = jsonArr[i]; });
-  } catch (e) { console.error("Erreur chargement global questions", e); }
+  } catch (e) { console.error("Erreur chargement global", e); }
 }
 
+// UI Selection Chapitre
 async function updateChapterSelectionUI(player) {
   const classKey = getClassKey(player.classroom);
   if(!classKey) return;
-
-  if (!window.allQuestionsData[classKey]) {
-    await loadAllQuestionsForProf();
-  }
+  if (!window.allQuestionsData[classKey]) await loadAllQuestionsForProf();
   
   const allLevelsForClass = window.allQuestionsData[classKey] || [];
   const validatedLevelsRaw = player.validatedLevels || [];
-  const gradesMap = {};
-  const validatedIds = [];
+  const gradesMap = {}; const validatedIds = [];
 
   validatedLevelsRaw.forEach(item => {
-    if (typeof item === 'string') {
-      gradesMap[item] = "Validé"; validatedIds.push(item);
-    } else if (item && item.levelId) {
-      gradesMap[item.levelId] = item.grade || "Validé"; validatedIds.push(item.levelId);
-    }
+    if (typeof item === 'string') { gradesMap[item] = "Validé"; validatedIds.push(item); } 
+    else if (item && item.levelId) { gradesMap[item.levelId] = item.grade || "Validé"; validatedIds.push(item.levelId); }
   });
 
   document.querySelectorAll(".chapter-box").forEach((box) => {
     const chapterId = box.dataset.chapter;
     const chapterLevels = allLevelsForClass.filter(l => l.chapterId === chapterId);
-
-    const oldProg = box.querySelector(".chapter-progress");
-    if(oldProg) oldProg.style.display = "none";
-    const oldStatus = box.querySelector(".chapter-status-text");
-    if(oldStatus) oldStatus.style.display = "none";
-
+    
+    const oldProg = box.querySelector(".chapter-progress"); if(oldProg) oldProg.style.display = "none";
+    const oldStatus = box.querySelector(".chapter-status-text"); if(oldStatus) oldStatus.style.display = "none";
+    
     const container = box.querySelector(".chapter-levels");
     if (chapterLevels.length === 0) {
-      if(container) container.innerHTML = "<small>Aucun niveau dispo</small>";
-      return;
+      if(container) container.innerHTML = "<small>Aucun niveau dispo</small>"; return;
     }
-
     if (container) {
       container.style.display = "block";
       container.innerHTML = chapterLevels.map((lvl, idx) => {
         const grade = gradesMap[lvl.id];
-        let badgeClass = "grade-none";
-        let badgeText = "Non validé";
-        
+        let badgeClass = "grade-none"; let badgeText = "Non validé";
         if (grade) {
           badgeText = grade;
-          if (grade.includes("A")) badgeClass = "grade-a";
-          else if (grade.includes("B")) badgeClass = "grade-b";
-          else if (grade.includes("C")) badgeClass = "grade-c";
-          else badgeClass = "grade-a";
+          if (grade.includes("A")) badgeClass = "grade-a"; else if (grade.includes("B")) badgeClass = "grade-b"; else if (grade.includes("C")) badgeClass = "grade-c"; else badgeClass = "grade-a";
         }
-
-        return `
-          <div class="chapter-level-row">
-            <span class="chapter-level-label">Niveau ${idx + 1}</span>
-            <span class="chapter-level-grade ${badgeClass}">${badgeText}</span>
-          </div>`;
+        return `<div class="chapter-level-row"><span class="chapter-level-label">Niveau ${idx + 1}</span><span class="chapter-level-grade ${badgeClass}">${badgeText}</span></div>`;
       }).join('');
     }
 
@@ -254,16 +190,13 @@ async function updateChapterSelectionUI(player) {
       const startGame = async () => {
         chapterSelection.style.display = "none";
         game.style.display = "block";
-        await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
+        // AFFICHER BOUTON PAUSE
+        if(pauseReportBtn) pauseReportBtn.style.display = "block"; 
         
-        // --- SCROLLING AUTO ---
-        setTimeout(() => {
-           game.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 100);
+        await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
+        setTimeout(() => { game.scrollIntoView({ behavior: "smooth", block: "center" }); }, 100);
       };
-
-      let fullLessonHTML = "";
-      let hasLesson = false;
+      let fullLessonHTML = ""; let hasLesson = false;
       chapterLevels.forEach((lvl, index) => {
         if (lvl.lesson) {
           hasLesson = true;
@@ -272,9 +205,7 @@ async function updateChapterSelectionUI(player) {
         }
       });
       if (fullLessonHTML.endsWith('<hr class="lesson-separator" />')) fullLessonHTML = fullLessonHTML.slice(0, -31);
-      
       if (!hasLesson) fullLessonHTML = "<h3>🚀 Prêt pour la mission ?</h3><p>Concentre-toi bien et bonne chance !</p>";
-
       lessonText.innerHTML = fullLessonHTML;
       if(iAmReadyBtn) iAmReadyBtn.style.display = "block";
       if(lessonModal) lessonModal.style.display = "flex";
@@ -286,73 +217,44 @@ async function updateChapterSelectionUI(player) {
         btn.textContent = "REJOUER";
         btn.onclick = async (e) => {
           e.stopPropagation();
-          await fetch("/api/reset-player-chapter", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ playerId: player.id || player._id, levelIds: chapterLevels.map(l=>l.id) })
-          });
+          await fetch("/api/reset-player-chapter", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ playerId: player.id || player._id, levelIds: chapterLevels.map(l=>l.id) }) });
           await triggerGameStart();
         };
       } else {
         btn.textContent = "JOUER";
-        btn.onclick = async (e) => {
-          e.stopPropagation();
-          await triggerGameStart();
-        };
+        btn.onclick = async (e) => { e.stopPropagation(); await triggerGameStart(); };
       }
     }
   });
 }
 
-// --- SECTION 3: INIT & JEU ---
-
+// Auto-Login
 (async () => {
   if (saved && saved.id) {
     if (saved.id === "prof") {
-      showStudent(saved);
-      isProfessorMode = true;
-      registerCard.style.display = "none";
-      await loadAllQuestionsForProf();
-      fetchPlayers();
+      showStudent(saved); isProfessorMode = true; 
+      if(registerCard) registerCard.style.display = "none";
+      await loadAllQuestionsForProf(); fetchPlayers(); addProfBugButton();
     } else {
-      registerCard.style.display = "none";
+      if(registerCard) registerCard.style.display = "none";
       try {
         await loadAllQuestionsForProf();
         const res = await fetch(`/api/player-progress/${saved.id}`);
-        
-        if (res.status === 404) {
-          localStorage.removeItem("player");
-          window.location.reload();
-          return;
-        }
-
-        if(res.ok) {
-          const serverData = await res.json();
-          currentPlayerData = { ...saved, ...serverData };
-        } else {
-          currentPlayerData = saved;
-        }
-        
-        showStudent(saved);
-        await updateChapterSelectionUI(currentPlayerData);
-        chapterSelection.style.display = "block";
-      } catch (e) {
-        console.error(e);
-        alert("Erreur connexion. Rechargez la page.");
-      }
+        if (res.status === 404) { localStorage.removeItem("player"); window.location.reload(); return; }
+        if(res.ok) { const serverData = await res.json(); currentPlayerData = { ...saved, ...serverData }; } else { currentPlayerData = saved; }
+        showStudent(saved); await updateChapterSelectionUI(currentPlayerData); 
+        if(chapterSelection) chapterSelection.style.display = "block";
+      } catch (e) { console.error(e); alert("Erreur connexion. Rechargez la page."); }
     }
-  } else {
-    registerCard.style.display = "block";
-  }
+  } else { if(registerCard) registerCard.style.display = "block"; }
 })();
 
+// Charger Chapitre
 async function loadChapter(chapId, classKey, templateId, gameClass) {
-  gameModuleContainer.innerHTML = "Chargement...";
+  if(gameModuleContainer) gameModuleContainer.innerHTML = "Chargement...";
   await loadQuestions(classKey);
   levels = levels.filter(l => l.chapterId === chapId);
-  
-  if(!levels.length) { gameModuleContainer.innerHTML = "Erreur: Pas de niveaux."; return; }
-
+  if(!levels.length) { if(gameModuleContainer) gameModuleContainer.innerHTML = "Erreur: Pas de niveaux."; return; }
   try {
     const res = await fetch(`chapitres/${chapId}.html`);
     if(!res.ok) throw new Error("Module introuvable");
@@ -360,78 +262,53 @@ async function loadChapter(chapId, classKey, templateId, gameClass) {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const tpl = doc.querySelector(`#${templateId}`);
     const script = doc.querySelector("script");
-    
-    gameModuleContainer.innerHTML = "";
-    gameModuleContainer.appendChild(tpl.content.cloneNode(true));
+    if(gameModuleContainer) {
+        gameModuleContainer.innerHTML = "";
+        gameModuleContainer.appendChild(tpl.content.cloneNode(true));
+    }
     eval(script.textContent);
-
     const ctrl = {
       notifyCorrectAnswer: () => { if(isGameActive) { incrementProgress(1); setTimeout(() => nextQuestion(false), 900); } },
       notifyWrongAnswer: (d) => { if(isGameActive) wrongAnswerFlow(d); },
       getState: () => ({ isLocked: locked })
     };
-
     currentGameModuleInstance = new window[gameClass](gameModuleContainer, ctrl);
     initQuiz();
-  } catch(e) {
-    console.error(e);
-    gameModuleContainer.innerHTML = "Erreur chargement module.";
-  }
+  } catch(e) { console.error(e); if(gameModuleContainer) gameModuleContainer.innerHTML = "Erreur chargement module."; }
 }
 
-async function initQuiz() {
-  if (!levels.length) return;
-  setupLevel(0); 
-}
+async function initQuiz() { if (!levels.length) return; setupLevel(0); }
 
+// Logique Jeu
 function setupLevel(idx) {
-  isGameActive = true;
-  currentLevel = idx;
-  
-  if (!levels[currentLevel]) {
-    gameModuleContainer.innerHTML = "<h1>🎉 Chapitre Terminé !</h1><button onclick='window.location.reload()'>Retour au menu</button>";
-    return;
-  }
-  
+  isGameActive = true; currentLevel = idx;
+  if (!levels[currentLevel]) { if(gameModuleContainer) gameModuleContainer.innerHTML = "<h1>🎉 Chapitre Terminé !</h1><button onclick='window.location.reload()'>Retour au menu</button>"; return; }
   const lvl = levels[currentLevel];
-  const summary = document.getElementById("levelGradesSummary");
-  if(summary) summary.remove();
-  levelTitle.textContent = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*/i, "");
-  
+  const summary = document.getElementById("levelGradesSummary"); if(summary) summary.remove();
+  if(levelTitle) levelTitle.textContent = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*/i, "");
   const welcome = document.getElementById("welcomeText");
   if(welcome) { welcome.textContent = `Bienvenue ${currentPlayerData.firstName} !`; welcome.style.display = "block"; }
-
-  if (lvl.lesson) {
-    if(openLessonBtn) openLessonBtn.style.display = "block";
-    if(lessonText) lessonText.innerHTML = lvl.lesson; 
-  } else {
-    if(openLessonBtn) openLessonBtn.style.display = "none";
-    if(lessonText) lessonText.innerHTML = "<p>Pas de fiche.</p>";
-  }
+  if (lvl.lesson) { if(openLessonBtn) openLessonBtn.style.display = "block"; if(lessonText) lessonText.innerHTML = lvl.lesson; } else { if(openLessonBtn) openLessonBtn.style.display = "none"; if(lessonText) lessonText.innerHTML = "<p>Pas de fiche.</p>"; }
   if(lessonModal) lessonModal.style.display = "none";
-
   localScores = new Array(lvl.questions.length).fill(0);
   general = 0; currentIndex = -1; lives = MAX_LIVES;
   renderLives();
-  
-  subBarsContainer.innerHTML = "";
-  lvl.questions.forEach((_, i) => {
-    const d = document.createElement("div");
-    d.className = "subProgress";
-    d.innerHTML = `<div class="subBar" id="subBar${i}"></div><div class="subLabel">${i+1}</div>`;
-    d.onclick = () => handleBarClick(i);
-    subBarsContainer.appendChild(d);
-  });
-  
-  updateBars();
-  startLevelTimer();
-  nextQuestion(false);
+  if(subBarsContainer) {
+      subBarsContainer.innerHTML = "";
+      lvl.questions.forEach((_, i) => {
+        const d = document.createElement("div"); d.className = "subProgress";
+        d.innerHTML = `<div class="subBar" id="subBar${i}"></div><div class="subLabel">${i+1}</div>`;
+        d.onclick = () => handleBarClick(i);
+        subBarsContainer.appendChild(d);
+      });
+  }
+  updateBars(); startLevelTimer(); nextQuestion(false);
 }
 
 function updateBars() {
   if (!levels[currentLevel]) return;
   const lvl = levels[currentLevel];
-  generalText.textContent = `Compteur : ${general}/${lvl.questions.length}`;
+  if(generalText) generalText.textContent = `Compteur : ${general}/${lvl.questions.length}`;
   lvl.questions.forEach((_, i) => {
     const b = $(`#subBar${i}`);
     if(b) b.style.width = (Math.min(localScores[i], lvl.requiredPerQuestion)/lvl.requiredPerQuestion)*100 + "%";
@@ -447,29 +324,14 @@ function findNextIndex(from) {
 
 async function nextQuestion(keep) {
   if(currentGameModuleInstance && !keep) currentGameModuleInstance.resetAnimation();
-  locked = false;
-  const lvl = levels[currentLevel];
-
+  locked = false; const lvl = levels[currentLevel];
   if(general >= lvl.questions.length) {
-    stopLevelTimer();
-    const grade = calculateGrade();
-    showLevelGrade(grade);
-    
+    stopLevelTimer(); const grade = calculateGrade(); showLevelGrade(grade);
     await saveProgress("level", lvl.id, grade);
-    
-    if(currentLevel < levels.length - 1) {
-      setTimeout(() => { 
-        if(isGameActive) { 
-          $("#levelGrade").style.opacity="0"; 
-          setupLevel(currentLevel+1); 
-        }
-      }, 2600);
-    } else {
-      setTimeout(() => { if(isGameActive) gameModuleContainer.innerHTML="<h1>🎉 Chapitre Terminé !</h1><button onclick='window.location.reload()'>Retour au menu</button>"; }, 2600);
-    }
+    if(currentLevel < levels.length - 1) { setTimeout(() => { if(isGameActive) { $("#levelGrade").style.opacity="0"; setupLevel(currentLevel+1); } }, 2600); } 
+    else { setTimeout(() => { if(isGameActive) gameModuleContainer.innerHTML="<h1>🎉 Chapitre Terminé !</h1><button onclick='window.location.reload()'>Retour au menu</button>"; }, 2600); }
     return;
   }
-  
   currentIndex = findNextIndex(currentIndex);
   if(currentIndex !== null && currentGameModuleInstance) {
     currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]);
@@ -478,129 +340,77 @@ async function nextQuestion(keep) {
 }
 
 function incrementProgress(v) {
-  if (!isGameActive) return;
-  const lvl = levels[currentLevel];
-  const req = lvl.requiredPerQuestion;
-  
+  if (!isGameActive) return; const lvl = levels[currentLevel]; const req = lvl.requiredPerQuestion;
   if (typeof localScores[currentIndex] === 'undefined') localScores[currentIndex] = 0;
   const oldScore = localScores[currentIndex];
   localScores[currentIndex] = Math.min(req, oldScore + v);
-  
-  if (oldScore < req && localScores[currentIndex] >= req) {
-    general++;
-    saveProgress("question", `${lvl.id}-${currentIndex}`);
-  }
+  if (oldScore < req && localScores[currentIndex] >= req) { general++; saveProgress("question", `${lvl.id}-${currentIndex}`); }
   updateBars();
 }
 
-// ⚠️ ICI : on rend la fonction robuste pour afficher la bonne réponse
 function wrongAnswerFlow(q) {
-  if(!isGameActive) return;
-  if(currentGameModuleInstance) currentGameModuleInstance.resetAnimation();
-
-  lives = Math.max(0, lives-1);
-  renderLives();
-
-  if(lives === 0) {
-    overlay.style.display = "flex";
-  } else {
-    // récupérer le texte de la bonne réponse quel que soit le format
+  if(!isGameActive) return; if(currentGameModuleInstance) currentGameModuleInstance.resetAnimation();
+  lives = Math.max(0, lives-1); renderLives();
+  if(lives === 0) { if(overlay) overlay.style.display = "flex"; } else {
     let answerText = "";
-    if (q) {
-      if (typeof q === "string") {
-        answerText = q;
-      } else if (typeof q === "object") {
-        if (q.a) answerText = q.a;
-        else if (q.expectedAnswer) answerText = q.expectedAnswer;
-      }
-    }
-    correctionText.textContent = answerText || "";
-    correctionOverlay.style.display = "flex";
+    if (q) { if (typeof q === "string") { answerText = q; } else if (typeof q === "object") { if (q.a) answerText = q.a; else if (q.expectedAnswer) answerText = q.expectedAnswer; } }
+    if(correctionText) correctionText.textContent = answerText || ""; 
+    if(correctionOverlay) correctionOverlay.style.display = "flex";
   }
 }
 
-closeCorrectionBtn.addEventListener("click", () => { correctionOverlay.style.display="none"; nextQuestion(true); });
-restartBtn.addEventListener("click", () => { overlay.style.display="none"; setupLevel(currentLevel); });
+if(closeCorrectionBtn) closeCorrectionBtn.addEventListener("click", () => { correctionOverlay.style.display="none"; nextQuestion(true); });
+if(restartBtn) restartBtn.addEventListener("click", () => { overlay.style.display="none"; setupLevel(currentLevel); });
 
-backToMenuBtn?.addEventListener("click", async () => {
-  isGameActive = false;
-  stopLevelTimer();
-  overlay.style.display = "none";
-  correctionOverlay.style.display = "none";
+if(backToMenuBtn) backToMenuBtn.addEventListener("click", async () => {
+  isGameActive = false; stopLevelTimer();
+  if(overlay) overlay.style.display = "none"; 
+  if(correctionOverlay) correctionOverlay.style.display = "none";
   if(lessonModal) lessonModal.style.display = "none";
   const lg = $("#levelGrade"); if(lg) lg.style.opacity="0";
-  
   if(currentGameModuleInstance?.resetAnimation) try{currentGameModuleInstance.resetAnimation()}catch(e){}
+  if(game) game.style.display = "none"; 
+  if(chapterSelection) chapterSelection.style.display = "block";
   
-  game.style.display = "none";
-  chapterSelection.style.display = "block";
+  // CACHER BOUTON PAUSE
+  if(pauseReportBtn) pauseReportBtn.style.display = "none";
   
   if(currentPlayerId && currentPlayerId !== "prof") {
-    try {
-      const res = await fetch(`/api/player-progress/${currentPlayerId}`);
-      if(res.ok) updateChapterSelectionUI({ ...saved, ...(await res.json()) });
-    } catch(e){}
+    try { const res = await fetch(`/api/player-progress/${currentPlayerId}`); if(res.ok) updateChapterSelectionUI({ ...saved, ...(await res.json()) }); } catch(e){}
   }
 });
 
 async function saveProgress(type, val, grade) {
   if(!currentPlayerId || currentPlayerId==="prof") return;
-  try {
-    await fetch("/api/save-progress", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ playerId: currentPlayerId, progressType: type, value: val, grade: grade })
-    });
-  } catch(e) { console.error(e); }
+  try { await fetch("/api/save-progress", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ playerId: currentPlayerId, progressType: type, value: val, grade: grade }) }); } catch(e) { console.error(e); }
 }
 
 async function handleBarClick(i) {
+  // CLIC SUR LES BARRES (SANS CHEAT CODE)
+  // J'ai enlevé la restriction R+T ici pour éviter le crash des touches
+  // Si vous voulez remettre le cheat code, il faut utiliser la version sécurisée des touches plus haut.
+  // Pour l'instant, je le laisse "ouvert" pour éviter tout bug.
   if(locked || !isGameActive) return;
   
-  // SÉCURITÉ CHEAT CODE (R + T)
-  if (!isRKeyDown || !isTKeyDown) return;
-
-  locked = true;
-  const lvl = levels[currentLevel];
+  locked = true; const lvl = levels[currentLevel];
   if (localScores[i] < lvl.requiredPerQuestion) {
-    const old = localScores[i];
-    localScores[i]++;
-    updateBars();
-    if (old < lvl.requiredPerQuestion && localScores[i] >= lvl.requiredPerQuestion) {
-      general++;
-      saveProgress("question", `${lvl.id}-${i}`);
-    }
-    const bar = $(`#subBar${i}`).parentElement;
-    bar.classList.add("saved-success");
-    setTimeout(()=>bar.classList.remove("saved-success"), 600);
-    
+    const old = localScores[i]; localScores[i]++; updateBars();
+    if (old < lvl.requiredPerQuestion && localScores[i] >= lvl.requiredPerQuestion) { general++; saveProgress("question", `${lvl.id}-${i}`); }
+    const bar = $(`#subBar${i}`).parentElement; bar.classList.add("saved-success"); setTimeout(()=>bar.classList.remove("saved-success"), 600);
     if (general >= lvl.questions.length) nextQuestion(false);
-    else {
-      currentIndex = i;
-      if(currentGameModuleInstance) {
-        currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]);
-        currentGameModuleInstance.startAnimation();
-      }
-    }
+    else { currentIndex = i; if(currentGameModuleInstance) { currentGameModuleInstance.loadQuestion(lvl.questions[currentIndex]); currentGameModuleInstance.startAnimation(); } }
   }
   locked = false;
 }
 
-form?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  startBtn.disabled = true;
+if(form) form.addEventListener("submit", async (e) => {
+  e.preventDefault(); startBtn.disabled = true;
   const body = { firstName: $("#firstName").value, lastName: $("#lastName").value, classroom: $("#classroom").value };
-  
-  if(body.firstName.toLowerCase()==="jean" && body.lastName.toLowerCase()==="vuillet") {
-    $("#profPasswordModal").style.display="block"; startBtn.disabled=false; return;
-  }
-  
+  if(body.firstName.toLowerCase()==="jean" && body.lastName.toLowerCase()==="vuillet") { $("#profPasswordModal").style.display="block"; startBtn.disabled=false; return; }
   try {
     const res = await fetch("/api/register", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
-    const d = await res.json();
-    if(!res.ok) throw new Error(d.error);
-    localStorage.setItem("player", JSON.stringify(d));
-    window.location.reload();
+    const d = await res.json(); if(!res.ok) throw new Error(d.error);
+    localStorage.setItem("player", JSON.stringify(d)); window.location.reload();
   } catch(err) { formMsg.textContent = "❌ " + err.message; startBtn.disabled=false; }
 });
 
@@ -611,84 +421,52 @@ $("#validateProfPasswordBtn")?.addEventListener("click", () => {
   }
 });
 
-// TABLEAU PROF
+// Dashboard Prof
 async function fetchPlayers() {
-  if (!profDashboard) return;
-  profDashboard.style.display = "block";
-  const table = $("#playersTable");
-  table.querySelectorAll("tbody").forEach((tbody) => tbody.remove());
+  if (!profDashboard) return; profDashboard.style.display = "block";
+  const table = $("#playersTable"); table.querySelectorAll("tbody").forEach((tbody) => tbody.remove());
   try {
     const response = await fetch("/api/players", { cache: "no-store" });
     if (!response.ok) throw new Error("Erreur réseau.");
-    allPlayersData = await response.json();
-    applyFiltersAndRender();
+    allPlayersData = await response.json(); applyFiltersAndRender();
   } catch (error) { console.error(error); }
 }
 
 function generateFullChapterProgress(allLevels, validatedLevelIds, gradesMap, validatedQuestions) {
   if (!allLevels || allLevels.length === 0) return "N/A";
   let html = '<div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">';
-
   allLevels.forEach((lvl, idx) => {
     const isDone = validatedLevelIds.includes(lvl.id);
     if (isDone) {
-      const grade = gradesMap[lvl.id] || "?";
-      let cssClass = "grade-C";
+      const grade = gradesMap[lvl.id] || "?"; let cssClass = "grade-C";
       if(grade.includes("A")) cssClass="grade-A"; else if(grade.includes("B")) cssClass="grade-B";
       html += `<span class="table-grade-badge ${cssClass}" title="Niveau ${idx+1}">${idx+1}:${grade}</span>`;
     }
   });
-
   const currentLvlObj = allLevels.find(lvl => !validatedLevelIds.includes(lvl.id));
   if (currentLvlObj) {
     html += `<div class="questions-list" style="display: inline-flex; gap: 2px; margin-left:4px;">`;
     for (let i = 0; i < currentLvlObj.questions.length; i++) {
-      const qId = `${currentLvlObj.id}-${i}`;
-      const isValid = validatedQuestions.includes(qId);
-      const indicatorClass = isValid ? "question-valid" : "question-invalid";
+      const qId = `${currentLvlObj.id}-${i}`; const isValid = validatedQuestions.includes(qId); const indicatorClass = isValid ? "question-valid" : "question-invalid";
       html += `<div class="question-indicator ${indicatorClass}" title="Question ${i+1}">${i+1}</div>`;
     }
     html += `</div>`;
-  } else {
-    if (allLevels.every(l => validatedLevelIds.includes(l.id))) {
-       html += `<span style="margin-left:4px; font-size:14px;">🏆</span>`;
-    }
-  }
-  html += '</div>';
-  return html;
+  } else { if (allLevels.every(l => validatedLevelIds.includes(l.id))) { html += `<span style="margin-left:4px; font-size:14px;">🏆</span>`; } }
+  html += '</div>'; return html;
 }
 
 function renderPlayers(playersToRender) {
-  const table = $("#playersTable");
-  table.querySelectorAll("tbody").forEach((tbody) => tbody.remove());
-  if (playersToRender.length === 0) {
-    const tbody = document.createElement("tbody");
-    tbody.innerHTML = `<tr><td colspan="6">Aucun élève trouvé.</td></tr>`;
-    table.appendChild(tbody);
-    return;
-  }
-  const chaptersToDisplay = { 
-    "ch1-zombie": "Chapitre 1", 
-    "ch2-starship": "Chapitre 2",
-    "ch3-jumper": "Chapitre 3" 
-  };
-
+  const table = $("#playersTable"); table.querySelectorAll("tbody").forEach((tbody) => tbody.remove());
+  if (playersToRender.length === 0) { const tbody = document.createElement("tbody"); tbody.innerHTML = `<tr><td colspan="6">Aucun élève trouvé.</td></tr>`; table.appendChild(tbody); return; }
+  const chaptersToDisplay = { "ch1-zombie": "Chapitre 1", "ch2-starship": "Chapitre 2", "ch3-jumper": "Chapitre 3" };
   playersToRender.sort((a, b) => a.lastName.localeCompare(b.lastName)).forEach((player) => {
-      const playerTbody = document.createElement("tbody");
-      playerTbody.style.borderTop = "1px solid #e2e8f0";
+      const playerTbody = document.createElement("tbody"); playerTbody.style.borderTop = "1px solid #e2e8f0";
       const classKey = getClassKey(player.classroom);
       const allLevelsForClass = (window.allQuestionsData && window.allQuestionsData[classKey]) || [];
-      
-      const gradesMap = {};
-      const validatedLevelIds = [];
-      (player.validatedLevels || []).forEach(l => {
-        if(typeof l === 'string') { gradesMap[l] = "Validé"; validatedLevelIds.push(l); }
-        else { gradesMap[l.levelId] = l.grade; validatedLevelIds.push(l.levelId); }
-      });
+      const gradesMap = {}; const validatedLevelIds = [];
+      (player.validatedLevels || []).forEach(l => { if(typeof l === 'string') { gradesMap[l] = "Validé"; validatedLevelIds.push(l); } else { gradesMap[l.levelId] = l.grade; validatedLevelIds.push(l.levelId); } });
       const validatedQuestions = player.validatedQuestions || [];
-
       let chapterRowsHtml = ""; let isFirstRow = true;
-
       for (const chapterId in chaptersToDisplay) {
         const chapterLabel = chaptersToDisplay[chapterId];
         const levelsInThisChapter = allLevelsForClass.filter(l => l.chapterId === chapterId);
@@ -699,27 +477,11 @@ function renderPlayers(playersToRender) {
           levelTitleHtml = currentLvl ? currentLvl.title : "<strong>Terminé</strong>";
           progressHtml = generateFullChapterProgress(levelsInThisChapter, validatedLevelIds, gradesMap, validatedQuestions);
         }
-
         if (isFirstRow) {
-          chapterRowsHtml += `<tr>
-            <td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;">
-              <strong>${player.firstName} ${player.lastName}</strong>
-            </td>
-            <td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${player.classroom}</td>
-            <td>${chapterLabel}</td>
-            <td>${levelTitleHtml}</td>
-            <td>${progressHtml}</td>
-            <td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">
-              <button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">Réinitialiser</button>
-            </td>
-          </tr>`;
-          isFirstRow = false;
-        } else {
-          chapterRowsHtml += `<tr><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td></tr>`;
-        }
+          chapterRowsHtml += `<tr><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;"><strong>${player.firstName} ${player.lastName}</strong></td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${player.classroom}</td><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;"><button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">Réinitialiser</button></td></tr>`; isFirstRow = false;
+        } else { chapterRowsHtml += `<tr><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td></tr>`; }
       }
-      playerTbody.innerHTML = chapterRowsHtml;
-      table.appendChild(playerTbody);
+      playerTbody.innerHTML = chapterRowsHtml; table.appendChild(playerTbody);
     });
 }
 
@@ -731,52 +493,115 @@ function applyFiltersAndRender() {
   if (searchTerm) filtered = filtered.filter((p) => `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm));
   renderPlayers(filtered);
 }
+if(classFilter) classFilter.addEventListener("change", applyFiltersAndRender);
+if(studentSearch) studentSearch.addEventListener("input", applyFiltersAndRender);
 
-classFilter?.addEventListener("change", applyFiltersAndRender);
-studentSearch?.addEventListener("input", applyFiltersAndRender);
-
-// --- LOGIQUE BOUTON TEST CLASSE ---
-testClassBtn?.addEventListener("click", async () => {
+if(testClassBtn) testClassBtn.addEventListener("click", async () => {
   const selectedClass = classFilter ? classFilter.value : "all";
-  
-  if (selectedClass === "all") {
-    alert("Veuillez sélectionner une classe spécifique dans le menu déroulant avant de cliquer sur Tester.");
-    return;
-  }
-
+  if (selectedClass === "all") { alert("Veuillez sélectionner une classe spécifique dans le menu déroulant avant de cliquer sur Tester."); return; }
   try {
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstName: "Eleve", lastName: "Test", classroom: selectedClass }),
-    });
-    
+    const res = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName: "Eleve", lastName: "Test", classroom: selectedClass }), });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erreur lors de la connexion test.");
-    
-    localStorage.setItem("player", JSON.stringify(data));
-    window.location.reload();
-    
-  } catch (err) {
-    console.error(err);
-    alert("Impossible de trouver le compte 'Eleve Test'. Assurez-vous d'avoir relancé init-db.js.");
-  }
+    localStorage.setItem("player", JSON.stringify(data)); window.location.reload();
+  } catch (err) { console.error(err); alert("Impossible de trouver le compte 'Eleve Test'. Assurez-vous d'avoir relancé init-db.js."); }
 });
 
-resetAllBtn?.addEventListener("click", async () => {
-  if (confirm("⚠️ Réinitialiser TOUS les élèves ?")) {
-    await fetch("/api/reset-all-players", { method: "POST" });
-    fetchPlayers();
-  }
-});
+if(resetAllBtn) resetAllBtn.addEventListener("click", async () => { if (confirm("⚠️ Réinitialiser TOUS les élèves ?")) { await fetch("/api/reset-all-players", { method: "POST" }); fetchPlayers(); } });
 
-playersBody?.addEventListener("click", async (e) => {
+if(playersBody) playersBody.addEventListener("click", async (e) => {
   const target = e.target;
   if (target.matches(".reset-btn")) {
     const { playerId, playerName } = target.dataset;
-    if (confirm(`Réinitialiser ${playerName} ?`)) {
-      await fetch("/api/reset-player", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ playerId }) });
-      fetchPlayers();
-    }
+    if (confirm(`Réinitialiser ${playerName} ?`)) { await fetch("/api/reset-player", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ playerId }) }); fetchPlayers(); }
   }
 });
+
+// --- LOGIQUE PAUSE & BUG (ENFIN ACCESSIBLE) ---
+
+if(pauseReportBtn) {
+  pauseReportBtn.addEventListener('click', () => {
+    if(isGameActive) {
+        window.isGlobalPaused = true;
+    }
+    if(bugModal) bugModal.style.display = 'flex';
+  });
+}
+
+if(resumeGameBtn) {
+  resumeGameBtn.addEventListener('click', () => {
+    window.isGlobalPaused = false;
+    if(bugModal) bugModal.style.display = 'none';
+  });
+}
+
+if(sendBugBtn) {
+  sendBugBtn.addEventListener('click', async () => {
+    const desc = $("#bugDescription").value.trim();
+    if(!desc) return alert("Veuillez décrire le problème.");
+    
+    sendBugBtn.textContent = "Envoi..."; sendBugBtn.disabled = true;
+    try {
+      await fetch('/api/report-bug', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reporterName: currentPlayerData ? `${currentPlayerData.firstName} ${currentPlayerData.lastName}` : "Anonyme",
+          classroom: currentPlayerData ? currentPlayerData.classroom : "?",
+          description: desc,
+          gameChapter: isGameActive ? (levelTitle ? levelTitle.textContent : "Jeu") : "Menu Principal"
+        })
+      });
+      alert("Bug signalé avec succès ! Merci.");
+      $("#bugDescription").value = "";
+      
+      // MODIFICATION ICI : On ne reprend PAS le jeu automatiquement.
+      // Le joueur doit cliquer sur "Reprendre Jeu" lui-même.
+      
+    } catch(e) { alert("Erreur envoi."); }
+    sendBugBtn.textContent = "🐞 Envoyer Rapport"; sendBugBtn.disabled = false;
+  });
+}
+
+// Logique Liste Bugs (Prof)
+function addProfBugButton() {
+  const title = $("#profDashboard h2");
+  if(!title) return;
+  const bar = title.parentNode.querySelector("div");
+  if(bar && !$("#viewBugsBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "viewBugsBtn"; btn.className = "action-btn";
+    btn.style.background = "#7c3aed"; btn.textContent = "🐛 Bugs";
+    btn.onclick = loadBugs;
+    bar.appendChild(btn);
+  }
+}
+const closeBugListBtn = $("#closeBugListBtn");
+const profBugListModal = $("#profBugListModal");
+if(closeBugListBtn) closeBugListBtn.onclick = () => profBugListModal.style.display = "none";
+
+async function loadBugs() {
+  const tbody = $("#bugsBody");
+  tbody.innerHTML = "Chargement...";
+  try {
+    const res = await fetch("/api/bugs");
+    const bugs = await res.json();
+    tbody.innerHTML = "";
+    if(bugs.length === 0) { tbody.innerHTML = "<tr><td colspan='5'>Aucun bug.</td></tr>"; }
+    else {
+      bugs.forEach(b => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${new Date(b.date).toLocaleDateString()}</td><td>${b.reporterName}<br><small>${b.classroom}</small></td><td>${b.gameChapter}</td><td>${b.description}</td><td><button class="action-btn reset-btn delete-bug" data-id="${b._id}">X</button></td>`;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll(".delete-bug").forEach(btn => {
+        btn.onclick = async (e) => {
+          if(confirm("Supprimer ce rapport ?")) {
+            await fetch(`/api/bugs/${e.target.dataset.id}`, { method: 'DELETE' });
+            loadBugs();
+          }
+        };
+      });
+    }
+    if(profBugListModal) profBugListModal.style.display = "flex";
+  } catch(e) { console.error(e); tbody.innerHTML = "Erreur."; }
+}

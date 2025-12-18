@@ -29,102 +29,45 @@
       bottom: calc(clamp(90px, 26vh, 200px) * 0.55); 
       z-index: 10; 
     }
-    
     .question-zone { 
-      margin-bottom: 10px; 
-      font-size: 1.3em; 
-      text-align: center; 
-      min-height: 2em; 
-      color: #334155; 
-      font-weight: 600; 
-      margin-top: 15px; 
+      margin-bottom: 10px; font-size: 1.3em; text-align: center; 
+      min-height: 2em; color: #334155; font-weight: 600; margin-top: 15px; 
     }
-
-    /* Zone Saisie */
     #ai-input-zone { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      gap: 10px; 
-      width: 100%; 
-      max-width: 600px; 
-      margin: 0 auto; 
-      position: relative; 
+      display: flex; flex-direction: column; align-items: center; 
+      gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; position: relative; 
     }
-    
     textarea#answer {
-      width: 100%; 
-      padding: 12px; 
-      font-size: 16px; 
-      border-radius: 10px;
-      border: 2px solid #cbd5e1; 
-      resize: none; 
-      height: 80px; 
-      font-family: inherit;
+      width: 100%; padding: 12px; font-size: 16px; border-radius: 10px;
+      border: 2px solid #cbd5e1; resize: none; height: 80px; font-family: inherit;
     }
     textarea#answer:focus { border-color: #3b82f6; outline: none; }
-    
     .buttons-row { display: flex; gap: 10px; width: 100%; justify-content: center; }
-    button { 
-      padding: 10px 20px; 
-      border: 0; 
-      border-radius: 8px; 
-      font-size: 15px; 
-      cursor: pointer; 
-      font-weight: 600; 
-      transition: 0.2s; 
-    }
+    button { padding: 10px 20px; border: 0; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: 0.2s; }
     #submit { background: #2563eb; color: #fff; flex: 1; }
     #submit:disabled { background: #94a3b8; cursor: not-allowed; }
-
-    /* --- FEEDBACK NON INTRUSIF --- */
     #feedback-bubble {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 400px;
-      padding: 10px 15px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      font-size: 14px;
-      text-align: center;
-      display: none;
-      z-index: 20;
-      border: 2px solid transparent;
-      animation: slideDown 0.3s ease-out;
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      width: 80%; max-width: 400px; padding: 10px 15px; border-radius: 10px;
+      background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 14px; text-align: center; display: none; z-index: 20;
+      border: 2px solid transparent; animation: slideDown 0.3s ease-out;
     }
-    
     @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 10px; opacity: 1; } }
-
     .fb-success { border-color: #22c55e; color: #166534; }
     .fb-error { border-color: #ef4444; color: #991b1b; }
     .fb-hint { border-color: #f59e0b; color: #92400e; }
     .fb-loading { border-color: #3b82f6; color: #1e40af; }
-
-    .spelling-list {
-      margin-top: 8px;
-      padding: 5px;
-      background: #f0fdf4;
-      border-radius: 6px;
-      list-style: none;
-      font-size: 0.9em;
-      text-align: left;
-    }
+    .spelling-list { margin-top: 8px; padding: 5px; background: #f0fdf4; border-radius: 6px; list-style: none; font-size: 0.9em; text-align: left; }
     .spelling-item { margin-bottom: 2px; }
     .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; }
     .right-word { font-weight: bold; color: #15803d; }
-
   </style>
   
   <div id="arena"> 
     <img id="hero" src="images/hero.png" alt="Héros" /> 
     <img id="zombie" src="images/zombi.png" alt="Zombie" /> 
     <div id="projectile"></div> 
-    
-    <!-- La bulle de feedback est DANS l'arène, en haut -->
     <div id="feedback-bubble"></div>
   </div>
 
@@ -147,7 +90,6 @@ class ZombieGame {
     this.projectile = c.querySelector("#projectile"); 
     this.arena = c.querySelector("#arena");
     this.qEl = c.querySelector("#question");
-    
     this.input = c.querySelector("#answer");
     this.subBtn = c.querySelector("#submit");
     this.fbBubble = c.querySelector("#feedback-bubble");
@@ -181,17 +123,20 @@ class ZombieGame {
     this.zombie.style.opacity = "1";
     this.zPaused = false; 
     
-    setTimeout(() => this.input.focus(), 100);
+    // Attendre que la pause globale soit levée pour focus
+    setTimeout(() => { 
+        if(!window.isGlobalPaused) this.input.focus(); 
+    }, 100);
   }
 
   async askAI() {
-    if(this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
+    // PAUSE CHECK
+    if(window.isGlobalPaused || this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
     
     this.zPaused = true; 
     this.input.disabled = true; 
     this.subBtn.disabled = true;
     
-    // Feedback "Chargement"
     this.showFeedback("🧠 Analyse...", "loading");
 
     const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
@@ -219,73 +164,46 @@ class ZombieGame {
   handleResponse(data) {
     const status = data.status || (data.correct ? "correct" : "incorrect");
 
-    // 1. SUCCÈS
     if (status === "correct") {
       let html = `<strong>🎉 ${data.feedback || "Bravo !"}</strong>`;
-      
       if (data.corrections && data.corrections.length > 0) {
         html += `<ul class="spelling-list">`;
         data.corrections.forEach(c => {
-            html += `<li class="spelling-item">
-                        <span class="wrong-word">${c.wrong}</span> 
-                        <span class="right-word">${c.correct}</span>
-                     </li>`;
+            html += `<li class="spelling-item"><span class="wrong-word">${c.wrong}</span> <span class="right-word">${c.correct}</span></li>`;
         });
         html += `</ul>`;
       }
-      
-      this.showFeedback(html, "success", true); // True = contient du HTML
-      
-      // On tire TOUT DE SUITE pour ne pas bloquer le visuel
+      this.showFeedback(html, "success", true);
       this.win(); 
-
-      // On laisse le message affiché 4s puis on passe à la suite
-      setTimeout(() => { 
-          this.ctrl.notifyCorrectAnswer(); 
-      }, 4000);
-    } 
-    
-    // 2. INDICE (Proche)
-    else if (status === "close") {
+      setTimeout(() => { this.ctrl.notifyCorrectAnswer(); }, 4000);
+    } else if (status === "close") {
       this.showFeedback(`💡 <strong>Indice :</strong> ${data.feedback}`, "hint", true);
-      
       setTimeout(() => {
-          this.input.disabled = false;
-          this.subBtn.disabled = false;
-          this.subBtn.textContent = "Réessayer";
-          this.input.focus();
-          // On laisse le zombie en pause pour qu'il lise
+          if(!window.isGlobalPaused) {
+             this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus();
+          }
       }, 2000);
-    } 
-    
-    // 3. ERREUR
-    else {
+    } else {
       this.showFeedback(`❌ ${data.feedback || "Incorrect."}`, "error");
-      
       if(typeof localScores !== 'undefined') {
           localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1);
           if(typeof updateBars === 'function') updateBars();
       }
-
       setTimeout(() => {
-          this.zPaused = false; // Le zombie repart !
-          this.input.disabled = false;
-          this.subBtn.disabled = false;
-          this.subBtn.textContent = "Réessayer";
-          this.input.focus();
-          // On cache le message d'erreur pour libérer la vue
+          this.zPaused = false; 
+          if(!window.isGlobalPaused) {
+             this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus();
+          }
           this.fbBubble.style.display = "none";
       }, 3000);
     }
   }
 
   showFeedback(msg, type, isHtml = false) {
-    this.fbBubble.className = ""; // Reset classes
+    if(!this.fbBubble) return;
+    this.fbBubble.className = ""; 
     this.fbBubble.classList.add(`fb-${type}`);
-    
-    if(isHtml) this.fbBubble.innerHTML = msg;
-    else this.fbBubble.textContent = msg;
-    
+    if(isHtml) this.fbBubble.innerHTML = msg; else this.fbBubble.textContent = msg;
     this.fbBubble.style.display = "block";
   }
 
@@ -301,7 +219,8 @@ class ZombieGame {
     const step = max / 50000; 
     
     this.zInt = setInterval(() => {
-      if(this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
+      // ⚠️ C'EST CETTE LIGNE QUI FAIT LA PAUSE ⚠️
+      if(window.isGlobalPaused || this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
       
       this.zPos += step * 20; 
       this.zombie.style.right = this.zPos + "px";
@@ -319,15 +238,8 @@ class ZombieGame {
     this.zPos = 20; 
     this.zPaused = false;
     
-    if(this.zombie) { 
-        this.zombie.style.right = "20px"; 
-        this.zombie.style.display = "block"; 
-        this.zombie.style.opacity = "1"; 
-    }
-    if(this.projectile) { 
-        this.projectile.style.display = "none"; 
-        this.projectile.style.left = "0px"; 
-    }
+    if(this.zombie) { this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; }
+    if(this.projectile) { this.projectile.style.display = "none"; this.projectile.style.left = "0px"; }
     
     if(this.input) { this.input.disabled = false; this.input.value = ""; }
     if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }

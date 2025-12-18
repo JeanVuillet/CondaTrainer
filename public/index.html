@@ -10,11 +10,13 @@
   <header>
     <h1>5e Entraîneur</h1>
     <div style="display: flex; align-items: center; gap: 12px;"> 
-      <!-- NOUVEAU BOUTON SPECIAL -->
-      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none;">🎓 Retour Prof</button>
       
+      <!-- [NOUVEAU] BOUTON PAUSE / BUG -->
+      <button id="pauseReportBtn" class="pause-btn" style="display:flex;">⏸️ Pause / Bug</button>
+
+      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none;">🎓 Retour Prof</button>
       <div id="studentBadge">Non connecté</div>
-      <button id="logoutBtn" style="display: none;">Se déconnecter</button>
+      <button id="logoutBtn">Se déconnecter</button>
     </div>
   </header>
 
@@ -68,8 +70,6 @@
           <h3>Chapitre 2 — Starship</h3>
           <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Bouger ⬅️➡️ • [ESPACE] Tirer</p>
           <div class="chapter-levels"></div>
-          <div class="chapter-progress" style="display:none"></div>
-          <p class="chapter-status-text" style="display:none"></p>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
 
@@ -77,8 +77,6 @@
           <h3>Chapitre 3 — Le Jumper</h3>
           <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Sauter sur la bonne couleur</p>
           <div class="chapter-levels"></div>
-          <div class="chapter-progress" style="display:none"></div>
-          <p class="chapter-status-text" style="display:none"></p>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
       </div>
@@ -154,6 +152,213 @@
     <div class="correction-box"><h2>❌ Erreur ! La bonne réponse était :</h2><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div>
   </div>
 
-  <script src="main.js"></script>
+  <!-- [AJOUT] MODAL SIGNALEMENT BUG (ELEVE) -->
+  <div id="bugModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>⏸️ Jeu en Pause</h3>
+      <p>Décris le problème rencontré :</p>
+      <textarea id="bugDescription" rows="4" style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="Ex: Le zombie est bloqué..."></textarea>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button id="sendBugBtn" style="background:#ef4444;">🐞 Envoyer Rapport</button>
+        <button id="resumeGameBtn" style="background:#2563eb;">▶️ Reprendre Jeu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- [AJOUT] MODAL LISTE BUGS (PROF) -->
+  <div id="profBugListModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 800px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3>🐛 Rapports de Bugs</h3>
+        <button id="closeBugListBtn" style="background:transparent; color:#333; width:auto; font-size:20px;">✖</button>
+      </div>
+      <div style="max-height:60vh; overflow-y:auto;">
+        <table id="bugsTable" style="width:100%; font-size:14px; text-align:left;">
+          <thead style="background:#f1f5f9;">
+            <tr><th>Date</th><th>Élève</th><th>Jeu</th><th>Description</th><th>Action</th></tr>
+          </thead>
+          <tbody id="bugsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE ZOMBIE (MIS A JOUR POUR LA PAUSE) -->
+  <template id="template-zombie-game">
+    <style>
+      #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
+      #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; user-select: none; pointer-events: none; }
+      #hero { left: min(3vw, 24px); }
+      #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
+      #projectile { width: clamp(18px, 3vh, 28px); height: clamp(18px, 3vh, 28px); background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: calc(clamp(90px, 26vh, 200px) * 0.55); z-index: 10; }
+      .question-zone { margin-bottom: 10px; font-size: 1.3em; text-align: center; min-height: 2em; color: #334155; font-weight: 600; margin-top: 15px; }
+      #ai-input-zone { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
+      textarea#answer { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: 2px solid #cbd5e1; resize: none; height: 80px; font-family: inherit; }
+      textarea#answer:focus { border-color: #3b82f6; outline: none; }
+      .buttons-row { display: flex; gap: 10px; width: 100%; justify-content: center; }
+      button { padding: 10px 20px; border: 0; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+      #submit { background: #2563eb; color: #fff; flex: 1; }
+      #submit:disabled { background: #94a3b8; cursor: not-allowed; }
+      #feedback-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 400px; padding: 10px 15px; border-radius: 10px; background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 14px; text-align: center; display: none; z-index: 20; border: 2px solid transparent; animation: slideDown 0.3s ease-out; }
+      @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 10px; opacity: 1; } }
+      .fb-success { border-color: #22c55e; color: #166534; }
+      .fb-error { border-color: #ef4444; color: #991b1b; }
+      .fb-hint { border-color: #f59e0b; color: #92400e; }
+      .fb-loading { border-color: #3b82f6; color: #1e40af; }
+    </style>
+    
+    <div id="arena"> 
+      <img id="hero" src="images/hero.png" alt="Héros" /> 
+      <img id="zombie" src="images/zombi.png" alt="Zombie" /> 
+      <div id="projectile"></div> 
+      <div id="feedback-bubble"></div>
+    </div>
+    <div id="question" class="question-zone"></div>
+    <div id="ai-input-zone">
+      <textarea id="answer" placeholder="Écris ta réponse..." autocomplete="off"></textarea>
+      <div class="buttons-row"><button id="submit">Envoyer à l'IA 🤖</button></div>
+    </div>
+  </template>
+
+  <!-- SCRIPT DU JEU (MIS À JOUR) -->
+  <script>
+  class ZombieGame {
+    constructor(c, ctrl) {
+      this.c = c; this.ctrl = ctrl;
+      this.hero = c.querySelector("#hero"); 
+      this.zombie = c.querySelector("#zombie");
+      this.projectile = c.querySelector("#projectile"); 
+      this.arena = c.querySelector("#arena");
+      this.qEl = c.querySelector("#question");
+      this.input = c.querySelector("#answer");
+      this.subBtn = c.querySelector("#submit");
+      this.fbBubble = c.querySelector("#feedback-bubble");
+
+      this.zInt = null; this.pInt = null; 
+      this.zPos = 20; this.zPaused = false; this.resetting = false;
+      
+      this.subBtn.onclick = () => this.askAI();
+      this.input.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.askAI(); } };
+      this.input.addEventListener("input", () => { this.zPaused = (this.input.value.length > 0); });
+    }
+
+    loadQuestion(q) {
+      this.resetting = false; this.qEl.textContent = q.q; 
+      this.input.value = ""; this.input.disabled = false; this.subBtn.disabled = false; 
+      this.subBtn.textContent = "Envoyer à l'IA 🤖"; this.fbBubble.style.display = "none";
+      this.zPos = 20; this.zombie.style.right = "20px"; 
+      this.zombie.style.display = "block"; this.zombie.style.opacity = "1";
+      this.zPaused = false; 
+      setTimeout(() => { if(!window.isGlobalPaused) this.input.focus(); }, 100);
+    }
+
+    async askAI() {
+      // AJOUT : Check Pause Globale
+      if(window.isGlobalPaused || this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
+      
+      this.zPaused = true; this.input.disabled = true; this.subBtn.disabled = true;
+      this.showFeedback("🧠 Analyse...", "loading");
+
+      const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
+      if(!currentQ) return;
+
+      try {
+        const res = await fetch('/api/verify-answer-ai', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: currentQ.q, userAnswer: this.input.value, expectedAnswer: currentQ.a })
+        });
+        const data = await res.json();
+        this.handleResponse(data);
+      } catch (err) { 
+        this.input.disabled = false; this.subBtn.disabled = false; this.showFeedback("Erreur connexion.", "error");
+      }
+    }
+
+    handleResponse(data) {
+      const status = data.status || (data.correct ? "correct" : "incorrect");
+      if (status === "correct") {
+        let html = `<strong>🎉 ${data.feedback || "Bravo !"}</strong>`;
+        if (data.corrections && data.corrections.length > 0) {
+          html += `<ul class="spelling-list">` + data.corrections.map(c => `<li class="spelling-item"><span class="wrong-word">${c.wrong}</span> <span class="right-word">${c.correct}</span></li>`).join('') + `</ul>`;
+        }
+        this.showFeedback(html, "success", true);
+        this.win(); 
+        setTimeout(() => this.ctrl.notifyCorrectAnswer(), 4000);
+      } else if (status === "close") {
+        this.showFeedback(`💡 <strong>Indice :</strong> ${data.feedback}`, "hint", true);
+        setTimeout(() => {
+            if(!window.isGlobalPaused) { this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus(); }
+        }, 2000);
+      } else {
+        this.showFeedback(`❌ ${data.feedback || "Incorrect."}`, "error");
+        if(typeof localScores !== 'undefined') { localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1); if(typeof updateBars === 'function') updateBars(); }
+        setTimeout(() => {
+            this.zPaused = false; 
+            if(!window.isGlobalPaused) { this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus(); }
+            this.fbBubble.style.display = "none";
+        }, 3000);
+      }
+    }
+
+    showFeedback(msg, type, isHtml = false) {
+      this.fbBubble.className = ""; this.fbBubble.classList.add(`fb-${type}`);
+      if(isHtml) this.fbBubble.innerHTML = msg; else this.fbBubble.textContent = msg;
+      this.fbBubble.style.display = "block";
+    }
+
+    startAnimation(){ this.moveZ(); } 
+    resetAnimation(){ this.stop(); }
+    
+    moveZ() {
+      if(this.zInt) return;
+      this.zombie.style.display="block"; this.zombie.style.opacity="1";
+      const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
+      const step = max / 50000; 
+      
+      this.zInt = setInterval(() => {
+        // AJOUT : Check Pause Globale
+        if(window.isGlobalPaused || this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
+        
+        this.zPos += step * 20; 
+        this.zombie.style.right = this.zPos + "px";
+        if(this.zPos >= max) { this.ctrl.notifyWrongAnswer(null); }
+      }, 20);
+    }
+
+    stop() {
+      this.resetting = true;
+      if(this.zInt) { clearInterval(this.zInt); this.zInt = null; }
+      if(this.pInt) { clearInterval(this.pInt); this.pInt = null; }
+      this.zPos = 20; this.zPaused = false;
+      if(this.zombie) { this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; }
+      if(this.projectile) { this.projectile.style.display = "none"; this.projectile.style.left = "0px"; }
+      if(this.input) { this.input.disabled = false; this.input.value = ""; }
+      if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }
+      if(this.fbBubble) this.fbBubble.style.display = "none";
+    }
+
+    win() { this.shoot(); }
+
+    shoot() {
+      if(this.pInt) return;
+      this.projectile.style.display = "block";
+      let p = this.hero.offsetWidth;
+      const zRight = parseFloat(this.zombie.style.right) || 20;
+      const hit = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
+      this.pInt = setInterval(() => {
+        if(this.resetting) { clearInterval(this.pInt); this.pInt = null; return; }
+        p += 25; this.projectile.style.left = p + "px";
+        if(p >= hit) {
+          clearInterval(this.pInt); this.pInt = null;
+          this.projectile.style.display = "none"; this.projectile.style.left = "0px";
+          if(!this.resetting) this.zombie.style.display = "none";
+        }
+      }, 20);
+    }
+  }
+  window.ZombieGame = ZombieGame;
+  </script>
+
+<script src="main.js?force=12345"></script>
 </body>
 </html>

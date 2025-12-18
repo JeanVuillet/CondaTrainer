@@ -1,0 +1,125 @@
+<template id="template-redaction-game">
+  <style>
+    .redac-container {
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+      padding: 20px; text-align: center;
+    }
+    .redac-question {
+      font-size: 1.4em; font-weight: 800; color: #1e293b;
+      background: #e0f2fe; padding: 20px; border-radius: 12px; border: 2px solid #3b82f6;
+      width: 100%;
+    }
+    .redac-input {
+      width: 100%; height: 120px; padding: 15px; font-size: 16px;
+      border: 2px solid #cbd5e1; border-radius: 10px; font-family: inherit; resize: none;
+    }
+    .redac-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+    .redac-btn {
+      background: #2563eb; color: white; border: none; padding: 12px 30px;
+      font-size: 18px; font-weight: 700; border-radius: 10px; cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .redac-btn:active { transform: scale(0.95); }
+    .redac-feedback {
+      display: none; padding: 15px; border-radius: 8px; font-weight: 600; width: 100%;
+      margin-top: 10px; border: 1px solid transparent;
+    }
+    .ai-loading { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+    .ai-good { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .ai-bad { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+  </style>
+  <div class="redac-container">
+    <div id="redac-q" class="redac-question">Question...</div>
+    <textarea id="redac-answer" class="redac-input" placeholder="Écris ta réponse ici..."></textarea>
+    <button id="redac-submit" class="redac-btn">Envoyer à l'IA 🤖</button>
+    <div id="redac-feedback" class="redac-feedback"></div>
+  </div>
+</template>
+
+<script>
+class RedactionGame {
+  constructor(container, controller) {
+    this.container = container;
+    this.controller = controller;
+    
+    this.qEl = container.querySelector("#redac-q");
+    this.input = container.querySelector("#redac-answer");
+    this.submitBtn = container.querySelector("#redac-submit");
+    this.feedbackEl = container.querySelector("#redac-feedback");
+    
+    this.currentQuestion = null;
+    this.isProcessing = false;
+
+    this.submitBtn.addEventListener("click", () => this.submit());
+    this.input.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.submit(); }
+    });
+  }
+
+  loadQuestion(q) {
+    this.currentQuestion = q;
+    this.qEl.textContent = q.q;
+    this.input.value = "";
+    this.input.disabled = false;
+    this.submitBtn.disabled = false;
+    this.submitBtn.textContent = "Envoyer à l'IA 🤖";
+    this.feedbackEl.style.display = "none";
+    this.isProcessing = false;
+    setTimeout(() => this.input.focus(), 100);
+  }
+
+  async submit() {
+    if (this.controller.getState().isLocked || this.isProcessing) return;
+    const text = this.input.value.trim();
+    if (!text) return;
+
+    this.isProcessing = true;
+    this.input.disabled = true;
+    this.submitBtn.disabled = true;
+    this.submitBtn.textContent = "Analyse en cours...";
+    
+    this.feedbackEl.style.display = "block";
+    this.feedbackEl.className = "redac-feedback ai-loading";
+    this.feedbackEl.textContent = "🧠 L'IA réfléchit...";
+
+    try {
+        const res = await fetch('/api/verify-answer-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: this.currentQuestion.q,
+                userAnswer: text,
+                expectedAnswer: this.currentQuestion.a
+            })
+        });
+        const data = await res.json();
+        
+        if (data.correct) {
+            this.feedbackEl.className = "redac-feedback ai-good";
+            this.feedbackEl.textContent = "✅ " + (data.feedback || "Bonne réponse !");
+            setTimeout(() => { this.controller.notifyCorrectAnswer(); }, 2000);
+        } else {
+            this.feedbackEl.className = "redac-feedback ai-bad";
+            this.feedbackEl.textContent = "❌ " + (data.feedback || "Incorrect.");
+            this.controller.notifyWrongAnswer(null); // Juste perte de vie
+
+            setTimeout(() => {
+                this.isProcessing = false;
+                this.input.disabled = false;
+                this.submitBtn.disabled = false;
+                this.submitBtn.textContent = "Réessayer";
+                this.input.focus();
+            }, 2500);
+        }
+    } catch (e) {
+        this.feedbackEl.textContent = "Erreur technique.";
+        this.isProcessing = false;
+        this.input.disabled = false;
+        this.submitBtn.disabled = false;
+    }
+  }
+  startAnimation() {}
+  resetAnimation() {}
+}
+window.RedactionGame = RedactionGame;
+</script>

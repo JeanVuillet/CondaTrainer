@@ -1,8 +1,9 @@
-// ====== CONFIG .env ======
+// src/server.js - VERSION CORRIGÉE ANTI-CRASH
+
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
-// --- POLYFILL FETCH (Pour Node < 18) ---
+// Polyfill pour fetch (Node < 18)
 const fetch = require('node-fetch');
 if (!global.fetch) {
   global.fetch = fetch;
@@ -20,19 +21,12 @@ const port = process.env.PORT || 3000;
 
 const mongoUri = process.env.MONGODB_URI;
 const geminiKey = process.env.GEMINI_API_KEY;
-
-// Modèle IA utilisé
 const MODEL_NAME = "gemini-2.0-flash"; 
 
 if (!mongoUri) { 
-    console.error('❌ ERREUR : MONGODB_URI manquant dans le fichier .env'); 
+    console.error('❌ ERREUR : MONGODB_URI manquant dans .env'); 
     process.exit(1); 
 }
-
-console.log("------------------------------------------------");
-if (geminiKey) console.log(`🔑 Clé API détectée. Modèle ciblé : ${MODEL_NAME}`);
-else console.log("⚠️ Pas de clé API détectée (Mode IA Locale uniquement)");
-console.log("------------------------------------------------");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -41,7 +35,7 @@ mongoose.connect(mongoUri)
   .then(() => console.log('✅ MongoDB Connecté'))
   .catch(err => console.error('❌ Erreur Mongo:', err));
 
-// ====== SCHEMA ======
+// ====== SCHEMA JOUEUR ======
 const PlayerSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
@@ -52,6 +46,16 @@ const PlayerSchema = new mongoose.Schema({
 }, { minimize: false });
 
 const Player = mongoose.model('Player', PlayerSchema, 'players');
+
+// ====== SCHEMA BUG ======
+const BugSchema = new mongoose.Schema({
+  reporterName: String,
+  classroom: String,
+  description: String,
+  gameChapter: String,
+  date: { type: Date, default: Date.now },
+});
+const Bug = mongoose.model('Bug', BugSchema, 'bugs');
 
 // ====== UTILITAIRES ======
 function normalizeBase(str) {
@@ -88,33 +92,45 @@ function editDistance(s1, s2) {
   return costs[s2.length];
 }
 
-// ====== ROUTES ======
+// ====== ROUTES API ======
 
 app.post('/api/register', async (req, res) => {
   try {
     const { firstName, lastName, classroom } = req.body;
     if (!firstName || !lastName || !classroom) return res.status(400).json({ ok: false });
+    
+    // CAS SPECIAL : Mode Test / Prof (Pour éviter de chercher en BDD)
+    if(firstName.toLowerCase() === "eleve" && lastName.toLowerCase() === "test") {
+         return res.json({ ok: true, id: "test", firstName: "Eleve", lastName: "Test", classroom: classroom });
+    }
+
     const inputFirst = nameTokens(firstName); const inputLast = nameTokens(lastName); const normClass = normalizeClassroom(classroom);
     let classes = [normClass];
     if (['2C', '2D'].includes(normClass)) classes = ['2C', '2D', '2CD'];
     if (['6', '6D'].includes(normClass)) classes = ['6', '6D'];
+    
     const all = await Player.find({ classroom: { $in: classes } });
     const found = all.find(p => {
       const dbFirst = nameTokens(p.firstName); const dbLast = nameTokens(p.lastName);
       return inputFirst.some(t => dbFirst.includes(t)) && inputLast.some(t => dbLast.includes(t));
     });
-    if (!found) return res.status(404).json({ ok: false });
+    
+    if (!found) return res.status(404).json({ ok: false, error: "Élève introuvable." });
     return res.json({ ok: true, id: found._id, firstName: found.firstName, lastName: found.lastName, classroom: found.classroom });
   } catch (e) { res.status(500).json({ ok: false }); }
 });
 
 app.post('/api/save-progress', async (req, res) => {
   const { playerId, progressType, value, grade } = req.body;
+  
+  // PROTECTION ANTI-CRASH : On ignore les IDs spéciaux
+  if(playerId === "test" || playerId === "prof") return res.json({ message: 'Mode test, non sauvegardé' });
+  if(!mongoose.Types.ObjectId.isValid(playerId)) return res.status(400).json({ message: 'ID Invalide' });
+
   try {
     const player = await Player.findById(playerId);
     if (!player) return res.status(404).json({ message: 'Introuvable' });
     
-    // Nettoyage automatique
     let cleanLevels = [];
     if (Array.isArray(player.validatedLevels)) {
       for (let item of player.validatedLevels) {
@@ -145,13 +161,29 @@ app.post('/api/save-progress', async (req, res) => {
 });
 
 app.get('/api/players', async (req, res) => { res.json(await Player.find().sort({ lastName: 1 })); });
+
 app.get('/api/player-progress/:playerId', async (req, res) => {
-  const p = await Player.findById(req.params.playerId);
-  if(!p) return res.status(404).json({});
-  res.json({ validatedLevels: p.validatedLevels, validatedQuestions: p.validatedQuestions });
+  const pid = req.params.playerId;
+
+  // PROTECTION ANTI-CRASH : Si c'est "test" ou "prof", on renvoie vide sans planter
+  if(pid === "test" || pid === "prof") {
+      return res.json({ validatedLevels: [], validatedQuestions: [] });
+  }
+  if(!mongoose.Types.ObjectId.isValid(pid)) {
+      return res.status(400).json({});
+  }
+
+  try {
+      const p = await Player.findById(pid);
+      if(!p) return res.status(404).json({});
+      res.json({ validatedLevels: p.validatedLevels, validatedQuestions: p.validatedQuestions });
+  } catch(e) { res.status(500).json({}); }
 });
+
 app.post('/api/reset-player-chapter', async (req, res) => {
   const { playerId, levelIds } = req.body;
+  if(playerId === "test" || playerId === "prof" || !mongoose.Types.ObjectId.isValid(playerId)) return res.json({ message: 'Skip' });
+
   const p = await Player.findById(playerId);
   if(p) {
     p.validatedLevels = p.validatedLevels.filter(l => { const id = (typeof l === 'string') ? l : l.levelId; return !levelIds.includes(id); });
@@ -161,17 +193,39 @@ app.post('/api/reset-player-chapter', async (req, res) => {
   }
   res.json({ message: 'Reset' });
 });
-app.post('/api/reset-player', async (req, res) => { await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
+
+app.post('/api/reset-player', async (req, res) => { 
+    if(!mongoose.Types.ObjectId.isValid(req.body.playerId)) return res.json({msg:'error'});
+    await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [] }); 
+    res.json({msg:'ok'}); 
+});
+
 app.post('/api/reset-all-players', async (req, res) => { await Player.updateMany({}, { validatedQuestions: [], validatedLevels: [] }); res.json({msg:'ok'}); });
 
+// ====== ROUTES BUGS ======
+app.post('/api/report-bug', async (req, res) => {
+  try {
+    const { reporterName, classroom, description, gameChapter } = req.body;
+    const newBug = new Bug({ reporterName, classroom, description, gameChapter });
+    await newBug.save();
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ ok: false }); }
+});
 
-// ============================================================
-// IA HYBRIDE (Avec logique Proche/Indice et Corrections)
-// ============================================================
+app.get('/api/bugs', async (req, res) => {
+  try { res.json(await Bug.find().sort({ date: -1 })); } catch (e) { res.status(500).json([]); }
+});
+
+app.delete('/api/bugs/:id', async (req, res) => {
+  try { await Bug.findByIdAndDelete(req.params.id); res.json({ ok: true }); } catch (e) { res.status(500).json({ ok: false }); }
+});
+
+// ====== IA HYBRIDE ======
 app.post('/api/verify-answer-ai', async (req, res) => {
   const { question, userAnswer, expectedAnswer } = req.body;
-  console.log(`\n[TEXTE] Q: "${question}" | Élève: "${userAnswer}"`);
+  console.log(`\n[IA] Q: "${question}" | Élève: "${userAnswer}"`);
 
+  // 1. GEMINI
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
@@ -179,43 +233,29 @@ app.post('/api/verify-answer-ai', async (req, res) => {
 
       const prompt = `
         Tu es un professeur bienveillant.
+        Q: "${question}"
+        Attendue: "${expectedAnswer}"
+        Élève: "${userAnswer}"
         
-        CONTEXTE :
-        - Question : "${question}"
-        - Réponse attendue : "${expectedAnswer}"
-        - Réponse de l'élève : "${userAnswer}"
-
-        TA MISSION :
-        1. Analyse la réponse.
-        2. Choisis le statut :
-           - "correct" : Si le sens est bon (même avec fautes).
-           - "close" : Si c'est incomplet ou presque ça (donne un indice).
-           - "incorrect" : Si c'est faux.
-        3. Si "correct", liste les fautes d'orthographe dans "corrections".
-
-        FORMAT JSON OBLIGATOIRE :
+        Réponds en JSON uniquement :
         {
           "status": "correct" | "close" | "incorrect",
-          "feedback": "Phrase courte de commentaire ou indice",
-          "corrections": [ { "wrong": "motFaux", "correct": "motJuste" } ]
+          "feedback": "Phrase courte",
+          "corrections": [ { "wrong": "...", "correct": "..." } ]
         }
       `;
 
       const result = await model.generateContent(prompt);
-      let text = result.response.text();
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const jsonResponse = JSON.parse(text);
-      
-      console.log(`[IA-GEMINI] Succès :`, jsonResponse);
-      return res.json(jsonResponse);
+      let text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+      return res.json(JSON.parse(text));
 
     } catch (error) {
-      console.error(`[IA-GEMINI] ❌ Erreur : ${error.message}`);
-      console.log("👉 Bascule sur le mode Local...");
+      console.error(`[IA] Erreur Gemini (Quota ou autre) : ${error.message}`);
+      // Pas de crash, on passe à la suite (Local)
     }
   }
 
-  // MODE LOCAL (Secours)
+  // 2. FALLBACK LOCAL
   const cleanUser = normalizeBase(userAnswer);
   const cleanExpected = normalizeBase(expectedAnswer);
   const sim = calculateSimilarity(cleanUser, cleanExpected);
@@ -223,30 +263,22 @@ app.post('/api/verify-answer-ai', async (req, res) => {
   let response = { status: "incorrect", feedback: `Non, attendu : ${expectedAnswer}`, corrections: [] };
 
   if (cleanUser.includes(cleanExpected) || sim > 0.8) {
-    response.status = "correct";
-    response.feedback = "Bonne réponse !";
-  } else if (sim > 0.4 || (cleanUser.length > 3 && cleanExpected.includes(cleanUser))) {
-    response.status = "close";
-    response.feedback = "C'est presque ça, vérifie l'orthographe.";
+    response.status = "correct"; response.feedback = "Bonne réponse !";
+  } else if (sim > 0.4) {
+    response.status = "close"; response.feedback = "Presque ça.";
   }
 
-  console.log(`[IA-LOCALE] Statut : ${response.status}`);
   res.json(response);
 });
 
-// TEST AU DÉMARRAGE
 async function testGeminiConnection() {
     if (!geminiKey) return;
-    console.log("📡 [TEST STARTUP] Test de connexion Gemini...");
     try {
         const genAI = new GoogleGenerativeAI(geminiKey);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-        const result = await model.generateContent("Dis 'OK'");
-        const text = result.response.text();
-        console.log(`✅ [TEST STARTUP] GEMINI CONNECTÉ ! Réponse : "${text.trim()}"`);
-    } catch (error) {
-        console.error(`❌ [TEST STARTUP] ÉCHEC GEMINI : ${error.message}`);
-    }
+        await model.generateContent("Test");
+        console.log(`✅ [IA] GEMINI CONNECTÉ !`);
+    } catch (error) { console.error(`❌ [IA] ERREUR GEMINI : ${error.message}`); }
 }
 
 app.listen(port, () => {

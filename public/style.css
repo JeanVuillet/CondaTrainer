@@ -1,735 +1,95 @@
-:root {
-  --bg: #f8fafc;
-  --card: #fff;
-  --primary: #2563eb;
-  --ok: #16a34a;
-  --warn: #ef4444;
-  --text: #111827;
-  --muted: #6b7280;
-  --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-/* GLOBAL */
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: var(--text);
-  background: linear-gradient(#e0f2fe, var(--bg));
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* HEADER */
-
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 18px;
-  background: #fff;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-header h1 {
-  font-size: 16px;
-}
-
-#studentBadge {
-  font-size: 12px;
-  text-align: right;
-}
-
-#logoutBtn {
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-}
-
-/* LAYOUT PRINCIPAL */
-
-.wrap {
-  max-width: 960px;
-  width: 100%;
-  margin: 24px auto;
-  padding: 0 16px;
-  flex: 1;
-}
-
-.card {
-  background: var(--card);
-  box-shadow: var(--shadow);
-  border-radius: 14px;
-  padding: 20px;
-}
-
-/* FORMULAIRE INSCRIPTION */
-
-.form {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-label {
-  font-size: 14px;
-  color: var(--muted);
-}
-
-input,
-select,
-button {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  font-size: 16px;
-  outline: none;
-  transition: box-shadow 0.2s;
-  background: #fff;
-}
-
-input:focus,
-select:focus {
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-  border-color: #93c5fd;
-}
-
-button {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 6px;
-}
-
-.error {
-  color: var(--warn);
-  font-weight: 600;
-  margin-top: 8px;
-}
-
-/* --- CARTES CHAPITRES --- */
-
-.chapter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-/* Carte générique */
-
-.chapter-box {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.chapter-box::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), #60a5fa);
-}
-
-.chapter-box:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
-}
-
-.chapter-box h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-/* Texte sous le titre (mini-jeu) */
-
-.chapter-mini {
-  font-size: 14px;
-  color: #475569;
-  margin: 0 0 16px;
-}
-
-/* Progression compacte */
-
-.chapter-progress {
-  margin: 6px 0 4px;
-}
-
-.chapter-progress-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  margin: 0 0 2px;
-}
-
-.chapter-progress-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 8px;
-}
-
-.chapter-progress-list li {
-  font-size: 13px;
-  line-height: 1.2;
-  margin: 0;
-  color: #0f172a;
-}
-
-.chapter-progress-list li + li {
-  margin-top: 2px;
-}
-
-/* Texte "Terminé" / "Commencer" */
-
-.chapter-status-text {
-  font-size: 14px;
-  margin: 8px 0;
-  color: #0f172a;
-}
-
-/* Boutons "Jouer / Recommencer" – mêmes styles pour tous les chapitres */
-
-.replay-btn,
-.replay-btn-improved {
-  width: 100%;
-  padding: 10px 14px !important;
-  font-size: 14px !important;
-  background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%) !important;
-  color: #fff !important;
-  border: none !important;
-  font-weight: 600;
-  margin-top: 10px;
-  margin-bottom: 6px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.replay-btn:hover,
-.replay-btn-improved:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
-}
-
-/* Ancienne barre de résumé sous la carte (si encore utilisée) */
-
-.chapter-summary {
-  border-top: 1px solid #e5e7eb;
-  margin-top: 10px;
-  padding-top: 10px;
-  font-size: 12px;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-}
-
-/* --- JEU : BARRES DE PROGRESSION, VIES, ETC. --- */
-
-.quiz-container h2 {
-  text-align: center;
-  margin: 4px 0 10px;
-}
-
-/* Ligne du haut : retour + titre */
-
-.game-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.back-menu-btn {
-  width: auto;
-  padding: 6px 10px;
-  font-size: 12px;
-  background: #e5e7eb;
-  color: #374151;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-}
-
-.back-menu-btn:hover {
-  background: #d1d5db;
-}
-
-/* Résumé des lettres par niveau */
-
-.level-grades-summary {
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-
-.level-grade-item + .level-grade-item {
-  margin-left: 8px;
-}
-
-#lives {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.heart {
-  width: 28px;
-  height: 28px;
-  background: radial-gradient(circle at 30% 30%, #ef4444, #b91c1c);
-  clip-path: path("M16 28C8 22 2 18 2 11C2 7 5 4 9 4C12 4 14 6 16 8C18 6 20 4 23 4C27 4 30 7 30 11C30 18 24 22 16 28Z");
-}
-
-.heart.off {
-  opacity: 0.25;
-}
-
-#mainProgress {
-  background: #e5e7eb;
-  border-radius: 14px;
-  overflow: hidden;
-  height: 20px;
-  margin-bottom: 8px;
-}
-
-#mainBar {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, #22c55e, #16a34a);
-  transition: width 0.4s ease;
-}
-
-#subBars {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 16px;
-  margin-bottom: 8px;
-}
-
-.subProgress {
-  background: #e5e7eb;
-  border-radius: 10px;
-  height: 14px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-}
-
-.subBar {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, #60a5fa, #2563eb);
-  transition: width 0.4s ease;
-}
-
-.subLabel {
-  position: absolute;
-  top: 0;
-  left: 6px;
-  font-size: 12px;
-  color: #fff;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-  line-height: 14px;
-  font-weight: 600;
-}
-
-/* TABLEAU PROF */
-
-#playersTable th {
-  font-weight: 600;
-  padding: 10px;
-  border-bottom: 1px solid #e2e8f0;
-  text-align: left;
-}
-
-#playersTable td {
-  padding: 10px;
-  vertical-align: middle;
-}
-
-.action-btn {
-  padding: 5px 9px !important;
-  font-size: 12px !important;
-  width: auto !important;
-  margin: 2px;
-  border-radius: 6px;
-}
-
-.reset-btn {
-  background: #fee2e2 !important;
-  color: #b91c1c;
-}
-
-/* QUESTIONS / INDICATEURS */
-
-.questions-list {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.question-indicator {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  border: 1px solid #e5e7eb;
-}
-
-.question-valid {
-  background: #dcfce7;
-  color: #16a34a;
-  border-color: #22c55e;
-}
-
-.question-invalid {
-  background: #fef2f2;
-  color: #ef4444;
-  border-color: #fecaca;
-}
-
-.finished-badge {
-  background-color: #f59e0b;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* OVERLAYS */
-
-#overlay,
-#correctionOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  padding: 20px;
-}
-
-#overlay .panel,
-#correctionOverlay .correction-box {
-  background: var(--card);
-  border-radius: 16px;
-  padding: 20px;
-  width: min(520px, 92%);
-  text-align: center;
-}
-
-#correctionOverlay .correction-box {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 768px) {
-  .row {
-    grid-template-columns: 1fr;
-  }
-
-  #subBars {
-    grid-template-columns: 1fr;
-  }
-
-  .chapter-grid {
-    gap: 16px;
-  }
-}
-
-/* --- NOTE DE FIN DE NIVEAU (A+ / A / B / C) --- */
-
-.quiz-container {
-  position: relative; /* pour positionner la pastille dedans */
-}
-
-/* Grosse lettre au milieu du jeu */
-.grade-badge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  padding: 24px 48px;
-  border-radius: 999px;
-  font-weight: 900;
-  font-size: 64px;
-  letter-spacing: 0.08em;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-  color: #fff;
-  opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 50;
-}
-
-.grade-a-plus {
-  background: #14532d; /* vert très foncé */
-}
-
-.grade-a {
-  background: #16a34a; /* vert clair */
-}
-
-.grade-b {
-  background: #facc15; /* jaune */
-  color: #713f12;
-}
-
-.grade-c {
-  background: #ef4444; /* rouge */
-}
-/* --- Lignes Level 1 / Level 2 / Level 3 dans les cartes chapitres --- */
-
-.chapter-levels {
-  margin: 8px 0 10px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(226, 232, 240, 0.6); /* petit fond gris clair */
-}
-
-.chapter-level-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 4px;
-}
-
-.chapter-level-row:last-child {
-  margin-bottom: 0;
-}
-
-.chapter-level-label {
-  color: #0f172a;
-  font-weight: 500;
-}
-
-.chapter-level-grade {
-  min-width: 40px;
-  text-align: center;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 12px;
-  font-family: system-ui, -apple-system, sans-serif;
-}
-.badge-not-done {
-  background: #f1f5f9;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
-  font-weight: 500;
-}
-/* Style vert/couleur pour une note ou "Validé" */
-.badge-done {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
-}
-/* Ajustement des boutons d'action du menu */
-.chapter-action-btn {
-    margin-top: 16px; /* Un peu plus d'espace puisque le texte noir est parti */
-    padding: 12px 14px !important;
-    font-size: 16px !important; /* Bouton un peu plus gros */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.game-header-row {
-  position: relative;         /* Permet de positionner le bouton par rapport à cette ligne */
-  display: flex;
-  justify-content: center;    /* Centre le titre H2 horizontalement */
-  align-items: center;
-  margin-bottom: 10px;
-  min-height: 36px;           /* Hauteur minimale pour le bouton */
-}
-
-.back-menu-btn {
-  position: absolute;         /* Sort le bouton du flux pour ne pas pousser le titre */
-  left: 0;                    /* Colle le bouton tout à gauche */
-  top: 50%;
-  transform: translateY(-50%); /* Centre le bouton verticalement */
-  
-  /* Garde ton style existant */
-  width: auto;
-  padding: 6px 10px;
-  font-size: 12px;
-  background: #e5e7eb;
-  color: #374151;
-  border-radius: 999px;
-  border: 1px solid #d1d5db;
-  z-index: 10;
-}
-
-.quiz-container h2 {
-  margin: 0;
-  text-align: center;
-  font-size: 18px;            /* Ajuste la taille si besoin */
-  padding: 0 50px;            /* Marge int. pour ne pas toucher le bouton sur mobile */
-}
-
-/* --- DANS style.css --- */
-
-/* Badges dans le menu de sélection des chapitres */
-.chapter-level-grade {
-  min-width: 40px;
-  text-align: center;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 12px;
-  font-family: system-ui, -apple-system, sans-serif;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Couleurs selon la note */
-.grade-a-plus, .grade-a {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
-}
-
-.grade-b {
-  background: #fef9c3;
-  color: #854d0e;
-  border: 1px solid #fde047;
-}
-
-.grade-c {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
-}
-
-.grade-none {
-  background: #f1f5f9;
-  color: #94a3b8;
-  border: 1px solid #cbd5e1;
-  font-weight: 500;
-}
-
-/* On cache la barre de progression inutile du menu */
-.chapter-progress, .chapter-progress-container {
-  display: none !important;
-}
-/* Badges de notes dans le tableau prof */
-.table-grade-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 800;
-  margin-right: 4px;
-  margin-bottom: 4px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #64748b;
-}
-
-.table-grade-badge.grade-A, .table-grade-badge.grade-A-plus {
-  background: #dcfce7; color: #15803d; border-color: #86efac;
-}
-.table-grade-badge.grade-B {
-  background: #fef9c3; color: #a16207; border-color: #fde047;
-}
-.table-grade-badge.grade-C {
-  background: #fee2e2; color: #b91c1c; border-color: #fca5a5;
-}
-/* Le Modal (Fond sombre derrière) */
-.lesson-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8); /* Plus sombre pour faire ressortir la fiche */
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-/* La Fiche elle-même (Papier) */
-.lesson-content {
-  background-color: #ffffff !important; /* Blanc forcé */
-  color: #1e293b; /* Texte gris foncé */
-  width: 100%;
-  max-width: 700px; /* Un peu plus large */
-  max-height: 90vh; /* Hauteur max */
-  border-radius: 12px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-/* Corps du texte avec scroll */
-.lesson-body {
-  padding: 20px 30px;
-  overflow-y: auto; /* Scroll si c'est long */
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-/* Séparateur entre les leçons des niveaux */
-.lesson-separator {
-  border: 0;
-  height: 1px;
-  background: #e2e8f0;
-  margin: 20px 0;
-}
-
-.lesson-level-title {
-  color: #2563eb;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  font-weight: 800;
-}
+:root { --bg: #f8fafc; --card: #fff; --primary: #2563eb; --ok: #16a34a; --warn: #ef4444; --text: #111827; --muted: #6b7280; --shadow: 0 10px 25px rgba(0, 0, 0, 0.08); }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: linear-gradient(#e0f2fe, var(--bg)); min-height: 100dvh; display: flex; flex-direction: column; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 18px; background: #fff; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 20; }
+header h1 { font-size: 16px; }
+#studentBadge { font-size: 12px; text-align: right; }
+#logoutBtn { padding: 6px 10px !important; font-size: 12px !important; }
+.wrap { max-width: 960px; width: 100%; margin: 24px auto; padding: 0 16px; flex: 1; }
+.card { background: var(--card); box-shadow: var(--shadow); border-radius: 14px; padding: 20px; }
+.form { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
+label { font-size: 14px; color: var(--muted); }
+input, select, button { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 16px; outline: none; transition: box-shadow 0.2s; background: #fff; }
+input:focus, select:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); border-color: #93c5fd; }
+button { background: var(--primary); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.error { color: var(--warn); font-weight: 600; margin-top: 8px; }
+.chapter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.chapter-box { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; cursor: pointer; transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.chapter-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), #60a5fa); }
+.chapter-box:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08); border-color: #cbd5e1; }
+.chapter-box h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--text); }
+.chapter-mini { font-size: 14px; color: #475569; margin: 0 0 16px; }
+.chapter-progress { margin: 6px 0 4px; }
+.chapter-progress-title { font-size: 13px; font-weight: 600; color: #64748b; margin: 0 0 2px; }
+.chapter-progress-list { list-style: none; padding: 0; margin: 0 0 8px; }
+.chapter-progress-list li { font-size: 13px; line-height: 1.2; margin: 0; color: #0f172a; }
+.chapter-progress-list li + li { margin-top: 2px; }
+.chapter-status-text { font-size: 14px; margin: 8px 0; color: #0f172a; }
+.replay-btn, .replay-btn-improved { width: 100%; padding: 10px 14px !important; font-size: 14px !important; background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%) !important; color: #fff !important; border: none !important; font-weight: 600; margin-top: 10px; margin-bottom: 6px; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+.replay-btn:hover, .replay-btn-improved:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3); }
+.chapter-summary { border-top: 1px solid #e5e7eb; margin-top: 10px; padding-top: 10px; font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+.quiz-container h2 { text-align: center; margin: 4px 0 10px; }
+.game-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; position: relative; min-height: 36px; }
+.back-menu-btn { width: auto; padding: 6px 10px; font-size: 12px; background: #e5e7eb; color: #374151; border-radius: 999px; border: 1px solid #d1d5db; position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10; }
+.back-menu-btn:hover { background: #d1d5db; }
+.quiz-container h2 { margin: 0; text-align: center; font-size: 18px; padding: 0 50px; }
+.level-grades-summary { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.level-grade-item + .level-grade-item { margin-left: 8px; }
+#lives { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.heart { width: 28px; height: 28px; background: radial-gradient(circle at 30% 30%, #ef4444, #b91c1c); clip-path: path("M16 28C8 22 2 18 2 11C2 7 5 4 9 4C12 4 14 6 16 8C18 6 20 4 23 4C27 4 30 7 30 11C30 18 24 22 16 28Z"); }
+.heart.off { opacity: 0.25; }
+#mainProgress { background: #e5e7eb; border-radius: 14px; overflow: hidden; height: 20px; margin-bottom: 8px; }
+#mainBar { height: 100%; width: 0; background: linear-gradient(90deg, #22c55e, #16a34a); transition: width 0.4s ease; }
+#subBars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-bottom: 8px; }
+.subProgress { background: #e5e7eb; border-radius: 10px; height: 14px; overflow: hidden; position: relative; cursor: pointer; }
+.subBar { height: 100%; width: 0; background: linear-gradient(90deg, #60a5fa, #2563eb); transition: width 0.4s ease; }
+.subLabel { position: absolute; top: 0; left: 6px; font-size: 12px; color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.5); line-height: 14px; font-weight: 600; }
+#playersTable th { font-weight: 600; padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+#playersTable td { padding: 10px; vertical-align: middle; }
+.action-btn { padding: 5px 9px !important; font-size: 12px !important; width: auto !important; margin: 2px; border-radius: 6px; }
+.reset-btn { background: #fee2e2 !important; color: #b91c1c; }
+.questions-list { display: flex; gap: 4px; flex-wrap: wrap; }
+.question-indicator { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 1px solid #e5e7eb; }
+.question-valid { background: #dcfce7; color: #16a34a; border-color: #22c55e; }
+.question-invalid { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+.finished-badge { background-color: #f59e0b; color: white; padding: 4px 10px; border-radius: 12px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+#overlay, #correctionOverlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .7); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+#overlay .panel, #correctionOverlay .correction-box { background: var(--card); border-radius: 16px; padding: 20px; width: min(520px, 92%); text-align: center; }
+#correctionOverlay .correction-box { background: #fee2e2; color: #b91c1c; }
+@media (max-width: 768px) { .row { grid-template-columns: 1fr; } #subBars { grid-template-columns: 1fr; } .chapter-grid { gap: 16px; } }
+.quiz-container { position: relative; }
+.grade-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); padding: 24px 48px; border-radius: 999px; font-weight: 900; font-size: 64px; letter-spacing: 0.08em; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); color: #fff; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 50; }
+.grade-a-plus { background: #14532d; }
+.grade-a { background: #16a34a; }
+.grade-b { background: #facc15; color: #713f12; }
+.grade-c { background: #ef4444; }
+.chapter-levels { margin: 8px 0 10px; padding: 8px 10px; border-radius: 10px; background: rgba(226, 232, 240, 0.6); }
+.chapter-level-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+.chapter-level-row:last-child { margin-bottom: 0; }
+.chapter-level-label { color: #0f172a; font-weight: 500; }
+.chapter-level-grade { min-width: 40px; text-align: center; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px; font-family: system-ui, -apple-system, sans-serif; }
+.badge-not-done { background: #f1f5f9; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: 500; }
+.badge-done { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.chapter-action-btn { margin-top: 16px; padding: 12px 14px !important; font-size: 16px !important; text-transform: uppercase; letter-spacing: 0.5px; }
+.grade-a-plus, .grade-a { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.grade-b { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+.grade-c { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.grade-none { background: #f1f5f9; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: 500; }
+.chapter-progress, .chapter-progress-container { display: none !important; }
+.table-grade-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-right: 4px; margin-bottom: 4px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; }
+.table-grade-badge.grade-A, .table-grade-badge.grade-A-plus { background: #dcfce7; color: #15803d; border-color: #86efac; }
+.table-grade-badge.grade-B { background: #fef9c3; color: #a16207; border-color: #fde047; }
+.table-grade-badge.grade-C { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+.lesson-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.lesson-content { background-color: #ffffff !important; color: #1e293b; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; position: relative; }
+.lesson-body { padding: 20px 30px; overflow-y: auto; font-size: 16px; line-height: 1.6; }
+.lesson-separator { border: 0; height: 1px; background: #e2e8f0; margin: 20px 0; }
+.lesson-level-title { color: #2563eb; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 800; }
+
+/* [NOUVEAU] STYLES PAUSE & BUGS */
+.pause-btn { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 6px 12px !important; font-size: 13px !important; width: auto !important; }
+.pause-btn:hover { background: #e2e8f0; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal-content { background: #fff; padding: 24px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; }

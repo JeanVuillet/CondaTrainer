@@ -1,4 +1,4 @@
-// public/main.js - VERSION FINALE (AVEC FAUTES ORTHOGRAPHE)
+// public/main.js - VERSION DEBUGGING
 
 window.isGlobalPaused = false; 
 const $ = (sel) => document.querySelector(sel);
@@ -15,24 +15,24 @@ const correctionOverlay = $("#correctionOverlay"), correctionText = $("#correcti
 const profDashboard = $("#profDashboard"), playersBody = $("#playersBody"), classFilter = $("#classFilter"), resetAllBtn = $("#resetAllBtn"), studentSearch = $("#studentSearch"), backToMenuBtn = $("#backToMenuBtn");
 const testClassBtn = $("#testClassBtn");
 
-// UI Lesson
+// UI Lesson & Pause & Fautes
 const openLessonBtn = $("#openLessonBtn");
 const lessonModal = $("#lessonModal");
 const closeLessonBtn = $("#closeLessonBtn");
 const lessonText = $("#lessonText");
 const iAmReadyBtn = $("#iAmReadyBtn");
-
-// UI Pause & Bug
 const pauseReportBtn = $("#pauseReportBtn");
 const bugModal = $("#bugModal");
 const sendBugBtn = $("#sendBugBtn");
 const resumeGameBtn = $("#resumeGameBtn");
-
-// [NOUVEAU] UI Fautes
 const myMistakesBtn = $("#myMistakesBtn");
 const mistakesModal = $("#mistakesModal");
 const closeMistakesBtn = $("#closeMistakesBtn");
 const mistakesList = $("#mistakesList");
+const activityModal = $("#activityModal");
+const closeActivityBtn = $("#closeActivityBtn");
+const activityBody = $("#activityBody");
+const activityStudentName = $("#activityStudentName");
 
 window.allQuestionsData = {}; 
 
@@ -49,66 +49,40 @@ let allPlayersData = [];
 let levelTimer = null, levelTimeTotal = 180000, levelTimeRemaining = 180000;
 let pendingLaunch = null; 
 
-// --- CHEAT CODES (R+T) ---
-let isRKeyDown = false; 
-let isTKeyDown = false;
+let isRKeyDown = false; let isTKeyDown = false;
 document.addEventListener("keydown", (e) => { if (!e || !e.key) return; if (e.key.toLowerCase() === "r") isRKeyDown = true; if (e.key.toLowerCase() === "t") isTKeyDown = true; });
 document.addEventListener("keyup", (e) => { if (!e || !e.key) return; if (e.key.toLowerCase() === "r") isRKeyDown = false; if (e.key.toLowerCase() === "t") isTKeyDown = false; });
 $("#mainProgress")?.addEventListener("click", () => { if (!isGameActive) return; if (!isRKeyDown || !isTKeyDown) return; updateTimeBar(); const lvl = levels[currentLevel]; if(lvl) { general = lvl.questions.length; nextQuestion(false); } });
 
 // --- INITIALISATION ---
-
-if(backToProfBtn) {
-    backToProfBtn.addEventListener("click", () => { localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); window.location.reload(); });
-}
-
+if(backToProfBtn) { backToProfBtn.addEventListener("click", () => { localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); window.location.reload(); }); }
 if(iAmReadyBtn) iAmReadyBtn.addEventListener("click", () => { if(lessonModal) lessonModal.style.display = "none"; if (pendingLaunch) { pendingLaunch(); pendingLaunch = null; } });
 if(closeLessonBtn) closeLessonBtn.addEventListener("click", () => { if(lessonModal) lessonModal.style.display = "none"; pendingLaunch = null; });
 if(openLessonBtn) openLessonBtn.addEventListener("click", () => { if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; if (lessonModal) lessonModal.style.display = "flex"; });
 
-// --- [NOUVEAU] GESTION DES FAUTES ---
+// --- GESTION DES FAUTES ---
 if(myMistakesBtn) {
     myMistakesBtn.addEventListener("click", async () => {
         if(!currentPlayerId) return;
         mistakesList.innerHTML = "Chargement...";
         mistakesModal.style.display = "flex";
-        
         try {
             const res = await fetch(`/api/player-progress/${currentPlayerId}`);
             const data = await res.json();
             const mistakes = data.spellingMistakes || [];
-            
-            if(mistakes.length === 0) {
-                mistakesList.innerHTML = "<p style='text-align:center;'>Bravo ! Aucune faute enregistrée pour l'instant. 🎉</p>";
-            } else {
+            if(mistakes.length === 0) { mistakesList.innerHTML = "<p style='text-align:center;'>Bravo ! Aucune faute enregistrée pour l'instant. 🎉</p>"; } 
+            else {
                 let html = "<ul style='list-style:none; padding:0;'>";
-                mistakes.forEach(m => {
-                    html += `
-                    <li style="background:#fff1f2; margin-bottom:8px; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #fecaca;">
-                        <div>
-                            <span style="text-decoration:line-through; color:#ef4444; margin-right:10px;">${m.wrong}</span>
-                            👉 <strong style="color:#16a34a;">${m.correct}</strong>
-                        </div>
-                        <button class="delete-mistake-btn" data-word="${m.wrong}" style="background:transparent; border:none; color:#666; font-size:18px; cursor:pointer;" title="J'ai appris ce mot !">✅</button>
-                    </li>`;
-                });
+                mistakes.forEach(m => { html += `<li style="background:#fff1f2; margin-bottom:8px; padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #fecaca;"><div><span style="text-decoration:line-through; color:#ef4444; margin-right:10px;">${m.wrong}</span>👉 <strong style="color:#16a34a;">${m.correct}</strong></div><button class="delete-mistake-btn" data-word="${m.wrong}" style="background:transparent; border:none; color:#666; font-size:18px; cursor:pointer;" title="J'ai appris ce mot !">✅</button></li>`; });
                 html += "</ul>";
                 mistakesList.innerHTML = html;
-                
-                // Clic sur "J'ai appris"
-                document.querySelectorAll(".delete-mistake-btn").forEach(btn => {
-                    btn.onclick = async (e) => {
-                        const word = e.target.dataset.word;
-                        e.target.closest("li").remove();
-                        await fetch(`/api/spelling-mistake/${currentPlayerId}/${word}`, { method: 'DELETE' });
-                    };
-                });
+                document.querySelectorAll(".delete-mistake-btn").forEach(btn => { btn.onclick = async (e) => { const word = e.target.dataset.word; e.target.closest("li").remove(); await fetch(`/api/spelling-mistake/${currentPlayerId}/${word}`, { method: 'DELETE' }); }; });
             }
         } catch(e) { mistakesList.innerHTML = "Erreur chargement."; }
     });
 }
 if(closeMistakesBtn) closeMistakesBtn.addEventListener("click", () => mistakesModal.style.display = "none");
-
+if(closeActivityBtn) closeActivityBtn.addEventListener("click", () => activityModal.style.display = "none");
 
 // --- FONCTIONS JEU ---
 function updateTimeBar() { const ratio = Math.max(0, levelTimeRemaining / levelTimeTotal); if(mainBar) mainBar.style.width = ratio * 100 + "%"; }
@@ -121,33 +95,93 @@ function renderLives() { if(livesWrap) livesWrap.innerHTML = Array(MAX_LIVES).fi
 function showStudent(stu) {
   if(studentBadge) studentBadge.textContent = `${stu.firstName} ${stu.lastName} – ${stu.classroom}`;
   if(logoutBtn) logoutBtn.style.display = "block";
-  
-  // Affiche le bouton fautes si c'est un élève
   if(myMistakesBtn && stu.id !== "prof" && stu.id !== "test") myMistakesBtn.style.display = "block";
-  
   if (stu.firstName === "Eleve" && stu.lastName === "Test") { if(backToProfBtn) backToProfBtn.style.display = "block"; }
 }
 if(logoutBtn) logoutBtn.addEventListener("click", () => { localStorage.removeItem("player"); window.location.reload(); });
 
-function getClassKey(classroom) { if (!classroom) return null; const c = classroom.toUpperCase(); if (c.startsWith("6")) return "6e"; if (c.startsWith("5")) return "5e"; if (c.startsWith("2")) return "2de"; return "prof"; }
-async function loadQuestions(classKey) { try { const res = await fetch(`/questions/questions-${classKey}.json`); if (!res.ok) throw new Error("404"); levels = await res.json(); } catch (err) { levels = []; console.error("Erreur chargement questions:", err); } }
-async function loadAllQuestionsForProf() { const keys = ["5e", "6e", "2de"]; if (!window.allQuestionsData) window.allQuestionsData = {}; try { const resArr = await Promise.all(keys.map(k => fetch(`/questions/questions-${k}.json`))); const jsonArr = await Promise.all(resArr.map(r => r.json())); keys.forEach((k, i) => { window.allQuestionsData[k] = jsonArr[i]; }); } catch (e) { console.error("Erreur chargement global", e); } }
+// ==============================================================
+// DEBUGGING : getClassKey
+// ==============================================================
+function getClassKey(classroom) { 
+  console.log(`[DEBUG] getClassKey appelé avec : "${classroom}"`);
+  if (!classroom) return null; 
+  const c = classroom.toUpperCase(); 
+  if (c.startsWith("6")) return "6e"; 
+  if (c.startsWith("5")) return "5e"; 
+  if (c.startsWith("2")) return "2de"; 
+  console.warn(`[DEBUG] Classe non reconnue : "${classroom}". Retourne prof.`);
+  return "prof"; 
+}
 
+async function loadQuestions(classKey) { try { const res = await fetch(`/questions/questions-${classKey}.json`); if (!res.ok) throw new Error("404"); levels = await res.json(); } catch (err) { levels = []; console.error("Erreur chargement questions:", err); } }
+
+// ==============================================================
+// DEBUGGING : Chargement JSON
+// ==============================================================
+async function loadAllQuestionsForProf() {
+  console.log("[DEBUG] Début du chargement des fichiers JSON...");
+  const keys = ["5e", "6e", "2de"];
+  if (!window.allQuestionsData) window.allQuestionsData = {};
+  
+  await Promise.all(keys.map(async (k) => {
+    try {
+      console.log(`[DEBUG] Tentative chargement: /questions/questions-${k}.json`);
+      const res = await fetch(`/questions/questions-${k}.json`);
+      if (res.ok) {
+        const json = await res.json();
+        console.log(`[DEBUG] ✅ Chargé questions-${k}.json : ${json.length} chapitres trouvés.`);
+        window.allQuestionsData[k] = json;
+      } else {
+        console.warn(`[DEBUG] ❌ Fichier questions-${k}.json introuvable (404).`);
+        window.allQuestionsData[k] = []; 
+      }
+    } catch (e) {
+      console.error(`[DEBUG] ❌ Erreur critique lecture questions-${k}.json`, e);
+      window.allQuestionsData[k] = [];
+    }
+  }));
+  console.log("[DEBUG] État final window.allQuestionsData:", window.allQuestionsData);
+}
+
+// ==============================================================
+// DEBUGGING : Affichage Chapitres
+// ==============================================================
 async function updateChapterSelectionUI(player) {
-  const classKey = getClassKey(player.classroom); if(!classKey) return;
+  console.log("[DEBUG] Mise à jour de l'interface chapitres pour :", player.classroom);
+  const classKey = getClassKey(player.classroom); 
+  console.log("[DEBUG] Clé de classe détectée :", classKey);
+  
+  if(!classKey) return;
   if (!window.allQuestionsData[classKey]) await loadAllQuestionsForProf();
+  
   const allLevelsForClass = window.allQuestionsData[classKey] || [];
+  console.log(`[DEBUG] Niveaux disponibles pour ${classKey} :`, allLevelsForClass);
+  
   const validatedLevelsRaw = player.validatedLevels || [];
   const gradesMap = {}; const validatedIds = [];
   validatedLevelsRaw.forEach(item => { if (typeof item === 'string') { gradesMap[item] = "Validé"; validatedIds.push(item); } else if (item && item.levelId) { gradesMap[item.levelId] = item.grade || "Validé"; validatedIds.push(item.levelId); } });
 
   document.querySelectorAll(".chapter-box").forEach((box) => {
     const chapterId = box.dataset.chapter;
+    // Filtre des niveaux pour ce chapitre
     const chapterLevels = allLevelsForClass.filter(l => l.chapterId === chapterId);
+    
+    console.log(`[DEBUG] Boîte "${chapterId}" -> Niveaux trouvés dans JSON : ${chapterLevels.length}`);
+
+    if (chapterLevels.length === 0) { 
+        console.log(`[DEBUG] 🚫 Masquage de la boîte ${chapterId} (Vide)`);
+        box.style.display = "none"; 
+        return; 
+    }
+    
+    box.style.display = "flex"; 
+    console.log(`[DEBUG] ✅ Affichage de la boîte ${chapterId}`);
+
     const oldProg = box.querySelector(".chapter-progress"); if(oldProg) oldProg.style.display = "none";
     const oldStatus = box.querySelector(".chapter-status-text"); if(oldStatus) oldStatus.style.display = "none";
     const container = box.querySelector(".chapter-levels");
-    if (chapterLevels.length === 0) { if(container) container.innerHTML = "<small>Aucun niveau dispo</small>"; return; }
+    
     if (container) {
       container.style.display = "block";
       container.innerHTML = chapterLevels.map((lvl, idx) => {
@@ -157,13 +191,16 @@ async function updateChapterSelectionUI(player) {
         return `<div class="chapter-level-row"><span class="chapter-level-label">Niveau ${idx + 1}</span><span class="chapter-level-grade ${badgeClass}">${badgeText}</span></div>`;
       }).join('');
     }
+    
     const isFinished = chapterLevels.every(l => validatedIds.includes(l.id));
     const btn = box.querySelector(".chapter-action-btn");
+    
     const triggerGameStart = async () => {
       const startGame = async () => {
         chapterSelection.style.display = "none"; game.style.display = "block";
         if(pauseReportBtn) pauseReportBtn.style.display = "block"; 
-        if(myMistakesBtn) myMistakesBtn.style.display = "none"; // On cache le bouton fautes en jeu
+        if(myMistakesBtn) myMistakesBtn.style.display = "none"; 
+        if(currentPlayerId && currentPlayerId !== "prof") { fetch('/api/log-activity', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playerId: currentPlayerId, action: "Jeu lancé", detail: chapterId }) }).catch(e=>console.log(e)); }
         await loadChapter(chapterId, classKey, box.dataset.templateId, box.dataset.gameClass);
         setTimeout(() => { game.scrollIntoView({ behavior: "smooth", block: "center" }); }, 100);
       };
@@ -284,7 +321,7 @@ if(backToMenuBtn) backToMenuBtn.addEventListener("click", async () => {
   if(game) game.style.display = "none"; 
   if(chapterSelection) chapterSelection.style.display = "block";
   if(pauseReportBtn) pauseReportBtn.style.display = "none";
-  if(myMistakesBtn) myMistakesBtn.style.display = "block"; // Réafficher bouton fautes
+  if(myMistakesBtn) myMistakesBtn.style.display = "block"; 
   if(currentPlayerId && currentPlayerId !== "prof") { try { const res = await fetch(`/api/player-progress/${currentPlayerId}`); if(res.ok) updateChapterSelectionUI({ ...saved, ...(await res.json()) }); } catch(e){} }
 });
 
@@ -335,7 +372,7 @@ function generateFullChapterProgress(allLevels, validatedLevelIds, gradesMap, va
 function renderPlayers(playersToRender) {
   const table = $("#playersTable"); table.querySelectorAll("tbody").forEach((tbody) => tbody.remove());
   if (playersToRender.length === 0) { const tbody = document.createElement("tbody"); tbody.innerHTML = `<tr><td colspan="6">Aucun élève trouvé.</td></tr>`; table.appendChild(tbody); return; }
-  const chaptersToDisplay = { "ch1-zombie": "Chapitre 1", "ch2-starship": "Chapitre 2", "ch3-jumper": "Chapitre 3" };
+  const chaptersToDisplay = { "ch1-zombie": "Zombie", "ch4-redaction": "Rédaction" };
   playersToRender.sort((a, b) => a.lastName.localeCompare(b.lastName)).forEach((player) => {
       const playerTbody = document.createElement("tbody"); playerTbody.style.borderTop = "1px solid #e2e8f0";
       const classKey = getClassKey(player.classroom); const allLevelsForClass = (window.allQuestionsData && window.allQuestionsData[classKey]) || [];
@@ -345,12 +382,36 @@ function renderPlayers(playersToRender) {
       let chapterRowsHtml = ""; let isFirstRow = true;
       for (const chapterId in chaptersToDisplay) {
         const chapterLabel = chaptersToDisplay[chapterId]; const levelsInThisChapter = allLevelsForClass.filter(l => l.chapterId === chapterId);
-        let progressHtml = ""; let levelTitleHtml = "";
-        if (levelsInThisChapter.length === 0) { progressHtml = "-"; levelTitleHtml = "-"; } else { const currentLvl = levelsInThisChapter.find(l => !validatedLevelIds.includes(l.id)); levelTitleHtml = currentLvl ? currentLvl.title : "<strong>Terminé</strong>"; progressHtml = generateFullChapterProgress(levelsInThisChapter, validatedLevelIds, gradesMap, validatedQuestions); }
-        if (isFirstRow) { chapterRowsHtml += `<tr><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;"><strong>${player.firstName} ${player.lastName}</strong></td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${player.classroom}</td><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;"><button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">Réinitialiser</button></td></tr>`; isFirstRow = false; } else { chapterRowsHtml += `<tr><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td></tr>`; }
+        let progressHtml = "-"; let levelTitleHtml = "-";
+        if (levelsInThisChapter.length > 0) { const currentLvl = levelsInThisChapter.find(l => !validatedLevelIds.includes(l.id)); levelTitleHtml = currentLvl ? currentLvl.title : "<strong>Terminé</strong>"; progressHtml = generateFullChapterProgress(levelsInThisChapter, validatedLevelIds, gradesMap, validatedQuestions); }
+        const actionButtons = `<div style="display:flex; flex-direction:column; gap:4px;"><button class="action-btn activity-btn" data-id="${player._id}" style="background:#3b82f6; color:white;">🕒 Activité</button><button class="action-btn reset-btn" data-player-id="${player._id}" data-player-name="${player.firstName} ${player.lastName}">Réinitialiser</button></div>`;
+        if (isFirstRow) { chapterRowsHtml += `<tr><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle; padding-left: 10px;"><strong>${player.firstName} ${player.lastName}</strong></td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${player.classroom}</td><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td><td rowspan="${Object.keys(chaptersToDisplay).length}" style="vertical-align: middle;">${actionButtons}</td></tr>`; isFirstRow = false; } else { chapterRowsHtml += `<tr><td>${chapterLabel}</td><td>${levelTitleHtml}</td><td>${progressHtml}</td></tr>`; }
       }
       playerTbody.innerHTML = chapterRowsHtml; table.appendChild(playerTbody);
     });
+    document.querySelectorAll(".activity-btn").forEach(btn => { btn.onclick = async (e) => { const pid = e.target.dataset.id; const pName = e.target.closest("tbody").querySelector("strong").textContent; openActivityModal(pid, pName); } });
+}
+
+async function openActivityModal(playerId, playerName) {
+    if(!activityModal) return;
+    activityStudentName.textContent = `Élève : ${playerName}`;
+    activityBody.innerHTML = "<tr><td colspan='3'>Chargement...</td></tr>";
+    activityModal.style.display = "flex";
+    try {
+        const res = await fetch(`/api/player-progress/${playerId}`);
+        const data = await res.json();
+        const logs = data.activityLogs || [];
+        activityBody.innerHTML = "";
+        if(logs.length === 0) { activityBody.innerHTML = "<tr><td colspan='3'>Aucune activité récente.</td></tr>"; } 
+        else {
+            logs.reverse().forEach(log => {
+                const dateStr = new Date(log.date).toLocaleString();
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td style="padding:8px; border-bottom:1px solid #eee;">${dateStr}</td><td style="padding:8px; border-bottom:1px solid #eee;"><strong>${log.action}</strong></td><td style="padding:8px; border-bottom:1px solid #eee;">${log.detail}</td>`;
+                activityBody.appendChild(tr);
+            });
+        }
+    } catch(e) { activityBody.innerHTML = "<tr><td colspan='3'>Erreur.</td></tr>"; }
 }
 
 function applyFiltersAndRender() {

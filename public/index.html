@@ -10,9 +10,7 @@
   <header>
     <h1>5e Entraîneur</h1>
     <div style="display: flex; align-items: center; gap: 12px;"> 
-      <!-- [NOUVEAU] BOUTON FAUTES D'ORTHOGRAPHE -->
       <button id="myMistakesBtn" class="action-btn" style="background:#f472b6; color:white; display:none;">📝 Mes Fautes</button>
-
       <button id="pauseReportBtn" class="pause-btn">⏸️ Pause / Bug</button>
       <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none;">🎓 Retour Prof</button>
       <div id="studentBadge">Non connecté</div>
@@ -57,24 +55,39 @@
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
+        
+        <!-- CHAPITRE 1 : ZOMBIE -->
         <div class="chapter-box" data-chapter="ch1-zombie" data-template-id="template-zombie-game" data-game-class="ZombieGame">
           <h3>Chapitre 1 — L’Attaque des Zombies</h3>
           <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Survivre à l’invasion</p>
           <div class="chapter-levels"></div>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
+
+        <!-- CHAPITRE 2 : STARSHIP -->
         <div class="chapter-box" data-chapter="ch2-starship" data-template-id="template-starship-game" data-game-class="StarshipGame">
           <h3>Chapitre 2 — Starship</h3>
-          <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Bouger ⬅️➡️ • [ESPACE] Tirer</p>
+          <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Tir Rapide</p>
           <div class="chapter-levels"></div>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
+
+        <!-- CHAPITRE 3 : JUMPER -->
         <div class="chapter-box" data-chapter="ch3-jumper" data-template-id="template-jumper-game" data-game-class="JumperGame">
           <h3>Chapitre 3 — Le Jumper</h3>
           <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Sauter sur la bonne couleur</p>
           <div class="chapter-levels"></div>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
+
+        <!-- [IMPORTANT] CHAPITRE 4 : RÉDACTION (C'est celui qui manquait) -->
+        <div class="chapter-box" data-chapter="ch4-redaction" data-template-id="template-redaction-game" data-game-class="RedactionGame">
+          <h3>Chapitre 4 — Atelier Rédaction</h3>
+          <p class="chapter-mini">📝 <strong>Mini-jeu :</strong> Méthode Dissertation (2de)</p>
+          <div class="chapter-levels"></div>
+          <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
+        </div>
+
       </div>
     </section>
 
@@ -122,7 +135,7 @@
       </table>
     </section>
 
-    <!-- Fiche Cours -->
+    <!-- MODALS -->
     <div id="lessonModal" class="lesson-modal" style="display: none;">
       <div class="lesson-content">
         <div class="lesson-header"><h3>Fiche de révision</h3><button id="closeLessonBtn">✖</button></div>
@@ -130,219 +143,216 @@
         <div class="lesson-footer"><button id="iAmReadyBtn" class="ready-btn">JE SUIS PRÊT ! 🚀</button></div>
       </div>
     </div>
+
+    <div id="mistakesModal" class="modal-overlay" style="display: none;">
+      <div class="modal-content" style="max-width: 600px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h3>📝 Mes Fautes d'orthographe</h3>
+          <button id="closeMistakesBtn" style="background:transparent; color:#333; font-size:20px;">✖</button>
+        </div>
+        <p style="font-size:14px; color:#666; margin-bottom:10px;">Voici les mots à réviser :</p>
+        <div id="mistakesList" style="max-height:60vh; overflow-y:auto; text-align:left;"></div>
+      </div>
+    </div>
+
+    <div id="overlay" style="display:none;"><div class="panel"><h3>💀 Game Over</h3><p>Tu n'as plus de cœurs.</p><button id="restartBtn">Recommencer</button></div></div>
+    <div id="correctionOverlay" style="display:none;"><div class="correction-box"><h2>❌ Erreur ! La bonne réponse était :</h2><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div></div>
+
+    <div id="bugModal" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+        <h3>⏸️ Jeu en Pause</h3>
+        <p>Décris le problème rencontré :</p>
+        <textarea id="bugDescription" rows="4" style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="Ex: Le zombie est bloqué..."></textarea>
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button id="sendBugBtn" style="background:#ef4444;">🐞 Envoyer Rapport</button>
+          <button id="resumeGameBtn" style="background:#2563eb;">▶️ Reprendre Jeu</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="profBugListModal" class="modal-overlay" style="display: none;">
+      <div class="modal-content" style="max-width: 800px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3>🐛 Rapports de Bugs</h3>
+          <button id="closeBugListBtn" style="background:transparent; color:#333; width:auto; font-size:20px;">✖</button>
+        </div>
+        <div style="max-height:60vh; overflow-y:auto;">
+          <table id="bugsTable" style="width:100%; font-size:14px; text-align:left;">
+            <thead style="background:#f1f5f9;"><tr><th>Date</th><th>Élève</th><th>Jeu</th><th>Description</th><th>Action</th></tr></thead>
+            <tbody id="bugsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="activityModal" class="modal-overlay" style="display: none;">
+      <div class="modal-content" style="max-width: 700px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h3>🕒 Historique d'Activité</h3>
+          <button id="closeActivityBtn" style="background:transparent; color:#333; font-size:20px;">✖</button>
+        </div>
+        <h4 id="activityStudentName" style="margin-bottom:10px; color:#2563eb;"></h4>
+        <div style="max-height:60vh; overflow-y:auto;">
+          <table style="width:100%; font-size:14px; text-align:left; border-collapse: collapse;">
+            <thead style="background:#f1f5f9;"><tr><th style="padding:8px;">Date</th><th style="padding:8px;">Action</th><th style="padding:8px;">Détail</th></tr></thead>
+            <tbody id="activityBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
-
-  <!-- [NOUVEAU] MODAL MES FAUTES -->
-  <div id="mistakesModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 600px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3>📝 Mes Fautes d'orthographe</h3>
-        <button id="closeMistakesBtn" style="background:transparent; color:#333; font-size:20px;">✖</button>
-      </div>
-      <p id="mistakesIntro" style="font-size:14px; color:#666; margin-bottom:10px;">Voici les mots sur lesquels tu as fait des erreurs. Clique sur la croix pour les supprimer une fois que tu les as appris !</p>
-      <div id="mistakesList" style="max-height:60vh; overflow-y:auto; text-align:left;"></div>
-    </div>
-  </div>
-
-  <div id="overlay" style="display:none;"><div class="panel"><h3>💀 Game Over</h3><p>Tu n'as plus de cœurs.</p><button id="restartBtn">Recommencer</button></div></div>
-  <div id="correctionOverlay" style="display:none;"><div class="correction-box"><h2>❌ Erreur ! La bonne réponse était :</h2><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div></div>
-
-  <!-- MODAL PAUSE / BUGS -->
-  <div id="bugModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-      <h3>⏸️ Jeu en Pause</h3>
-      <p>Décris le problème rencontré :</p>
-      <textarea id="bugDescription" rows="4" style="width:100%; margin-bottom:10px; padding:8px; border:1px solid #ccc; border-radius:6px;" placeholder="Ex: Le zombie est bloqué..."></textarea>
-      <div style="display:flex; gap:10px; justify-content:center;">
-        <button id="sendBugBtn" style="background:#ef4444;">🐞 Envoyer Rapport</button>
-        <button id="resumeGameBtn" style="background:#2563eb;">▶️ Reprendre Jeu</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL LISTE BUGS (PROF) -->
-  <div id="profBugListModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 800px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h3>🐛 Rapports de Bugs</h3>
-        <button id="closeBugListBtn" style="background:transparent; color:#333; width:auto; font-size:20px;">✖</button>
-      </div>
-      <div style="max-height:60vh; overflow-y:auto;">
-        <table id="bugsTable" style="width:100%; font-size:14px; text-align:left;">
-          <thead style="background:#f1f5f9;"><tr><th>Date</th><th>Élève</th><th>Jeu</th><th>Description</th><th>Action</th></tr></thead>
-          <tbody id="bugsBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
   <!-- TEMPLATE ZOMBIE -->
   <template id="template-zombie-game">
     <style>
       #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
-      #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; user-select: none; pointer-events: none; }
+      #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; pointer-events: none; }
       #hero { left: min(3vw, 24px); }
       #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
-      #projectile { width: clamp(18px, 3vh, 28px); height: clamp(18px, 3vh, 28px); background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: calc(clamp(90px, 26vh, 200px) * 0.55); z-index: 10; }
-      .question-zone { margin-bottom: 10px; font-size: 1.3em; text-align: center; min-height: 2em; color: #334155; font-weight: 600; margin-top: 15px; }
-      #ai-input-zone { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
-      textarea#answer { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: 2px solid #cbd5e1; resize: none; height: 80px; font-family: inherit; }
-      textarea#answer:focus { border-color: #3b82f6; outline: none; }
-      .buttons-row { display: flex; gap: 10px; width: 100%; justify-content: center; }
-      button { padding: 10px 20px; border: 0; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-      #submit { background: #2563eb; color: #fff; flex: 1; }
-      #submit:disabled { background: #94a3b8; cursor: not-allowed; }
-      #feedback-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 400px; padding: 10px 15px; border-radius: 10px; background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 14px; text-align: center; display: none; z-index: 20; border: 2px solid transparent; animation: slideDown 0.3s ease-out; }
-      @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 10px; opacity: 1; } }
-      .fb-success { border-color: #22c55e; color: #166534; }
-      .fb-error { border-color: #ef4444; color: #991b1b; }
-      .fb-hint { border-color: #f59e0b; color: #92400e; }
-      .fb-loading { border-color: #3b82f6; color: #1e40af; }
+      #projectile { width: 20px; height: 20px; background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: 100px; z-index: 10; }
+      .question-zone { margin: 15px 0; font-size: 1.3em; text-align: center; color: #334155; font-weight: 600; }
+      #ai-input-zone { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; }
+      textarea#answer { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: 2px solid #cbd5e1; resize: none; height: 80px; }
+      button#submit { padding: 10px 20px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
+      #options-grid { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+      .option-btn { padding: 15px; font-size: 16px; background: white; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; color: #1e293b; font-weight: 600; transition: all 0.2s; }
+      .option-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+      .opt-correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534; }
+      .opt-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; }
+      #feedback-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.95); text-align: center; display: none; z-index: 20; border: 2px solid transparent; }
+      .fb-success { border-color:#22c55e; color:#166534; } .fb-error { border-color:#ef4444; color:#991b1b; } .fb-hint { border-color:#f59e0b; color:#92400e; }
       .spelling-list { margin-top: 8px; padding: 5px; background: #f0fdf4; border-radius: 6px; list-style: none; font-size: 0.9em; text-align: left; }
-      .spelling-item { margin-bottom: 2px; }
-      .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; }
-      .right-word { font-weight: bold; color: #15803d; }
+      .spelling-item { margin-bottom: 2px; } .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; } .right-word { font-weight: bold; color: #15803d; }
     </style>
-    <div id="arena"> 
-      <img id="hero" src="images/hero.png" alt="Héros" /> 
-      <img id="zombie" src="images/zombi.png" alt="Zombie" /> 
-      <div id="projectile"></div> 
-      <div id="feedback-bubble"></div>
-    </div>
+    <div id="arena"> <img id="hero" src="images/hero.png" alt="Héros" /> <img id="zombie" src="images/zombi.png" alt="Zombie" /> <div id="projectile"></div> <div id="feedback-bubble"></div> </div>
     <div id="question" class="question-zone"></div>
-    <div id="ai-input-zone">
-      <textarea id="answer" placeholder="Écris ta réponse..." autocomplete="off"></textarea>
-      <div class="buttons-row"><button id="submit">Envoyer à l'IA 🤖</button></div>
+    <div id="ai-input-zone"><textarea id="answer" placeholder="Écris ta réponse..." autocomplete="off"></textarea><div class="buttons-row"><button id="submit">Envoyer à l'IA 🤖</button></div></div>
+    <div id="options-grid"><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button></div>
+  </template>
+
+  <!-- TEMPLATE RÉDACTION -->
+  <template id="template-redaction-game">
+    <style>
+      .redac-container { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px; text-align: center; height: 100%; overflow-y: auto; }
+      .redac-context-box { background: #fff7ed; border-left: 4px solid #f97316; width: 100%; padding: 10px; text-align: left; font-size: 0.95em; color: #431407; display: none; border-radius: 4px; margin-bottom: 5px; }
+      .context-label { font-weight: 800; text-transform: uppercase; font-size: 0.8em; color: #ea580c; display: block; margin-bottom: 4px; }
+      .redac-question { font-size: 1.2em; font-weight: 700; color: #1e293b; background: #e0f2fe; padding: 15px; border-radius: 12px; border: 2px solid #3b82f6; width: 100%; }
+      .redac-input { width: 100%; height: 150px; padding: 15px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 10px; font-family: inherit; resize: vertical; }
+      .redac-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+      .redac-btn { background: #2563eb; color: white; border: none; padding: 12px 30px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: transform 0.1s; }
+      .redac-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+      .redac-feedback { display: none; padding: 15px; border-radius: 8px; font-weight: 600; width: 100%; margin-top: 10px; border: 1px solid transparent; text-align: left; }
+      .ai-loading { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; text-align: center;} .ai-good { background: #dcfce7; color: #166534; border-color: #86efac; } .ai-bad { background: #fee2e2; color: #991b1b; border-color: #fca5a5; } .ai-hint { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+    </style>
+    <div class="redac-container">
+      <div id="redac-context" class="redac-context-box"><span class="context-label">Contexte</span><span id="redac-context-text"></span></div>
+      <div id="redac-q" class="redac-question">Question...</div>
+      <textarea id="redac-answer" class="redac-input" placeholder="Rédige ta réponse ici..."></textarea>
+      <button id="redac-submit" class="redac-btn">Envoyer à l'IA 🤖</button>
+      <div id="redac-feedback" class="redac-feedback"></div>
     </div>
   </template>
 
-  <!-- SCRIPT DU JEU (MIS A JOUR POUR ID JOUEUR) -->
+  <!-- SCRIPTS -->
   <script>
   class ZombieGame {
     constructor(c, ctrl) {
       this.c = c; this.ctrl = ctrl;
-      this.hero = c.querySelector("#hero"); 
-      this.zombie = c.querySelector("#zombie");
-      this.projectile = c.querySelector("#projectile"); 
-      this.arena = c.querySelector("#arena");
-      this.qEl = c.querySelector("#question");
-      this.input = c.querySelector("#answer");
-      this.subBtn = c.querySelector("#submit");
-      this.fbBubble = c.querySelector("#feedback-bubble");
+      this.hero = c.querySelector("#hero"); this.zombie = c.querySelector("#zombie");
+      this.projectile = c.querySelector("#projectile"); this.arena = c.querySelector("#arena");
+      this.qEl = c.querySelector("#question"); this.fbBubble = c.querySelector("#feedback-bubble");
+      this.aiZone = c.querySelector("#ai-input-zone"); this.input = c.querySelector("#answer"); this.subBtn = c.querySelector("#submit");
+      this.qcmZone = c.querySelector("#options-grid"); this.optBtns = c.querySelectorAll(".option-btn");
       this.zInt = null; this.pInt = null; this.zPos = 20; this.zPaused = false; this.resetting = false;
       this.subBtn.onclick = () => this.askAI();
       this.input.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.askAI(); } };
       this.input.addEventListener("input", () => { this.zPaused = (this.input.value.length > 0); });
+      this.optBtns.forEach((btn, idx) => { btn.onclick = () => this.checkOption(idx); });
     }
     loadQuestion(q) {
-      this.resetting = false; this.qEl.textContent = q.q; 
-      this.input.value = ""; this.input.disabled = false; this.subBtn.disabled = false; 
-      this.subBtn.textContent = "Envoyer à l'IA 🤖"; this.fbBubble.style.display = "none";
-      this.zPos = 20; this.zombie.style.right = "20px"; 
-      this.zombie.style.display = "block"; this.zombie.style.opacity = "1";
-      this.zPaused = false; 
-      setTimeout(() => { if(!window.isGlobalPaused) this.input.focus(); }, 100);
+      this.currentQ = q; this.resetting = false; this.qEl.textContent = q.q; this.fbBubble.style.display = "none";
+      this.zPos = 20; this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; this.zPaused = false; 
+      if (q.options && q.options.length > 0) {
+          this.aiZone.style.display = "none"; this.qcmZone.style.display = "grid";
+          this.optBtns.forEach((btn, i) => { btn.textContent = q.options[i]; btn.className = "option-btn"; btn.disabled = false; });
+      } else {
+          this.qcmZone.style.display = "none"; this.aiZone.style.display = "flex";
+          this.input.value = ""; this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖";
+          setTimeout(() => { if(!window.isGlobalPaused) this.input.focus(); }, 100);
+      }
+    }
+    checkOption(idx) {
+      if (this.ctrl.getState().isLocked || window.isGlobalPaused) return;
+      const selected = this.currentQ.options[idx]; const correct = this.currentQ.a;
+      let isCorrect = false; if (typeof correct === 'number') isCorrect = (idx === correct); else isCorrect = (selected === correct);
+      if (isCorrect) { this.optBtns[idx].classList.add("opt-correct"); this.win(); setTimeout(() => this.ctrl.notifyCorrectAnswer(), 1000); } 
+      else { this.optBtns[idx].classList.add("opt-wrong"); this.ctrl.notifyWrongAnswer(null); }
     }
     async askAI() {
       if(window.isGlobalPaused || this.ctrl.getState().isLocked || this.input.value.trim() === "") return;
-      this.zPaused = true; this.input.disabled = true; this.subBtn.disabled = true;
-      this.showFeedback("🧠 Analyse...", "loading");
-      const currentQ = (typeof levels !== 'undefined') ? levels[currentLevel].questions[currentIndex] : null;
-      if(!currentQ) return;
-      
-      // On récupère l'ID du joueur depuis localStorage pour lier les fautes
+      this.zPaused = true; this.input.disabled = true; this.subBtn.disabled = true; this.showFeedback("🧠 Analyse...", "loading");
       const player = JSON.parse(localStorage.getItem('player') || '{}');
-      
       try {
-        const res = await fetch('/api/verify-answer-ai', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-              question: currentQ.q, 
-              userAnswer: this.input.value, 
-              expectedAnswer: currentQ.a,
-              playerId: player.id || player._id // AJOUT ID
-          })
-        });
-        const data = await res.json();
-        this.handleResponse(data);
-      } catch (err) { 
-        this.input.disabled = false; this.subBtn.disabled = false; this.showFeedback("Erreur connexion.", "error");
-      }
+        const res = await fetch('/api/verify-answer-ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: this.currentQ.q, userAnswer: this.input.value, expectedAnswer: this.currentQ.a, playerId: player.id || player._id }) });
+        const data = await res.json(); this.handleResponse(data);
+      } catch (err) { this.input.disabled = false; this.subBtn.disabled = false; this.showFeedback("Erreur connexion.", "error"); }
     }
     handleResponse(data) {
       const status = data.status || (data.correct ? "correct" : "incorrect");
-      if (status === "correct") {
-        let html = `<strong>🎉 ${data.feedback || "Bravo !"}</strong>`;
-        if (data.corrections && data.corrections.length > 0) {
-          html += `<ul class="spelling-list">` + data.corrections.map(c => `<li class="spelling-item"><span class="wrong-word">${c.wrong}</span> <span class="right-word">${c.correct}</span></li>`).join('') + `</ul>`;
-        }
-        this.showFeedback(html, "success", true);
-        this.win(); 
-        setTimeout(() => this.ctrl.notifyCorrectAnswer(), 4000);
-      } else if (status === "close") {
-        this.showFeedback(`💡 <strong>Indice :</strong> ${data.feedback}`, "hint", true);
-        setTimeout(() => {
-            if(!window.isGlobalPaused) { this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus(); }
-        }, 2000);
-      } else {
-        this.showFeedback(`❌ ${data.feedback || "Incorrect."}`, "error");
-        if(typeof localScores !== 'undefined') { localScores[currentIndex] = Math.max(0, localScores[currentIndex] - 1); if(typeof updateBars === 'function') updateBars(); }
-        setTimeout(() => {
-            this.zPaused = false; 
-            if(!window.isGlobalPaused) { this.input.disabled = false; this.subBtn.disabled = false; this.subBtn.textContent = "Réessayer"; this.input.focus(); }
-            this.fbBubble.style.display = "none";
-        }, 3000);
-      }
+      let correctionsHTML = "";
+      if (data.corrections && data.corrections.length > 0) { correctionsHTML += `<ul class="spelling-list">` + data.corrections.map(c => `<li class="spelling-item"><span class="wrong-word">${c.wrong}</span> <span class="right-word">${c.correct}</span></li>`).join('') + `</ul>`; }
+      if (status === "correct") { this.showFeedback(`<strong>🎉 ${data.feedback || "Bravo !"}</strong>` + correctionsHTML, "success", true); this.win(); setTimeout(() => this.ctrl.notifyCorrectAnswer(), 3000); } 
+      else if (status === "close") { this.showFeedback(`💡 <strong>Indice :</strong> ${data.feedback}` + correctionsHTML, "hint", true); setTimeout(() => { if(!window.isGlobalPaused) { this.input.disabled = false; this.subBtn.disabled = false; this.input.focus(); } }, 3000); } 
+      else { this.showFeedback(`❌ ${data.feedback || "Incorrect."}`, "error"); this.ctrl.notifyWrongAnswer(null); setTimeout(() => { this.zPaused = false; if(!window.isGlobalPaused) { this.input.disabled = false; this.subBtn.disabled = false; this.input.focus(); } this.fbBubble.style.display = "none"; }, 2500); }
     }
-    showFeedback(msg, type, isHtml = false) {
-      if(!this.fbBubble) return;
-      this.fbBubble.className = ""; this.fbBubble.classList.add(`fb-${type}`);
-      if(isHtml) this.fbBubble.innerHTML = msg; else this.fbBubble.textContent = msg;
-      this.fbBubble.style.display = "block";
-    }
-    startAnimation(){ this.moveZ(); } 
-    resetAnimation(){ this.stop(); }
-    moveZ() {
-      if(this.zInt) return;
-      this.zombie.style.display="block"; this.zombie.style.opacity="1";
-      const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30;
-      const step = max / 50000; 
-      this.zInt = setInterval(() => {
-        if(window.isGlobalPaused || this.resetting || this.ctrl.getState().isLocked || this.zPaused) return;
-        this.zPos += step * 20; this.zombie.style.right = this.zPos + "px";
-        if(this.zPos >= max) { this.ctrl.notifyWrongAnswer(null); }
-      }, 20);
-    }
-    stop() {
-      this.resetting = true;
-      if(this.zInt) { clearInterval(this.zInt); this.zInt = null; }
-      if(this.pInt) { clearInterval(this.pInt); this.pInt = null; }
-      this.zPos = 20; this.zPaused = false;
-      if(this.zombie) { this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.zombie.style.opacity = "1"; }
-      if(this.projectile) { this.projectile.style.display = "none"; this.projectile.style.left = "0px"; }
-      if(this.input) { this.input.disabled = false; this.input.value = ""; }
-      if(this.subBtn) { this.subBtn.disabled = false; this.subBtn.textContent = "Envoyer à l'IA 🤖"; }
-      if(this.fbBubble) this.fbBubble.style.display = "none";
-    }
+    showFeedback(msg, type, isHtml = false) { if(!this.fbBubble) return; this.fbBubble.className = ""; this.fbBubble.classList.add(`fb-${type}`); if(isHtml) this.fbBubble.innerHTML = msg; else this.fbBubble.textContent = msg; this.fbBubble.style.display = "block"; }
+    startAnimation(){ this.moveZ(); } resetAnimation(){ this.stop(); }
+    moveZ() { if(this.zInt) return; this.zombie.style.display="block"; this.zombie.style.opacity="1"; const max = this.arena.offsetWidth - this.zombie.offsetWidth - this.hero.offsetWidth - 30; const step = max / 50000; this.zInt = setInterval(() => { if(window.isGlobalPaused || this.resetting || this.ctrl.getState().isLocked || this.zPaused) return; this.zPos += step * 20; this.zombie.style.right = this.zPos + "px"; if(this.zPos >= max) { this.ctrl.notifyWrongAnswer(null); } }, 20); }
+    stop() { this.resetting = true; if(this.zInt) { clearInterval(this.zInt); this.zInt = null; } if(this.pInt) { clearInterval(this.pInt); this.pInt = null; } this.zPos = 20; this.zPaused = false; this.zombie.style.right = "20px"; this.zombie.style.display = "block"; this.projectile.style.display = "none"; this.projectile.style.left = "0px"; this.aiZone.style.display = "none"; this.qcmZone.style.display = "none"; this.fbBubble.style.display = "none"; }
     win() { this.shoot(); }
-    shoot() {
-      if(this.pInt) return;
-      this.projectile.style.display = "block";
-      let p = this.hero.offsetWidth;
-      const zRight = parseFloat(this.zombie.style.right) || 20;
-      const hit = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2);
-      this.pInt = setInterval(() => {
-        if(this.resetting) { clearInterval(this.pInt); this.pInt = null; return; }
-        p += 25; this.projectile.style.left = p + "px";
-        if(p >= hit) {
-          clearInterval(this.pInt); this.pInt = null;
-          this.projectile.style.display = "none"; this.projectile.style.left = "0px";
-          if(!this.resetting) this.zombie.style.display = "none";
-        }
-      }, 20);
-    }
+    shoot() { if(this.pInt) return; this.projectile.style.display = "block"; let p = this.hero.offsetWidth; const zRight = parseFloat(this.zombie.style.right) || 20; const hit = this.arena.offsetWidth - zRight - (this.zombie.offsetWidth / 2); this.pInt = setInterval(() => { if(this.resetting) { clearInterval(this.pInt); this.pInt = null; return; } p += 25; this.projectile.style.left = p + "px"; if(p >= hit) { clearInterval(this.pInt); this.pInt = null; this.projectile.style.display = "none"; this.projectile.style.left = "0px"; if(!this.resetting) this.zombie.style.display = "none"; } }, 20); }
   }
   window.ZombieGame = ZombieGame;
+  </script>
+
+  <script>
+  class RedactionGame {
+    constructor(container, controller) {
+      this.container = container; this.controller = controller;
+      this.qEl = container.querySelector("#redac-q"); this.contextBox = container.querySelector("#redac-context"); this.contextText = container.querySelector("#redac-context-text"); this.contextLabel = container.querySelector(".context-label");
+      this.input = container.querySelector("#redac-answer"); this.submitBtn = container.querySelector("#redac-submit"); this.feedbackEl = container.querySelector("#redac-feedback");
+      this.currentQuestion = null; this.isProcessing = false;
+      this.submitBtn.addEventListener("click", () => this.submit());
+      this.input.addEventListener("keydown", (e) => { if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.submit(); } });
+    }
+    loadQuestion(q) {
+      this.currentQuestion = q; this.qEl.innerHTML = q.q.replace(/\n/g, "<br>");
+      if (q.context) { this.contextBox.style.display = "block"; this.contextText.innerHTML = q.context.replace(/\n/g, "<br>"); if(q.mode === "argument") this.contextLabel.textContent = "Partie à soutenir :"; else if(q.mode === "exemple") this.contextLabel.textContent = "Argument à illustrer :"; else if(q.mode === "conclusion") this.contextLabel.textContent = "Introduction de départ :"; else this.contextLabel.textContent = "Contexte :"; } else { this.contextBox.style.display = "none"; }
+      if (q.mode === "intro") this.input.placeholder = "Définition, Bornes, Problématique, Plan..."; else if (q.mode === "argument") this.input.placeholder = "D'une part... D'autre part..."; else if (q.mode === "exemple") this.input.placeholder = "Par exemple, en [Date], à [Lieu]..."; else this.input.placeholder = "En conclusion...";
+      this.input.value = ""; this.input.disabled = false; this.submitBtn.disabled = false; this.submitBtn.textContent = "Envoyer à l'IA 🤖"; this.feedbackEl.style.display = "none"; this.isProcessing = false;
+      setTimeout(() => { if(!window.isGlobalPaused) this.input.focus(); }, 100);
+    }
+    async submit() {
+      if (this.controller.getState().isLocked || this.isProcessing) return;
+      const text = this.input.value.trim(); if (!text) return alert("Écris quelque chose !");
+      this.isProcessing = true; this.input.disabled = true; this.submitBtn.disabled = true; this.submitBtn.textContent = "Analyse...";
+      this.feedbackEl.style.display = "block"; this.feedbackEl.className = "redac-feedback ai-loading"; this.feedbackEl.textContent = "🧠 Analyse pédagogique en cours...";
+      const player = JSON.parse(localStorage.getItem('player') || '{}');
+      try {
+          const res = await fetch('/api/verify-answer-ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: this.currentQuestion.q, userAnswer: text, expectedAnswer: this.currentQuestion.a, playerId: player.id || player._id, redactionMode: this.currentQuestion.mode, context: this.currentQuestion.context }) });
+          const data = await res.json();
+          const status = data.status || (data.correct ? "correct" : "incorrect");
+          let feedbackHTML = `<div>${data.feedback || ""}</div>`;
+          if (data.corrections && data.corrections.length > 0) { feedbackHTML += `<div style="margin-top:8px; font-size:0.9em; border-top:1px solid #ccc; padding-top:5px;"><b>Orthographe :</b><ul style="margin:5px 0; padding-left:20px;">` + data.corrections.map(c => `<li><s>${c.wrong}</s> ➔ <b style="color:#16a34a">${c.correct}</b></li>`).join('') + `</ul></div>`; }
+          if (status === "correct") { this.feedbackEl.className = "redac-feedback ai-good"; this.feedbackEl.innerHTML = "✅ " + feedbackHTML; setTimeout(() => { this.controller.notifyCorrectAnswer(); }, 4000); } 
+          else if (status === "close") { this.feedbackEl.className = "redac-feedback ai-hint"; this.feedbackEl.innerHTML = "💡 <b>Presque !</b> " + feedbackHTML; this.resetInput(); } 
+          else { this.feedbackEl.className = "redac-feedback ai-bad"; this.feedbackEl.innerHTML = "❌ " + feedbackHTML; this.controller.notifyWrongAnswer(null); this.resetInput(); }
+      } catch (e) { this.feedbackEl.textContent = "Erreur technique."; this.resetInput(); }
+    }
+    resetInput() { setTimeout(() => { this.isProcessing = false; this.input.disabled = false; this.submitBtn.disabled = false; this.submitBtn.textContent = "Réessayer"; if(!window.isGlobalPaused) this.input.focus(); }, 3000); }
+    startAnimation() {} resetAnimation() {}
+  }
+  window.RedactionGame = RedactionGame;
   </script>
 
   <script src="main.js"></script>

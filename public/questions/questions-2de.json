@@ -1,255 +1,125 @@
 [
   {
-    "id": "ch1-lvl1-2de",
-    "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 1 (Repères Grèce et Rome)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🏛️ 1. Le monde grec et romain</h3><ul><li><strong>1. La Polis :</strong> Nom grec pour désigner une <strong>Cité-État</strong> (ville + campagne).</li><li><strong>2. Athènes :</strong> Cité modèle de la <strong>démocratie</strong> au Ve siècle av. J.-C.</li><li><strong>3. Le Forum :</strong> Cœur politique, religieux et économique de la cité romaine.</li><li><strong>4. Chronologie :</strong> Les Grecs dominent aux Ve-IVe s. av. J.-C.</li><li><strong>5. Mare Nostrum :</strong> Les Romains dominent la Méditerranée au début de notre ère.</li><li><strong>6. Empire :</strong> Ensemble des territoires conquis et dirigés par Rome.</li></ul>",
+    "id": "2de-geo-arctique",
+    "chapterId": "ch4-redaction",
+    "title": "Sujet 1 : L'Arctique",
+    "requiredPerQuestion": 1,
     "questions": [
       {
-        "q": "Comment s'appelle la cité grecque qui sert souvent d'exemple de démocratie au Ve siècle av. J.-C. ?",
-        "a": "Athènes",
-        "options": ["Athènes", "Sparte", "Rome", "Alexandrie"]
+        "mode": "intro",
+        "q": "Sujet : L'Arctique, un milieu entre fragilité et attractivité.",
+        "a": "Attendu : Définition (Pôle Nord, banquise, terres gelées). Bornes (Cercle polaire, contexte réchauffement). Problématique (Comment concilier exploitation et protection ?). Plan (I. Espace convoité, II. Écosystème menacé, III. Protection)."
       },
       {
-        "q": "Comment appelle-t-on une cité grecque, avec sa ville et son territoire ?",
-        "a": "polis",
-        "options": ["polis", "forum", "agora", "civitas"]
+        "mode": "argument",
+        "context": "I - Un espace de plus en plus convoité",
+        "q": "Rédige deux arguments distincts pour soutenir cette partie.",
+        "a": "Argument 1 : Richesse en ressources énergétiques (pétrole, gaz) accessibles par la fonte. Argument 2 : Nouvelles routes maritimes et essor du tourisme."
       },
       {
-        "q": "Comment s'appelle le grand espace au cœur de la cité romaine où l'on se rassemble ?",
-        "a": "forum",
-        "options": ["forum", "agora", "circus", "palais impérial"]
+        "mode": "exemple",
+        "context": "L'ouverture de nouvelles routes maritimes et l'essor du tourisme dans la région.",
+        "q": "Donne un exemple précis et chiffré pour illustrer cet argument.",
+        "a": "Exemple : La croissance de 20 % du tourisme dans l'Arctique russe ou le passage de navires de commerce par le Nord."
       },
       {
-        "q": "Quel peuple domine la Méditerranée à l'époque classique (Ve–IVe siècles av. J.-C.) ?",
-        "a": "les Grecs",
-        "options": ["les Grecs", "les Romains", "les Carolingiens", "les Francs"]
-      },
-      {
-        "q": "Quel peuple domine la Méditerranée au début de notre ère ?",
-        "a": "les Romains",
-        "options": ["les Romains", "les Grecs", "les Vikings", "les Mongols"]
-      },
-      {
-        "q": "Quel nom donne-t-on à l'ensemble des territoires dominés par Rome ?",
-        "a": "l'Empire romain",
-        "options": ["l'Empire romain", "la polis", "le royaume franc", "l'empire carolingien"]
+        "mode": "conclusion",
+        "context": "Rappel Intro : L'Arctique est une région polaire en pleine mutation climatique...",
+        "q": "Rédige la conclusion (Réponse à la problématique + Ouverture).",
+        "a": "Bilan : Zone de tension entre opportunités économiques et urgence écologique. Ouverture : Le rôle du Conseil de l'Arctique pour éviter les conflits ?"
       }
     ]
   },
   {
-    "id": "ch1-lvl2-2de",
-    "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 2 (Dates et événements)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>⏳ 2. Les dates clés de l'Antiquité</h3><ul><li><strong>1. 753 av. J.-C. :</strong> Fondation légendaire de <strong>Rome</strong>.</li><li><strong>2. 509 av. J.-C. :</strong> Fin de la royauté, début de la <strong>République</strong> romaine.</li><li><strong>3. 480 av. J.-C. :</strong> Bataille de <strong>Salamine</strong> (Victoire grecque sur les Perses).</li><li><strong>4. 27 av. J.-C. :</strong> Auguste met fin aux guerres civiles et fonde l'<strong>Empire</strong>.</li><li><strong>5. Actium :</strong> Bataille décisive remportée par Auguste contre Antoine.</li><li><strong>6. 212 ap. J.-C. :</strong> Édit de <strong>Caracalla</strong> (Citoyenneté pour tous les hommes libres).</li></ul>",
+    "id": "2de-geo-risques",
+    "chapterId": "ch4-redaction",
+    "title": "Sujet 2 : Les Risques",
+    "requiredPerQuestion": 1,
     "questions": [
       {
-        "q": "Fondation légendaire de la ville de Rome ?",
-        "a": "753 av. J.-C.",
-        "options": ["753 av. J.-C.", "509 av. J.-C.", "27 av. J.-C.", "212 ap. J.-C."]
+        "mode": "intro",
+        "q": "Sujet : Les sociétés face aux risques : une inégale vulnérabilité.",
+        "a": "Attendu : Définition (Risque = Aléa + Enjeu). Bornes (Mondiale, Pays Nord/Sud). Problématique (Pourquoi l'inégalité face aux catastrophes ?). Plan (I. Exposition, II. Vulnérabilité et développement, III. Gestion)."
       },
       {
-        "q": "Mise en place de la République romaine (fin de la royauté) ?",
-        "a": "509 av. J.-C.",
-        "options": ["509 av. J.-C.", "753 av. J.-C.", "27 av. J.-C.", "476 ap. J.-C."]
+        "mode": "argument",
+        "context": "II - Une vulnérabilité liée au niveau de développement",
+        "q": "Propose deux arguments montrant la différence entre pays riches et pauvres.",
+        "a": "Argument 1 : Pays pauvres = forte vulnérabilité humaine (mortalité élevée). Argument 2 : Pays riches = forte vulnérabilité économique (coût des infrastructures)."
       },
       {
-        "q": "Début de l'Empire romain avec Auguste ?",
-        "a": "27 av. J.-C.",
-        "options": ["27 av. J.-C.", "31 av. J.-C.", "212 ap. J.-C.", "395 ap. J.-C."]
+        "mode": "exemple",
+        "context": "Les pays riches subissent surtout des pertes économiques malgré des aléas violents.",
+        "q": "Illustre cet argument avec un exemple récent de catastrophe.",
+        "a": "Exemple : L'ouragan Ida aux USA (2021) : 75 milliards de dollars de dégâts mais un nombre de victimes limité comparé aux pays du Sud."
       },
       {
-        "q": "Bataille navale qui oppose Octave à Antoine et Cléopâtre et assure la victoire d'Auguste ?",
-        "a": "Actium",
-        "options": ["Actium", "Salamine", "Marathon", "Thapsus"]
-      },
-      {
-        "q": "Édit de Caracalla accordant la citoyenneté romaine à presque tous les hommes libres de l'Empire ?",
-        "a": "212 ap. J.-C.",
-        "options": ["212 ap. J.-C.", "313 ap. J.-C.", "395 ap. J.-C.", "476 ap. J.-C."]
-      },
-      {
-        "q": "Grande victoire navale des Grecs sur les Perses en 480 av. J.-C. ?",
-        "a": "Salamine",
-        "options": ["Salamine", "Marathon", "Actium", "Cannes"]
+        "mode": "conclusion",
+        "context": "Rappel Intro : Les risques naturels touchent toute la planète mais avec des conséquences variées...",
+        "q": "Conclus le devoir (Réponse + Ouverture).",
+        "a": "Bilan : La vulnérabilité dépend de la préparation et des richesses, pas juste de la nature. Ouverture : Le changement climatique va-t-il creuser le fossé Nord/Sud ?"
       }
     ]
   },
   {
-    "id": "ch1-lvl3-2de",
-    "chapterId": "ch1-zombie",
-    "title": "Chapitre 1 - Niveau 3 (Institutions et sociétés)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>⚖️ 3. Citoyenneté et Empire</h3><ul><li><strong>1. L'Ecclésia :</strong> Assemblée des citoyens qui vote les lois à Athènes.</li><li><strong>2. Exclus :</strong> Femmes, métèques (étrangers) et esclaves ne sont pas citoyens.</li><li><strong>3. Le Sénat :</strong> Assemblée la plus puissante sous la République romaine.</li><li><strong>4. Romanisation :</strong> Adoption de la culture et du mode de vie romain.</li><li><strong>5. Pérégrins :</strong> Habitants libres de l'Empire qui ne sont pas citoyens.</li><li><strong>6. Élites :</strong> Les sénateurs et chevaliers dominent la société romaine.</li></ul>",
+    "id": "2de-geo-eau",
+    "chapterId": "ch4-redaction",
+    "title": "Sujet 3 : L'Eau",
+    "requiredPerQuestion": 1,
     "questions": [
       {
-        "q": "Dans la démocratie athénienne, comment s'appelle l'assemblée des citoyens ?",
-        "a": "l'Ecclésia",
-        "options": ["l'Ecclésia", "le Sénat", "le Conseil des Cinq-Cents", "le triumvirat"]
+        "mode": "intro",
+        "q": "Sujet : La gestion de l'eau : une ressource sous tension.",
+        "a": "Attendu : Définition (Stress hydrique, Pénurie). Bornes (Mondiale, horizon 2050). Problématique (Comment satisfaire les besoins croissants ?). Plan (I. Inégale disponibilité, II. Demande croissante, III. Tensions)."
       },
       {
-        "q": "À Athènes, quels habitants n'ont PAS la citoyenneté ?",
-        "a": "les femmes, les esclaves et les métèques",
-        "options": [
-          "les femmes, les esclaves et les métèques",
-          "les hommes adultes nés de parents citoyens",
-          "tous les habitants sans exception",
-          "uniquement les esclaves"
-        ]
+        "mode": "argument",
+        "context": "I - Une ressource inégalement disponible",
+        "q": "Donne deux arguments expliquant ces inégalités (naturelles et humaines).",
+        "a": "Argument 1 : Inégalités climatiques (zones arides vs zones humides). Argument 2 : Inégalités techniques et financières (capacité à traiter/acheminer l'eau)."
       },
       {
-        "q": "Comment appelle-t-on le processus par lequel Rome diffuse sa langue, ses lois et sa culture dans l'Empire ?",
-        "a": "romanisation",
-        "options": ["romanisation", "hellénisation", "christianisation", "féodalisation"]
+        "mode": "exemple",
+        "context": "Certains pays disposent de la ressource mais manquent d'infrastructures pour l'exploiter (pénurie économique).",
+        "q": "Cite un pays ou une région dans cette situation.",
+        "a": "Exemple : La République Démocratique du Congo (RDC), riche en eau mais manquant d'usines de traitement."
       },
       {
-        "q": "Comment s'appelle l'assemblée politique la plus importante à Rome sous la République ?",
-        "a": "le Sénat",
-        "options": ["le Sénat", "l'Ecclésia", "la Boulè", "le Conseil impérial"]
-      },
-      {
-        "q": "Quel groupe social est au sommet de la société romaine ?",
-        "a": "les citoyens riches (aristocratie sénatoriale et chevaliers)",
-        "options": [
-          "les citoyens riches (aristocratie sénatoriale et chevaliers)",
-          "les esclaves",
-          "les métèques",
-          "les paysans sans terres"
-        ]
-      },
-      {
-        "q": "Comment appelle-t-on les habitants de l'Empire qui ne sont pas citoyens romains avant l'édit de Caracalla ?",
-        "a": "les pérégrins",
-        "options": ["les pérégrins", "les patriciens", "les plébéiens", "les colons"]
+        "mode": "conclusion",
+        "context": "Rappel Intro : L'eau est vitale mais sa répartition pose problème...",
+        "q": "Rédige la conclusion.",
+        "a": "Bilan : Enjeu majeur de développement et de paix. Ouverture : Le recyclage des eaux usées est-il la solution d'avenir ?"
       }
     ]
   },
   {
-    "id": "ch2-lvl1-2de",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 1 (Repères Grèce et Rome)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>🏛️ 1. Le monde grec et romain</h3><ul><li><strong>1. La Polis :</strong> Nom grec pour désigner une <strong>Cité-État</strong> (ville + campagne).</li><li><strong>2. Athènes :</strong> Cité modèle de la <strong>démocratie</strong> au Ve siècle av. J.-C.</li><li><strong>3. Le Forum :</strong> Cœur politique, religieux et économique de la cité romaine.</li><li><strong>4. Chronologie :</strong> Les Grecs dominent aux Ve-IVe s. av. J.-C.</li><li><strong>5. Mare Nostrum :</strong> Les Romains dominent la Méditerranée au début de notre ère.</li><li><strong>6. Empire :</strong> Ensemble des territoires conquis et dirigés par Rome.</li></ul>",
+    "id": "2de-geo-dd",
+    "chapterId": "ch4-redaction",
+    "title": "Sujet 4 : Développement Durable",
+    "requiredPerQuestion": 1,
     "questions": [
       {
-        "q": "Comment s'appelle la cité grecque qui sert souvent d'exemple de démocratie au Ve siècle av. J.-C. ?",
-        "a": "Athènes",
-        "options": ["Athènes", "Sparte", "Rome", "Alexandrie"]
+        "mode": "intro",
+        "q": "Sujet : Le développement durable, un nouveau mode de gestion des ressources ?",
+        "a": "Attendu : Définition (Besoins actuels vs futurs). Bornes (3 piliers : social, éco, enviro). Problématique (Est-ce une solution applicable partout ?). Plan (I. Principes, II. Solutions, III. Limites)."
       },
       {
-        "q": "Comment appelle-t-on une cité grecque, avec sa ville et son territoire ?",
-        "a": "polis",
-        "options": ["polis", "forum", "agora", "civitas"]
+        "mode": "argument",
+        "context": "III - Les limites et obstacles politiques",
+        "q": "Quels sont les deux freins principaux à la mise en œuvre du développement durable ?",
+        "a": "Argument 1 : Le coût trop élevé pour les pays en développement. Argument 2 : Le manque de volonté politique de certains grands États."
       },
       {
-        "q": "Comment s'appelle le grand espace au cœur de la cité romaine où l'on se rassemble ?",
-        "a": "forum",
-        "options": ["forum", "agora", "circus", "palais impérial"]
+        "mode": "exemple",
+        "context": "Le manque de volonté politique freine les accords internationaux.",
+        "q": "Donne un exemple historique ou récent de ce frein politique.",
+        "a": "Exemple : Le retrait des États-Unis des accords climatiques sous la présidence Trump."
       },
       {
-        "q": "Quel peuple domine la Méditerranée à l'époque classique (Ve–IVe siècles av. J.-C.) ?",
-        "a": "les Grecs",
-        "options": ["les Grecs", "les Romains", "les Carolingiens", "les Francs"]
-      },
-      {
-        "q": "Quel peuple domine la Méditerranée au début de notre ère ?",
-        "a": "les Romains",
-        "options": ["les Romains", "les Grecs", "les Vikings", "les Mongols"]
-      },
-      {
-        "q": "Quel nom donne-t-on à l'ensemble des territoires dominés par Rome ?",
-        "a": "l'Empire romain",
-        "options": ["l'Empire romain", "la polis", "le royaume franc", "l'empire carolingien"]
-      }
-    ]
-  },
-  {
-    "id": "ch2-lvl2-2de",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 2 (Dates et événements)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>⏳ 2. Les dates clés de l'Antiquité</h3><ul><li><strong>1. 753 av. J.-C. :</strong> Fondation légendaire de <strong>Rome</strong>.</li><li><strong>2. 509 av. J.-C. :</strong> Fin de la royauté, début de la <strong>République</strong> romaine.</li><li><strong>3. 480 av. J.-C. :</strong> Bataille de <strong>Salamine</strong> (Victoire grecque sur les Perses).</li><li><strong>4. 27 av. J.-C. :</strong> Auguste met fin aux guerres civiles et fonde l'<strong>Empire</strong>.</li><li><strong>5. Actium :</strong> Bataille décisive remportée par Auguste contre Antoine.</li><li><strong>6. 212 ap. J.-C. :</strong> Édit de <strong>Caracalla</strong> (Citoyenneté pour tous les hommes libres).</li></ul>",
-    "questions": [
-      {
-        "q": "Fondation légendaire de la ville de Rome ?",
-        "a": "753 av. J.-C.",
-        "options": ["753 av. J.-C.", "509 av. J.-C.", "27 av. J.-C.", "212 ap. J.-C."]
-      },
-      {
-        "q": "Mise en place de la République romaine (fin de la royauté) ?",
-        "a": "509 av. J.-C.",
-        "options": ["509 av. J.-C.", "753 av. J.-C.", "27 av. J.-C.", "476 ap. J.-C."]
-      },
-      {
-        "q": "Début de l'Empire romain avec Auguste ?",
-        "a": "27 av. J.-C.",
-        "options": ["27 av. J.-C.", "31 av. J.-C.", "212 ap. J.-C.", "395 ap. J.-C."]
-      },
-      {
-        "q": "Bataille navale qui oppose Octave à Antoine et Cléopâtre et assure la victoire d'Auguste ?",
-        "a": "Actium",
-        "options": ["Actium", "Salamine", "Marathon", "Thapsus"]
-      },
-      {
-        "q": "Édit de Caracalla accordant la citoyenneté romaine à presque tous les hommes libres de l'Empire ?",
-        "a": "212 ap. J.-C.",
-        "options": ["212 ap. J.-C.", "313 ap. J.-C.", "395 ap. J.-C.", "476 ap. J.-C."]
-      },
-      {
-        "q": "Grande victoire navale des Grecs sur les Perses en 480 av. J.-C. ?",
-        "a": "Salamine",
-        "options": ["Salamine", "Marathon", "Actium", "Cannes"]
-      }
-    ]
-  },
-  {
-    "id": "ch2-lvl3-2de",
-    "chapterId": "ch2-starship",
-    "title": "Chapitre 2 - Niveau 3 (Institutions et sociétés)",
-    "requiredPerQuestion": 3,
-    "lesson": "<h3>⚖️ 3. Citoyenneté et Empire</h3><ul><li><strong>1. L'Ecclésia :</strong> Assemblée des citoyens qui vote les lois à Athènes.</li><li><strong>2. Exclus :</strong> Femmes, métèques (étrangers) et esclaves ne sont pas citoyens.</li><li><strong>3. Le Sénat :</strong> Assemblée la plus puissante sous la République romaine.</li><li><strong>4. Romanisation :</strong> Adoption de la culture et du mode de vie romain.</li><li><strong>5. Pérégrins :</strong> Habitants libres de l'Empire qui ne sont pas citoyens.</li><li><strong>6. Élites :</strong> Les sénateurs et chevaliers dominent la société romaine.</li></ul>",
-    "questions": [
-      {
-        "q": "Dans la démocratie athénienne, comment s'appelle l'assemblée des citoyens ?",
-        "a": "l'Ecclésia",
-        "options": ["l'Ecclésia", "le Sénat", "le Conseil des Cinq-Cents", "le triumvirat"]
-      },
-      {
-        "q": "À Athènes, quels habitants n'ont PAS la citoyenneté ?",
-        "a": "les femmes, les esclaves et les métèques",
-        "options": [
-          "les femmes, les esclaves et les métèques",
-          "les hommes adultes nés de parents citoyens",
-          "tous les habitants sans exception",
-          "uniquement les esclaves"
-        ]
-      },
-      {
-        "q": "Comment appelle-t-on le processus par lequel Rome diffuse sa langue, ses lois et sa culture dans l'Empire ?",
-        "a": "romanisation",
-        "options": ["romanisation", "hellénisation", "christianisation", "féodalisation"]
-      },
-      {
-        "q": "Comment s'appelle l'assemblée politique la plus importante à Rome sous la République ?",
-        "a": "le Sénat",
-        "options": ["le Sénat", "l'Ecclésia", "la Boulè", "le Conseil impérial"]
-      },
-      {
-        "q": "Quel groupe social est au sommet de la société romaine ?",
-        "a": "les citoyens riches (aristocratie sénatoriale et chevaliers)",
-        "options": [
-          "les citoyens riches (aristocratie sénatoriale et chevaliers)",
-          "les esclaves",
-          "les métèques",
-          "les paysans sans terres"
-        ]
-      },
-      {
-        "q": "Comment appelle-t-on les habitants de l'Empire qui ne sont pas citoyens romains avant l'édit de Caracalla ?",
-        "a": "les pérégrins",
-        "options": ["les pérégrins", "les patriciens", "les plébéiens", "les colons"]
+        "mode": "conclusion",
+        "context": "Rappel Intro : Le développement durable tente de concilier économie et écologie...",
+        "q": "Propose une conclusion et une ouverture.",
+        "a": "Bilan : Concept nécessaire mais difficile à appliquer sans solidarité financière. Ouverture : Les catastrophes climatiques forceront-elles l'action politique ?"
       }
     ]
   }

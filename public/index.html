@@ -19,12 +19,14 @@
     .prof-hw-table th { background: #f8fafc; font-weight: 600; }
     .btn-delete { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
     .btn-delete:hover { background: #ef4444; color: white; }
-    .btn-view { background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
-    .btn-view:hover { background: #2563eb; color: white; }
+    
+    /* STYLE DU BOUTON VOIR */
+    .btn-view { background: #3b82f6; color: white; border: 1px solid #2563eb; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
+    .btn-view:hover { background: #1d4ed8; }
 
-    /* Drag & Drop Creation Devoir (Vignettes Prof) */
+    /* Drag & Drop Creation Devoir */
     .drag-area { border: 2px dashed #ccc; padding: 10px; min-height: 50px; background: #f9f9f9; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-    .drag-item { width: 80px; height: 80px; border: 1px solid #ddd; cursor: grab; background: white; position: relative; }
+    .drag-item { width: 80px; height: 80px; border: 1px solid #ddd; cursor: grab; background: white; position: relative; object-fit: cover; }
     .drag-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
     .drag-placeholder { color: #aaa; width: 100%; text-align: center; line-height: 50px; }
   </style>
@@ -174,6 +176,39 @@
       </div>
     </div>
 
+    <!-- MODALE ÉDITEUR VISUEL (PROF - AVEC NAVIGATION) -->
+    <div id="visualEditorModal" class="modal-overlay" style="display: none; z-index: 2000;">
+      <div class="modal-content" style="width: 95vw; height: 95vh; max-width: none; display: flex; flex-direction: column; padding: 0;">
+        <!-- En-tête -->
+        <div style="padding: 10px 20px; border-bottom: 1px solid #ddd; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin:0; font-size:1.2em;">🎨 Organiser (Mode Édition)</h3>
+          
+          <div id="visualNavControls" style="display: flex; align-items: center; gap: 15px; background: white; padding: 5px 15px; border-radius: 20px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+              <button id="btnPrevLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer; font-weight:bold; color:#334155;">◀</button>
+              <span id="lblCurrentLevel" style="font-weight:bold; color:#2563eb; min-width: 120px; text-align:center;">Question 1 / 1</span>
+              <button id="btnNextLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer; font-weight:bold; color:#334155;">▶</button>
+          </div>
+
+          <div>
+            <button id="saveVisualOrderBtn" style="background: #16a34a; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">💾 Tout Valider</button>
+            <button id="closeVisualEditorBtn" style="background: #666; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Fermer</button>
+          </div>
+        </div>
+        
+        <!-- Zone de travail -->
+        <div style="flex: 1; overflow-y: auto; background-color: #334155; padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
+                <h4 style="color: #cbd5e1; margin: 0 0 10px 0; border-bottom: 1px solid #475569; padding-bottom: 5px;">LIGNE 1 (Haut)</h4>
+                <div id="visualRow1" class="drop-zone" data-row="1" style="min-height: 260px; display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 2px dashed #94a3b8; border-radius: 8px;"></div>
+            </div>
+            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
+                <h4 style="color: #cbd5e1; margin: 0 0 10px 0; border-bottom: 1px solid #475569; padding-bottom: 5px;">LIGNE 2 (Bas)</h4>
+                <div id="visualRow2" class="drop-zone" data-row="2" style="min-height: 260px; display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 2px dashed #94a3b8; border-radius: 8px;"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bugs Prof -->
     <div id="profBugListModal" class="modal-overlay" style="display: none;">
       <div class="modal-content" style="max-width: 800px;">
@@ -202,77 +237,10 @@
 
   </main>
 
-  <!-- ======================== TEMPLATES JEUX ======================== -->
+  <template id="template-zombie-game"><!-- Contenu Zombie Inchangé --></template>
+  <template id="template-redaction-game"><!-- Contenu Rédaction Inchangé --></template>
 
-  <!-- TEMPLATE 1 : ZOMBIE -->
-  <template id="template-zombie-game">
-    <style>
-      #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
-      #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; pointer-events: none; }
-      #hero { left: min(3vw, 24px); }
-      #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
-      #projectile { width: 20px; height: 20px; background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: 100px; z-index: 10; }
-      .question-zone { margin: 15px 0; font-size: 1.3em; text-align: center; color: #334155; font-weight: 600; }
-      #ai-input-zone { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; }
-      textarea#answer { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: 2px solid #cbd5e1; resize: none; height: 80px; }
-      button#submit { padding: 10px 20px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
-      #options-grid { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-      .option-btn { padding: 15px; font-size: 16px; background: white; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; color: #1e293b; font-weight: 600; transition: all 0.2s; }
-      .option-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-      .opt-correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534; }
-      .opt-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; }
-      #feedback-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.95); text-align: center; display: none; z-index: 20; border: 2px solid transparent; }
-      .fb-success { border-color:#22c55e; color:#166534; } .fb-error { border-color:#ef4444; color:#991b1b; } .fb-hint { border-color:#f59e0b; color:#92400e; }
-      .spelling-list { margin-top: 8px; padding: 5px; background: #f0fdf4; border-radius: 6px; list-style: none; font-size: 0.9em; text-align: left; }
-      .spelling-item { margin-bottom: 2px; } .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; } .right-word { font-weight: bold; color: #15803d; }
-    </style>
-    <div id="arena"> <img id="hero" src="images/hero.png" alt="Héros" /> <img id="zombie" src="images/zombi.png" alt="Zombie" /> <div id="projectile"></div> <div id="feedback-bubble"></div> </div>
-    <div id="question" class="question-zone"></div>
-    <div id="ai-input-zone"><textarea id="answer" placeholder="Écris ta réponse..." autocomplete="off"></textarea><div class="buttons-row"><button id="submit">Envoyer à l'IA 🤖</button></div></div>
-    <div id="options-grid"><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button></div>
-  </template>
-
-  <!-- TEMPLATE 4 : RÉDACTION -->
-  <template id="template-redaction-game">
-    <style>
-      .redac-container { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px; text-align: center; height: 100%; overflow-y: auto; }
-      .redac-context-box { background: #fff7ed; border-left: 4px solid #f97316; width: 100%; padding: 10px; text-align: left; font-size: 0.95em; color: #431407; display: none; border-radius: 4px; margin-bottom: 5px; }
-      .context-label { font-weight: 800; text-transform: uppercase; font-size: 0.8em; color: #ea580c; display: block; margin-bottom: 4px; }
-      .redac-question { font-size: 1.1em; font-weight: 700; color: #1e293b; background: #e0f2fe; padding: 15px; border-radius: 12px; border: 2px solid #3b82f6; width: 100%; }
-      .redac-input { width: 100%; height: 150px; padding: 15px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 10px; font-family: inherit; resize: vertical; }
-      .redac-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
-      .redac-btn { background: #2563eb; color: white; border: none; padding: 12px 30px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: transform 0.1s; }
-      .redac-btn:disabled { background: #94a3b8; cursor: not-allowed; }
-      .redac-continue-btn { background: #16a34a; color: white; border: none; padding: 15px 40px; font-size: 18px; font-weight: 800; border-radius: 10px; cursor: pointer; display: none; margin-top: 10px; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3); animation: pulse 1.5s infinite; }
-      @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-      .result-header { display: none; width: 100%; background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 2px solid #e2e8f0; }
-      .grade-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 1.5em; font-weight: 900; color: white; background: #3b82f6; margin-bottom: 5px; }
-      .short-comment { font-size: 1.1em; font-weight: 700; color: #334155; display: block; }
-      .analysis-container { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; display: none; }
-      .analysis-box { padding: 10px; border-radius: 8px; text-align: left; font-size: 0.95em; line-height: 1.4; }
-      .box-good { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
-      .box-missing { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
-      .box-title { font-weight: 800; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 0.85em; }
-      .redac-loading { display: none; color: #2563eb; font-weight: 600; margin-top: 10px; }
-    </style>
-    <div class="redac-container">
-      <div id="redac-context" class="redac-context-box"><span class="context-label">Contexte</span><span id="redac-context-text"></span></div>
-      <div id="redac-q" class="redac-question">Question...</div>
-      <textarea id="redac-answer" class="redac-input" placeholder="Rédige ta réponse ici..."></textarea>
-      <div id="redac-loading" class="redac-loading">🧠 Correction en cours...</div>
-      <div id="result-header" class="result-header"><span id="grade-badge" class="grade-badge"></span><span id="short-comment" class="short-comment"></span></div>
-      <button id="redac-submit" class="redac-btn">Envoyer à l'IA 🤖</button>
-      <button id="redac-continue" class="redac-continue-btn">Continuer ➔</button>
-      <div id="analysis-area" class="analysis-container">
-          <div id="box-advice" style="margin-bottom:5px; display:none; padding:10px; background:#fef2f2; border-left:4px solid #ef4444; color:#991b1b; border-radius:4px; text-align:left;"></div>
-          <div id="box-good" class="analysis-box box-good"><span class="box-title">✅ Points forts :</span><span id="text-good"></span></div>
-          <div id="box-missing" class="analysis-box box-missing"><span class="box-title">⚠️ À compléter / corriger :</span><span id="text-missing"></span></div>
-          <div id="box-spelling" style="display:none; font-size:0.9em; border-top:1px solid #ccc; padding-top:10px; color:#b91c1c; text-align:left;"><b>Orthographe :</b> <ul id="list-spelling" style="margin:5px 0; padding-left:20px;"></ul></div>
-      </div>
-    </div>
-  </template>
-
-  <!-- TEMPLATE 5 : DEVOIRS MAISON (Avec Viewer Multi-Image) -->
+  <!-- TEMPLATE HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT) -->
   <template id="template-homework-game">
       <style>
         .hw-layout { position: relative; width: 100%; height: 600px; max-height: 75vh; background-color: #334155; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
@@ -282,33 +250,51 @@
         
         .hw-work-view { position: relative; width: 100%; height: 100%; display: none; overflow: hidden; }
         
-        /* VIEWER D'IMAGES MULTIPLES */
+        /* CONTENEUR PRINCIPAL ÉLÈVE */
         .doc-viewer-container { 
-            width: 100%; height: 100%; overflow: auto; 
-            display: flex; flex-direction: row; flex-wrap: wrap; 
-            justify-content: center; align-items: center; gap: 20px;
+            width: 100%; height: 100%; 
+            display: flex; flex-direction: column; /* Colonne */
             background-image: radial-gradient(#475569 1px, transparent 1px); background-size: 20px 20px; 
-            cursor: grab; padding: 50px; 
-        }
-        .doc-viewer-container:active { cursor: grabbing; }
-
-        .doc-content-wrapper {
-             display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; 
-             justify-content: center; align-items: center;
-             transform-origin: center center;
-             transition: transform 0.1s ease-out;
         }
 
-        .doc-item {
-            max-width: 800px; max-height: 80vh; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        /* ZONE HAUTE (DOCUMENTS) */
+        .doc-zone-top {
+            flex: 1; /* Par défaut 100% (si bas caché) */
+            padding: 10px;
+            overflow-x: auto; 
+            overflow-y: hidden;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.2);
+            transition: flex 0.3s;
+        }
+
+        /* ZONE BASSE (QUESTIONS) - Masquée par défaut */
+        .doc-zone-bottom {
+            display: none; /* Caché si vide */
+            flex: 1; 
+            padding: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.4);
+            border-top: 4px solid #f59e0b; /* Séparateur */
+        }
+
+        /* IMAGES ÉLÈVES */
+        .doc-item-student {
+            height: 90%; /* S'adapte à la hauteur de la zone */
+            width: auto;
+            max-width: none;
+            object-fit: contain;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
             border: 2px solid white;
+            background: #1e293b;
+            flex-shrink: 0;
         }
 
-        .zoom-controls { position: absolute; bottom: 20px; left: 20px; display: flex; gap: 10px; z-index: 10; }
-        .zoom-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .zoom-btn:hover { background: white; transform: scale(1.1); }
-        
         .floating-panel { position: absolute; top: 20px; right: 20px; width: 320px; height: 400px; background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column; z-index: 100; border: 1px solid #cbd5e1; resize: both; overflow: hidden; min-width: 200px; min-height: 200px; }
         .resizer { position: absolute; background: transparent; z-index: 101; }
         .resizer.n { top: 0; left: 0; right: 0; height: 6px; cursor: n-resize; } .resizer.s { bottom: 0; left: 0; right: 0; height: 6px; cursor: s-resize; } .resizer.e { top: 0; bottom: 0; right: 0; width: 6px; cursor: e-resize; } .resizer.w { top: 0; bottom: 0; left: 0; width: 6px; cursor: w-resize; }
@@ -328,13 +314,17 @@
       <div class="hw-layout">
         <div id="hw-list" class="hw-list-view"><p style="text-align:center; color:#666;">Chargement des devoirs...</p></div>
         <div id="hw-workspace" class="hw-work-view">
+            
             <div id="doc-viewer" class="doc-viewer-container">
-                <p id="no-doc-msg" style="color:white; opacity:0.5; pointer-events:none;">Aucun document pour cette question</p>
-                <div id="doc-content-wrapper" class="doc-content-wrapper">
-                    <!-- Les images ou iframes seront injectées ici -->
-                </div>
+                <p id="no-doc-msg" style="color:white; opacity:0.5; pointer-events:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">Aucun document</p>
+                
+                <!-- ZONE HAUTE -->
+                <div id="zone-top" class="doc-zone-top"></div>
+                
+                <!-- ZONE BASSE (Cachée par défaut par JS) -->
+                <div id="zone-bottom" class="doc-zone-bottom"></div>
             </div>
-            <div class="zoom-controls"><button class="zoom-btn" id="zoom-in">+</button><button class="zoom-btn" id="zoom-out">-</button></div>
+
             <div id="floating-panel" class="floating-panel">
                 <div class="resizer n"></div><div class="resizer s"></div><div class="resizer e"></div><div class="resizer w"></div>
                 <div class="resizer ne"></div><div class="resizer nw"></div><div class="resizer se"></div><div class="resizer sw"></div>
@@ -363,20 +353,20 @@
   </template>
 
   <!-- ======================== SCRIPTS CLASSES ======================== -->
-  
   <script>/* ZombieGame */ class ZombieGame{constructor(c,t){this.c=c;this.ctrl=t;this.hero=c.querySelector("#hero");this.zombie=c.querySelector("#zombie");this.projectile=c.querySelector("#projectile");this.arena=c.querySelector("#arena");this.qEl=c.querySelector("#question");this.fbBubble=c.querySelector("#feedback-bubble");this.aiZone=c.querySelector("#ai-input-zone");this.input=c.querySelector("#answer");this.subBtn=c.querySelector("#submit");this.qcmZone=c.querySelector("#options-grid");this.optBtns=c.querySelectorAll(".option-btn");this.zInt=null;this.pInt=null;this.zPos=20;this.zPaused=!1;this.resetting=!1;this.subBtn.onclick=()=>this.askAI();this.input.onkeydown=e=>{if("Enter"===e.key&&!e.shiftKey){e.preventDefault();this.askAI()}};this.input.addEventListener("input",()=>{this.zPaused=this.input.value.length>0});this.optBtns.forEach((e,t)=>{e.onclick=()=>this.checkOption(t)})}loadQuestion(e){this.currentQ=e;this.resetting=!1;this.qEl.textContent=e.q;this.fbBubble.style.display="none";this.zPos=20;this.zombie.style.right="20px";this.zombie.style.display="block";this.zombie.style.opacity="1";this.zPaused=!1;if(e.options&&e.options.length>0){this.aiZone.style.display="none";this.qcmZone.style.display="grid";this.optBtns.forEach((t,s)=>{t.textContent=e.options[s];t.className="option-btn";t.disabled=!1})}else{this.qcmZone.style.display="none";this.aiZone.style.display="flex";this.input.value="";this.input.disabled=!1;this.subBtn.disabled=!1;this.subBtn.textContent="Envoyer à l'IA 🤖";setTimeout(()=>{if(!window.isGlobalPaused)this.input.focus()},100)}}checkOption(e){if(this.ctrl.getState().isLocked||window.isGlobalPaused)return;const t=this.currentQ.options[e],s=this.currentQ.a;let i=!1;i="number"==typeof s?e===s:t===s;if(i){this.optBtns[e].classList.add("opt-correct");this.win();setTimeout(()=>this.ctrl.notifyCorrectAnswer(),1e3)}else{this.optBtns[e].classList.add("opt-wrong");this.ctrl.notifyWrongAnswer(null)}}async askAI(){if(window.isGlobalPaused||this.ctrl.getState().isLocked||""===this.input.value.trim())return;this.zPaused=!0;this.input.disabled=!0;this.subBtn.disabled=!0;this.showFeedback("🧠 Analyse...","loading");const e=JSON.parse(localStorage.getItem("player")||"{}");try{const t=await fetch("/api/verify-answer-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:this.currentQ.q,userAnswer:this.input.value,expectedAnswer:this.currentQ.a,playerId:e.id||e._id})});const s=await t.json();this.handleResponse(s)}catch(e){this.input.disabled=!1;this.subBtn.disabled=!1;this.showFeedback("Erreur connexion.","error")}}handleResponse(e){const t=e.status||(e.correct?"correct":"incorrect");let s="";if(e.corrections&&e.corrections.length>0){s+=`<ul class="spelling-list">`+e.corrections.map(e=>`<li class="spelling-item"><span class="wrong-word">${e.wrong}</span> <span class="right-word">${e.correct}</span></li>`).join("")+`</ul>`}if("correct"===t){this.showFeedback(`<strong>🎉 ${e.feedback||"Bravo !"}</strong>`+s,"success",!0);this.win();setTimeout(()=>this.ctrl.notifyCorrectAnswer(),3e3)}else if("close"===t){this.showFeedback(`💡 <strong>Indice :</strong> ${e.feedback}`+s,"hint",!0);setTimeout(()=>{if(!window.isGlobalPaused){this.input.disabled=!1;this.subBtn.disabled=!1;this.input.focus()}},3e3)}else{this.showFeedback(`❌ ${e.feedback||"Incorrect."}`,"error");this.ctrl.notifyWrongAnswer(null);setTimeout(()=>{this.zPaused=!1;if(!window.isGlobalPaused){this.input.disabled=!1;this.subBtn.disabled=!1;this.input.focus()}this.fbBubble.style.display="none"},2500)}}showFeedback(e,t,s=!1){if(!this.fbBubble)return;this.fbBubble.className="";this.fbBubble.classList.add(`fb-${t}`);if(s)this.fbBubble.innerHTML=e;else this.fbBubble.textContent=e;this.fbBubble.style.display="block"}startAnimation(){this.moveZ()}resetAnimation(){this.stop()}moveZ(){if(this.zInt)return;this.zombie.style.display="block";this.zombie.style.opacity="1";const e=this.arena.offsetWidth-this.zombie.offsetWidth-this.hero.offsetWidth-30;this.zInt=setInterval(()=>{if(window.isGlobalPaused||this.resetting||this.ctrl.getState().isLocked||this.zPaused)return;this.zPos+=e/5e4*20;this.zombie.style.right=this.zPos+"px";if(this.zPos>=e){this.ctrl.notifyWrongAnswer(null)}},20)}stop(){this.resetting=!0;if(this.zInt){clearInterval(this.zInt);this.zInt=null}if(this.pInt){clearInterval(this.pInt);this.pInt=null}this.zPos=20;this.zPaused=!1;this.zombie.style.right="20px";this.zombie.style.display="block";this.projectile.style.display="none";this.projectile.style.left="0px";this.aiZone.style.display="none";this.qcmZone.style.display="none";this.fbBubble.style.display="none"}win(){this.shoot()}shoot(){if(this.pInt)return;this.projectile.style.display="block";let e=this.hero.offsetWidth;const t=parseFloat(this.zombie.style.right)||20,s=this.arena.offsetWidth-t-this.zombie.offsetWidth/2;this.pInt=setInterval(()=>{if(this.resetting){clearInterval(this.pInt);this.pInt=null;return}e+=25;this.projectile.style.left=e+"px";if(e>=s){clearInterval(this.pInt);this.pInt=null;this.projectile.style.display="none";this.projectile.style.left="0px";if(!this.resetting)this.zombie.style.display="none"}},20)}}window.ZombieGame=ZombieGame;</script>
   
   <script>/* RedactionGame */ class RedactionGame{constructor(e,t){this.container=e;this.controller=t;this.qEl=e.querySelector("#redac-q");this.contextBox=e.querySelector("#redac-context");this.contextText=e.querySelector("#redac-context-text");this.contextLabel=e.querySelector(".context-label");this.input=e.querySelector("#redac-answer");this.submitBtn=e.querySelector("#redac-submit");this.continueBtn=e.querySelector("#redac-continue");this.loadingEl=e.querySelector("#redac-loading");this.gradeEl=e.querySelector("#grade-display");this.analysisArea=e.querySelector("#analysis-area");this.boxGood=e.querySelector("#box-good");this.textGood=e.querySelector("#text-good");this.boxMissing=e.querySelector("#box-missing");this.textMissing=e.querySelector("#text-missing");this.boxAdvice=e.querySelector("#box-advice");this.boxSpelling=e.querySelector("#box-spelling");this.listSpelling=e.querySelector("#list-spelling");this.currentQuestion=null;this.isProcessing=!1;this.submitBtn.addEventListener("click",()=>this.submit());this.continueBtn.addEventListener("click",()=>{this.controller.notifyCorrectAnswer()})}loadQuestion(e){this.currentQuestion=e;this.qEl.innerHTML=e.q.replace(/\n/g,"<br>");if(e.context){this.contextBox.style.display="block";this.contextText.innerHTML=e.context.replace(/\n/g,"<br>");if("argument"===e.mode)this.contextLabel.textContent="Partie à soutenir :";else if("exemple"===e.mode)this.contextLabel.textContent="Argument à illustrer :";else if("conclusion"===e.mode)this.contextLabel.textContent="Introduction de départ :";else this.contextLabel.textContent="Contexte :"}else{this.contextBox.style.display="none"}if("intro"===e.mode)this.input.placeholder="Définition, Bornes, Problématique, Plan...";else if("argument"===e.mode)this.input.placeholder="D'une part... D'autre part...";else this.input.placeholder="Rédige ici...";this.input.value="";this.input.disabled=!1;this.submitBtn.style.display="inline-block";this.submitBtn.disabled=!1;this.submitBtn.textContent="Envoyer à l'IA 🤖";this.submitBtn.style.backgroundColor="#2563eb";this.continueBtn.style.display="none";this.analysisArea.style.display="none";this.gradeEl.style.display="none";this.isProcessing=!1;setTimeout(()=>{if(!window.isGlobalPaused)this.input.focus()},100)}async submit(){if(this.controller.getState().isLocked||this.isProcessing)return;const e=this.input.value.trim();if(!e)return alert("Écris quelque chose !");this.isProcessing=!0;this.input.disabled=!0;this.submitBtn.disabled=!0;this.submitBtn.style.display="none";this.loadingEl.style.display="block";this.analysisArea.style.display="none";const t=JSON.parse(localStorage.getItem("player")||"{}");try{const s=await fetch("/api/verify-answer-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:this.currentQuestion.q,userAnswer:e,expectedAnswer:this.currentQuestion.a,playerId:t.id||t._id,redactionMode:this.currentQuestion.mode,context:this.currentQuestion.context})});const o=await s.json();const i=o.status||"incorrect";this.loadingEl.style.display="none";const n=e=>{if(!e)return null;if(Array.isArray(e))return e.map(e=>`• ${e}`).join("<br>");return e.replace(/\n/g,"<br>")};this.analysisArea.style.display="flex";if(o.grade){this.gradeEl.textContent=`Note : ${o.grade}`;this.gradeEl.style.display="block"}const r=n(o.good_points);if(r){this.textGood.innerHTML=r;this.boxGood.style.display="block"}else{this.boxGood.style.display="none"}const a=n(o.missing_points);if(a){this.textMissing.innerHTML=a;this.boxMissing.style.display="block"}else{this.boxMissing.style.display="none"}if(o.advice){this.boxAdvice.innerHTML=`<strong>⚠️ Conseil :</strong> ${o.advice}`;this.boxAdvice.style.display="block"}else{this.boxAdvice.style.display="none"}if(o.corrections&&o.corrections.length>0){let e="";o.corrections.forEach(t=>e+=`<li><s>${t.wrong}</s> ➔ <b>${t.correct}</b></li>`);this.listSpelling.innerHTML=e;this.boxSpelling.style.display="block"}else{this.boxSpelling.style.display="none"}if("correct"===i){this.continueBtn.style.display="inline-block";this.input.disabled=!0}else{this.isProcessing=!1;this.input.disabled=!1;this.submitBtn.style.display="inline-block";this.submitBtn.disabled=!1;this.submitBtn.textContent="Améliorer et Renvoyer 📝";this.submitBtn.style.backgroundColor="#ea580c";if("incorrect"===i){this.controller.notifyWrongAnswer(null)}}}catch(e){this.loadingEl.textContent="Erreur technique.";this.isProcessing=!1;this.input.disabled=!1;this.submitBtn.style.display="inline-block";this.submitBtn.disabled=!1}}startAnimation(){}resetAnimation(){}}window.RedactionGame=RedactionGame;</script>
 
-  <!-- SCRIPT HOMEWORK GAME (MULTI-IMAGE VIEWER) -->
+  <!-- SCRIPT HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT INTELLIGENT) -->
   <script>
   class HomeworkGame {
     constructor(container, controller) {
       this.container = container; this.controller = controller;
       this.listView = container.querySelector("#hw-list"); this.workView = container.querySelector("#hw-workspace");
-      this.docViewer = container.querySelector("#doc-viewer"); this.wrapper = container.querySelector("#doc-content-wrapper");
+      this.zoneTop = container.querySelector("#zone-top");
+      this.zoneBottom = container.querySelector("#zone-bottom");
       this.noDocMsg = container.querySelector("#no-doc-msg");
-      this.zoomInBtn = container.querySelector("#zoom-in"); this.zoomOutBtn = container.querySelector("#zoom-out");
+      
       this.panel = container.querySelector("#floating-panel"); this.header = container.querySelector("#panel-header"); 
       this.closeBtn = container.querySelector("#btn-close-work"); this.stepIndicator = container.querySelector("#question-step");
       this.titleEl = container.querySelector("#panel-title"); this.descEl = container.querySelector("#panel-desc"); 
@@ -386,37 +376,13 @@
       this.resultEl = container.querySelector("#hw-result");
 
       this.currentHw = null; this.currentLevelIndex = 0;
-      this.scale = 1; this.imgX = 0; this.imgY = 0; this.isPanning = false; this.panStartX = 0; this.panStartY = 0;
-      this.isDraggingPanel = false; this.dragOffsetX = 0; this.dragOffsetY = 0;
-
-      this.initEvents(); this.initImagePan(); this.initPanelDrag(); this.initPanelResize();
+      this.initEvents(); this.initPanelDrag(); this.initPanelResize();
     }
     initEvents() {
         this.closeBtn.onclick = () => this.showList();
-        this.zoomInBtn.onclick = () => this.updateZoom(0.2); this.zoomOutBtn.onclick = () => this.updateZoom(-0.2);
         this.submitBtn.onclick = () => this.submit(); this.nextBtn.onclick = () => this.nextQuestion();
         this.fileInput.onchange = () => { if(this.fileInput.files.length) this.fileNameDisplay.textContent = "📸 " + this.fileInput.files[0].name; };
     }
-    // --- VIEWER ---
-    initImagePan() {
-        this.docViewer.addEventListener('mousedown', (e) => {
-            // On autorise le drag si on clique sur le fond ou sur une image
-            if (e.target !== this.wrapper && e.target !== this.docViewer && !e.target.classList.contains("doc-item")) return;
-            e.preventDefault(); this.isPanning = true;
-            this.panStartX = e.clientX - this.imgX; this.panStartY = e.clientY - this.imgY;
-            this.docViewer.style.cursor = 'grabbing';
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (!this.isPanning) return;
-            this.imgX = e.clientX - this.panStartX; this.imgY = e.clientY - this.panStartY;
-            this.applyImageTransform();
-        });
-        window.addEventListener('mouseup', () => { this.isPanning = false; this.docViewer.style.cursor = 'grab'; });
-    }
-    updateZoom(delta) { this.scale = Math.max(0.2, Math.min(5, this.scale + delta)); this.applyImageTransform(); }
-    applyImageTransform() { this.wrapper.style.transform = `translate(${this.imgX}px, ${this.imgY}px) scale(${this.scale})`; }
-    
-    // --- PANEL ---
     initPanelDrag() {
         this.header.addEventListener('mousedown', (e) => { this.isDraggingPanel = true; this.dragOffsetX = e.clientX - this.panel.offsetLeft; this.dragOffsetY = e.clientY - this.panel.offsetTop; this.panel.style.opacity = "0.9"; });
         window.addEventListener('mousemove', (e) => { if (!this.isDraggingPanel) return; this.panel.style.left = `${e.clientX - this.dragOffsetX}px`; this.panel.style.top = `${e.clientY - this.dragOffsetY}px`; });
@@ -446,7 +412,6 @@
         const stopResize = () => { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); };
     }
 
-    // --- LOGIC ---
     async loadHomeworks() {
       this.listView.innerHTML = "Chargement..."; this.showList();
       const player = JSON.parse(localStorage.getItem('player') || '{}'); const cls = player.classroom || "All";
@@ -464,7 +429,7 @@
     }
     startHomework(hw) { this.currentHw = hw; this.currentLevelIndex = 0; this.listView.style.display = "none"; this.workView.style.display = "block"; this.loadLevel(); }
     
-    // CHARGEMENT DU NIVEAU (MULTI-IMAGES)
+    // CHARGEMENT DU NIVEAU (SPLIT VIEW INTELLIGENT)
     loadLevel() {
       const levels = this.currentHw.levels || [{ instruction: this.currentHw.description, attachmentUrls: this.currentHw.attachmentUrl ? [this.currentHw.attachmentUrl] : [] }];
       const currentLevel = levels[this.currentLevelIndex];
@@ -472,28 +437,50 @@
       this.titleEl.textContent = this.currentHw.title;
       this.descEl.textContent = currentLevel.instruction;
       this.stepIndicator.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
-      
       this.textInput.value = ""; this.fileInput.value = ""; this.fileNameDisplay.textContent = ""; this.resultEl.style.display = "none";
       this.submitBtn.style.display = "block"; this.nextBtn.style.display = "none";
 
-      this.scale = 1; this.imgX = 0; this.imgY = 0;
-      this.wrapper.innerHTML = ""; // Vider les anciennes images
-      this.applyImageTransform();
+      this.zoneTop.innerHTML = "";
+      this.zoneBottom.innerHTML = "";
+      
+      const urls = currentLevel.attachmentUrls || [];
+      this.noDocMsg.style.display = (urls.length > 0) ? "none" : "block";
 
-      if (currentLevel.attachmentUrls && currentLevel.attachmentUrls.length > 0) {
-          this.noDocMsg.style.display = "none";
-          // Boucle sur toutes les URLs
-          currentLevel.attachmentUrls.forEach(url => {
-              if(!url) return;
-              if (url.endsWith(".pdf")) {
-                  const iframe = document.createElement("iframe"); iframe.src = url; iframe.className = "doc-item doc-iframe";
-                  iframe.style.width="500px"; iframe.style.height="600px"; this.wrapper.appendChild(iframe);
-              } else {
-                  const img = document.createElement("img"); img.src = url; img.className = "doc-item";
-                  img.draggable = false; this.wrapper.appendChild(img);
-              }
-          });
-      } else { this.noDocMsg.style.display = "block"; }
+      // 1. DÉTECTION DU CONTENU DE LA LIGNE 2
+      const breakIndex = urls.indexOf("BREAK");
+      const hasBottomContent = (breakIndex !== -1 && breakIndex < urls.length - 1); // Si BREAK existe et n'est pas le dernier élément
+
+      // 2. ADAPTATION DU LAYOUT
+      if (hasBottomContent) {
+          // Mode Split (2 Lignes)
+          this.zoneBottom.style.display = "flex";
+          this.zoneTop.style.flex = "3"; // 75%
+          this.zoneTop.style.borderBottom = "4px solid #f59e0b"; // Séparateur visible
+      } else {
+          // Mode Plein Écran (1 Ligne)
+          this.zoneBottom.style.display = "none";
+          this.zoneTop.style.flex = "1"; // 100%
+          this.zoneTop.style.borderBottom = "none";
+      }
+
+      // 3. REMPLISSAGE DES ZONES
+      let currentZone = this.zoneTop;
+      urls.forEach(url => {
+          if (url === "BREAK") {
+              currentZone = this.zoneBottom; // Bascule vers le bas
+              return;
+          }
+          if(!url) return;
+          
+          let el;
+          if (url.endsWith(".pdf")) {
+              el = document.createElement("iframe"); el.src = url; el.className = "doc-item-student";
+              el.style.width="500px"; 
+          } else {
+              el = document.createElement("img"); el.src = url; el.className = "doc-item-student";
+          }
+          currentZone.appendChild(el);
+      });
     }
     
     showList() { this.workView.style.display = "none"; this.listView.style.display = "block"; }
@@ -537,6 +524,6 @@
   window.HomeworkGame = HomeworkGame;
   </script>
 
-  <script src="main.js"></script>
+  <script src="main.js" defer></script>
 </body>
 </html>

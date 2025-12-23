@@ -2,24 +2,33 @@ window.isGlobalPaused = false;
 const $ = (sel) => document.querySelector(sel);
 
 // ==========================================================
-// 1. SÉLECTEURS UI
+// 1. SÉLECTEURS UI (TOUS REGROUPÉS ICI POUR ÉVITER LES ERREURS)
 // ==========================================================
+// Header & Login
 const studentBadge = $("#studentBadge"), logoutBtn = $("#logoutBtn");
 const backToProfBtn = $("#backToProfBtn");
 const registerCard = $("#registerCard"), chapterSelection = $("#chapterSelection"), game = $("#game");
 const form = $("#registerForm"), startBtn = $("#startBtn"), formMsg = $("#formMsg");
+
+// Jeu
 const gameModuleContainer = $("#gameModuleContainer");
 const levelTitle = $("#levelTitle"), livesWrap = $("#lives"), mainBar = $("#mainBar"), subBarsContainer = $("#subBars"), generalText = $("#general");
 const overlay = $("#overlay"), restartBtn = $("#restartBtn");
 const correctionOverlay = $("#correctionOverlay"), correctionText = $("#correctionText"), closeCorrectionBtn = $("#closeCorrectionBtn");
 const backToMenuBtn = $("#backToMenuBtn");
 
-// Dashboard & Modals
+// Dashboard Prof
 const profDashboard = $("#profDashboard"), playersBody = $("#playersBody"), classFilter = $("#classFilter"), resetAllBtn = $("#resetAllBtn"), studentSearch = $("#studentSearch");
 const testClassBtn = $("#testClassBtn");
 const addHomeworkBtn = $("#addHomeworkBtn"); 
 const createHomeworkModal = $("#createHomeworkModal");
 const saveHomeworkBtn = $("#saveHomeworkBtn");
+
+// Onglet Bugs (C'est ici que ça bloquait avant)
+const viewBugsBtn = $("#viewBugsBtn"); 
+const profBugListModal = $("#profBugListModal");
+const closeBugListBtn = $("#closeBugListBtn");
+const bugsBody = $("#bugsBody");
 
 // Éditeur Visuel
 const visualEditorModal = $("#visualEditorModal");
@@ -31,11 +40,13 @@ const btnNextLevel = $("#btnNextLevel");
 const lblCurrentLevel = $("#lblCurrentLevel");
 const visualNavControls = $("#visualNavControls");
 
+// Modales Élèves & Boutons
 const openLessonBtn = $("#openLessonBtn"); const lessonModal = $("#lessonModal"); const closeLessonBtn = $("#closeLessonBtn"); const lessonText = $("#lessonText"); const iAmReadyBtn = $("#iAmReadyBtn");
 const myMistakesBtn = $("#myMistakesBtn"); const mistakesModal = $("#mistakesModal"); const closeMistakesBtn = $("#closeMistakesBtn"); const mistakesList = $("#mistakesList");
 const activityModal = $("#activityModal"); const closeActivityBtn = $("#closeActivityBtn"); const activityBody = $("#activityBody"); const activityStudentName = $("#activityStudentName");
 const pauseReportBtn = $("#pauseReportBtn"); const bugModal = $("#bugModal"); const sendBugBtn = $("#sendBugBtn"); const resumeGameBtn = $("#resumeGameBtn");
 
+// Onglets
 const tabStudents = $("#tabStudents");
 const tabHomeworks = $("#tabHomeworks");
 const contentStudents = $("#contentStudents");
@@ -66,8 +77,10 @@ let tempRow1 = [];
 let tempRow2 = [];
 
 // ==========================================================
-// 3. CHEAT CODES & INIT
+// 3. LISTENERS & INIT
 // ==========================================================
+
+// Cheat Codes
 let isRKeyDown = false; let isTKeyDown = false;
 document.addEventListener("keydown", (e) => { if (!e || !e.key) return; if (e.key.toLowerCase() === "r") isRKeyDown = true; if (e.key.toLowerCase() === "t") isTKeyDown = true; });
 document.addEventListener("keyup", (e) => { if (!e || !e.key) return; if (e.key.toLowerCase() === "r") isRKeyDown = false; if (e.key.toLowerCase() === "t") isTKeyDown = false; });
@@ -77,6 +90,7 @@ $("#mainProgress")?.addEventListener("click", () => {
     if(lvl) { general = lvl.questions.length; nextQuestion(false); } 
 });
 
+// Retour Prof
 if(backToProfBtn) {
     backToProfBtn.addEventListener("click", () => { 
         localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); 
@@ -84,13 +98,14 @@ if(backToProfBtn) {
     });
 }
 
-// Listeners Modales
+// Modales Élèves
 if(iAmReadyBtn) iAmReadyBtn.addEventListener("click", () => { if(lessonModal) lessonModal.style.display = "none"; });
 if(closeLessonBtn) closeLessonBtn.addEventListener("click", () => { if(lessonModal) lessonModal.style.display = "none"; });
 if(openLessonBtn) openLessonBtn.addEventListener("click", () => { if (iAmReadyBtn) iAmReadyBtn.style.display = "none"; if (lessonModal) lessonModal.style.display = "flex"; });
 if(closeMistakesBtn) closeMistakesBtn.addEventListener("click", () => mistakesModal.style.display = "none");
 if(closeActivityBtn) closeActivityBtn.addEventListener("click", () => activityModal.style.display = "none");
 
+// Gestion des fautes
 if(myMistakesBtn) {
     myMistakesBtn.addEventListener("click", async () => {
         if(!currentPlayerId) return;
@@ -110,10 +125,23 @@ if(myMistakesBtn) {
     });
 }
 
-// Listeners Onglets
+// Onglets Prof
 if (tabStudents) { tabStudents.addEventListener("click", () => { tabStudents.classList.add("active"); tabHomeworks.classList.remove("active"); contentStudents.classList.add("active"); contentHomeworks.classList.remove("active"); }); }
 if (tabHomeworks) { tabHomeworks.addEventListener("click", () => { tabHomeworks.classList.add("active"); tabStudents.classList.remove("active"); contentHomeworks.classList.add("active"); contentStudents.classList.remove("active"); loadProfHomeworks(); }); }
 
+// Gestion Bugs (CORRECTION ICI : la variable viewBugsBtn est maintenant connue)
+if (viewBugsBtn) {
+    viewBugsBtn.addEventListener("click", () => {
+        loadBugs();
+    });
+}
+if (closeBugListBtn) {
+    closeBugListBtn.addEventListener("click", () => {
+        if(profBugListModal) profBugListModal.style.display = "none";
+    });
+}
+
+// Pause & Reports
 if(pauseReportBtn) pauseReportBtn.addEventListener('click', () => { if(isGameActive) { window.isGlobalPaused = true; } if(bugModal) bugModal.style.display = 'flex'; });
 if(resumeGameBtn) resumeGameBtn.addEventListener('click', () => { window.isGlobalPaused = false; if(bugModal) bugModal.style.display = 'none'; });
 if(sendBugBtn) {
@@ -124,10 +152,10 @@ if(sendBugBtn) {
   });
 }
 
+// Jeu : Navigation
 if(closeCorrectionBtn) closeCorrectionBtn.addEventListener("click", () => { correctionOverlay.style.display="none"; nextQuestion(true); });
 if(restartBtn) restartBtn.addEventListener("click", () => { overlay.style.display="none"; setupLevel(currentLevel); });
 
-// RETOUR MENU
 if(backToMenuBtn) {
     backToMenuBtn.addEventListener("click", async () => {
         isGameActive = false; stopLevelTimer();
@@ -145,6 +173,20 @@ if(backToMenuBtn) {
     });
 }
 
+// Login
+if(form) form.addEventListener("submit", async (e) => {
+  e.preventDefault(); startBtn.disabled = true;
+  const body = { firstName: $("#firstName").value, lastName: $("#lastName").value, classroom: $("#classroom").value };
+  if(body.firstName.toLowerCase()==="jean" && body.lastName.toLowerCase()==="vuillet") { $("#profPasswordModal").style.display="block"; startBtn.disabled=false; return; }
+  try {
+    const res = await fetch("/api/register", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    const d = await res.json(); if(!res.ok) throw new Error(d.error);
+    localStorage.setItem("player", JSON.stringify(d)); window.location.reload();
+  } catch(err) { formMsg.textContent = "❌ " + err.message; startBtn.disabled=false; }
+});
+$("#validateProfPasswordBtn")?.addEventListener("click", () => { if($("#profPassword").value === "Clemenceau1919") { localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); window.location.reload(); } });
+
+
 // ==========================================================
 // 4. BOUCLE DE JEU (MÉCANIQUE ZOMBIE/REDACTION)
 // ==========================================================
@@ -155,17 +197,14 @@ function setupLevel(idx) {
   const lvl = levels[currentLevel];
   if(levelTitle) levelTitle.textContent = lvl.title.replace(/Chapitre\s+\d+\s*[-—–]\s*/i, "");
   
-  // Affichage de la leçon
   if (lvl.lesson) { if(openLessonBtn) openLessonBtn.style.display = "block"; if(lessonText) lessonText.innerHTML = lvl.lesson; } 
   else { if(openLessonBtn) openLessonBtn.style.display = "none"; if(lessonText) lessonText.innerHTML = "<p>Pas de fiche.</p>"; }
   if(lessonModal) lessonModal.style.display = "none";
   
-  // Reset Stats
   localScores = new Array(lvl.questions.length).fill(0);
   general = 0; currentIndex = -1; lives = MAX_LIVES;
   renderLives();
   
-  // Barres de progression
   if(subBarsContainer) {
       subBarsContainer.innerHTML = "";
       lvl.questions.forEach((_, i) => {
@@ -185,7 +224,6 @@ async function nextQuestion(keep) {
   if(currentGameModuleInstance && !keep) try{currentGameModuleInstance.resetAnimation()}catch(e){}
   locked = false; const lvl = levels[currentLevel];
   
-  // Fin du niveau ?
   if(general >= lvl.questions.length) {
     stopLevelTimer(); const grade = calculateGrade(); showLevelGrade(grade); await saveProgress("level", lvl.id, grade);
     if(currentLevel < levels.length - 1) { setTimeout(() => { if(isGameActive) { $("#levelGrade").style.opacity="0"; setupLevel(currentLevel+1); } }, 2600); } 
@@ -244,20 +282,8 @@ function renderLives() { if(livesWrap) livesWrap.innerHTML = Array(MAX_LIVES).fi
 async function saveProgress(type, val, grade) { if(!currentPlayerId || currentPlayerId==="prof") return; try { await fetch("/api/save-progress", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ playerId: currentPlayerId, progressType: type, value: val, grade: grade }) }); } catch(e) { console.error(e); } }
 
 // ==========================================================
-// 5. GESTION PROF & MODALES
+// 5. GESTION PROF (MODALES)
 // ==========================================================
-if(form) form.addEventListener("submit", async (e) => {
-  e.preventDefault(); startBtn.disabled = true;
-  const body = { firstName: $("#firstName").value, lastName: $("#lastName").value, classroom: $("#classroom").value };
-  if(body.firstName.toLowerCase()==="jean" && body.lastName.toLowerCase()==="vuillet") { $("#profPasswordModal").style.display="block"; startBtn.disabled=false; return; }
-  try {
-    const res = await fetch("/api/register", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
-    const d = await res.json(); if(!res.ok) throw new Error(d.error);
-    localStorage.setItem("player", JSON.stringify(d)); window.location.reload();
-  } catch(err) { formMsg.textContent = "❌ " + err.message; startBtn.disabled=false; }
-});
-$("#validateProfPasswordBtn")?.addEventListener("click", () => { if($("#profPassword").value === "Clemenceau1919") { localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" })); window.location.reload(); } });
-
 function initHomeworkModal() {
     tempRow1 = []; tempRow2 = [];
     const modalContent = createHomeworkModal.querySelector('.modal-content');
@@ -287,8 +313,7 @@ function initHomeworkModal() {
     fileInput.onchange = () => { const newFiles = Array.from(fileInput.files); tempRow1 = [...tempRow1, ...newFiles]; renderVisualRowsInModal(true); fileInput.value = ""; };
     btnAddQ.onclick = async () => {
         const inst = document.getElementById("newQInst").value;
-        const totalImages = tempRow1.length + tempRow2.length;
-        if (!inst && totalImages === 0) return alert("Mets une consigne ou au moins une image !");
+        if (!inst && (tempRow1.length + tempRow2.length) === 0) return alert("Mets une consigne ou au moins une image !");
         btnAddQ.textContent = "Upload des images en cours..."; btnAddQ.disabled = true;
         const finalOrderFiles = [...tempRow1, "BREAK", ...tempRow2];
         let urls = [];
@@ -490,20 +515,9 @@ function renderPlayers(playersToRender) {
     });
     document.querySelectorAll(".activity-btn").forEach(btn => { btn.onclick = async (e) => { const pid = e.target.dataset.id; const pName = e.target.closest("tbody").querySelector("strong").textContent; openActivityModal(pid, pName); } });
 }
-function addProfBugButton() { const title = $("#profDashboard h2"); if(!title) return; const bar = title.parentNode.querySelector("div"); if(bar && !$("#viewBugsBtn")) { const btn = document.createElement("button"); btn.id = "viewBugsBtn"; btn.className = "action-btn"; btn.style.background = "#7c3aed"; btn.textContent = "🐛 Bugs"; btn.onclick = loadBugs; bar.appendChild(btn); } }
-const closeBugListBtn = $("#closeBugListBtn"); const profBugListModal = $("#profBugListModal"); if(closeBugListBtn) closeBugListBtn.onclick = () => profBugListModal.style.display = "none";
+
 async function loadBugs() { const tbody = $("#bugsBody"); tbody.innerHTML = "Chargement..."; try { const res = await fetch("/api/bugs"); const bugs = await res.json(); tbody.innerHTML = ""; if(bugs.length === 0) { tbody.innerHTML = "<tr><td colspan='5'>Aucun bug.</td></tr>"; } else { bugs.forEach(b => { const tr = document.createElement("tr"); tr.innerHTML = `<td>${new Date(b.date).toLocaleDateString()}</td><td>${b.reporterName}<br><small>${b.classroom}</small></td><td>${b.gameChapter}</td><td>${b.description}</td><td><button class="action-btn reset-btn delete-bug" data-id="${b._id}">X</button></td>`; tbody.appendChild(tr); }); document.querySelectorAll(".delete-bug").forEach(btn => { btn.onclick = async (e) => { if(confirm("Supprimer ce rapport ?")) { await fetch(`/api/bugs/${e.target.dataset.id}`, { method: 'DELETE' }); loadBugs(); } }; }); } if(profBugListModal) profBugListModal.style.display = "flex"; } catch(e) { console.error(e); tbody.innerHTML = "Erreur."; } }
-
-// [CORRECTION CLÉS DE CLASSES]
-function getClassKey(classroom) { 
-    if(!classroom) return "default"; 
-    const c = classroom.toUpperCase(); 
-    if (c.includes("6")) return "6e"; // Était "6eme", maintenant "6e"
-    if (c.includes("5")) return "5e"; // Était "5eme", maintenant "5e"
-    if (c.includes("2")) return "2de"; 
-    return "default"; 
-}
-
+function getClassKey(classroom) { if(!classroom) return "default"; const c = classroom.toUpperCase(); if (c.includes("6")) return "6e"; if (c.includes("5")) return "5e"; if (c.includes("2")) return "2de"; return "default"; }
 function generateFullChapterProgress(levels, validatedIds, grades, valQuestions) { if(!levels || levels.length === 0) return "-"; const total = levels.length; let count = 0; levels.forEach(l => { if(validatedIds.includes(l.id)) count++; }); return `${count} / ${total}`; }
 function showStudent(player) {
     if (registerCard) registerCard.style.display = "none";
@@ -520,27 +534,23 @@ function showStudent(player) {
         if (backToProfBtn) { if (player.firstName === "Eleve" && player.lastName === "Test") { backToProfBtn.style.display = "inline-block"; } else { backToProfBtn.style.display = "none"; } }
     }
 }
-
-// [CORRECTION CHARGEMENT JSON]
 async function loadAllQuestionsForProf() {
   window.allQuestionsData = {};
-  const classes = ["6e", "5e", "2de"]; // Noms fichiers exacts
+  const classes = ["6e", "5e", "2de"]; 
   for (const c of classes) {
       try {
           const res = await fetch(`questions/questions-${c}.json`);
           if(res.ok) window.allQuestionsData[c] = await res.json();
-          else window.allQuestionsData[c] = [];
-      } catch(e) { window.allQuestionsData[c] = []; }
+      } catch(e) {}
   }
 }
-
 async function updateChapterSelectionUI(player) {
     const classKey = getClassKey(player.classroom);
     if(!window.allQuestionsData[classKey]) await loadAllQuestionsForProf();
 }
 
 // ==========================================================
-// 8. LANCEUR DE JEUX (CORRIGÉ POUR CHARGER LES NIVEAUX)
+// 8. LANCEUR DE JEUX (VERSION CORRIGÉE ET COMPLÈTE)
 // ==========================================================
 document.querySelectorAll('.chapter-action-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -571,14 +581,14 @@ document.querySelectorAll('.chapter-action-btn').forEach(btn => {
         if(window[gameClassStr]) {
             currentGameModuleInstance = new window[gameClassStr](gameModuleContainer, controller);
             
-            // CAS 1 : DEVOIRS MAISON
+            // --- CAS 1 : DEVOIRS MAISON (HomeworkGame) ---
             if (gameClassStr === "HomeworkGame") {
                 levelTitle.textContent = "Chapitre 5 : Devoirs Maison";
                 if(currentGameModuleInstance.loadHomeworks) currentGameModuleInstance.loadHomeworks();
             } 
-            // CAS 2 & 3 : JEUX CLASSIQUES
+            // --- CAS 2 & 3 : JEUX CLASSIQUES (ZOMBIE / REDACTION) ---
             else {
-                 // On attend que les données soient chargées
+                 // Chargement des données JSON réelles
                  const classKey = getClassKey(currentPlayerData.classroom);
                  if(!window.allQuestionsData[classKey]) await loadAllQuestionsForProf();
                  
@@ -586,7 +596,7 @@ document.querySelectorAll('.chapter-action-btn').forEach(btn => {
                  levels = allLevels.filter(l => l.chapterId === chapterId);
                  
                  if(levels.length > 0) {
-                     setupLevel(0); // Lancement
+                     setupLevel(0); // Lancement du niveau 1
                  } else {
                      gameModuleContainer.innerHTML = `<h3>Pas de niveaux disponibles pour la classe ${classKey}.</h3><button onclick='window.location.reload()'>Retour</button>`;
                  }

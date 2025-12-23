@@ -5,18 +5,20 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "npx nodemon src/server.js"
   },
   "keywords": [],
   "author": "Jean Vuillet",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "mongoose": "^8.19.4",
     "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {

@@ -6,49 +6,37 @@
   <title>5e Entraîneur – Quiz Interactif</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Styles spécifiques Dashboard Onglets */
+    /* Styles Dashboard */
     .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
     .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 16px; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; }
     .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     
-    /* Table Devoirs Prof */
     .prof-hw-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     .prof-hw-table th, .prof-hw-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
     .prof-hw-table th { background: #f8fafc; font-weight: 600; }
     .btn-delete { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-    .btn-delete:hover { background: #ef4444; color: white; }
-    
-    /* STYLE DU BOUTON VOIR */
     .btn-view { background: #3b82f6; color: white; border: 1px solid #2563eb; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
-    .btn-view:hover { background: #1d4ed8; }
 
-    /* Drag & Drop Creation Devoir */
     .drag-area { border: 2px dashed #ccc; padding: 10px; min-height: 50px; background: #f9f9f9; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
     .drag-item { width: 80px; height: 80px; border: 1px solid #ddd; cursor: grab; background: white; position: relative; object-fit: cover; }
     .drag-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-    .drag-placeholder { color: #aaa; width: 100%; text-align: center; line-height: 50px; }
   </style>
 </head>
 <body>
   <header>
     <h1>5e Entraîneur</h1>
     <div style="display: flex; align-items: center; gap: 12px;"> 
-      <!-- Boutons Élève -->
       <button id="myMistakesBtn" class="action-btn" style="background:#f472b6; color:white; display:none;">📝 Mes Fautes</button>
       <button id="pauseReportBtn" class="pause-btn">⏸️ Pause / Bug</button>
-      
-      <!-- Boutons Prof -->
       <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none;">🎓 Retour Prof</button>
-      
       <div id="studentBadge">Non connecté</div>
       <button id="logoutBtn" style="display: none;">Se déconnecter</button>
     </div>
   </header>
 
   <main class="wrap">
-    <!-- 1. Connexion -->
     <section id="registerCard" class="card">
       <h2>👋 Avant de commencer</h2>
       <form id="registerForm" class="form" autocomplete="on">
@@ -80,39 +68,30 @@
       </div>
     </section>
 
-    <!-- 2. Sélection Chapitre -->
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
-        
-        <!-- CHAPITRE 1 : ZOMBIE -->
         <div class="chapter-box" data-chapter="ch1-zombie" data-template-id="template-zombie-game" data-game-class="ZombieGame">
           <h3>Chapitre 1 — L’Attaque des Zombies</h3>
           <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Survivre à l’invasion</p>
           <div class="chapter-levels"></div>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
-
-        <!-- CHAPITRE 4 : RÉDACTION -->
         <div class="chapter-box" data-chapter="ch4-redaction" data-template-id="template-redaction-game" data-game-class="RedactionGame">
           <h3>Chapitre 4 — Atelier Rédaction</h3>
           <p class="chapter-mini">📝 <strong>Mini-jeu :</strong> Méthode Dissertation</p>
           <div class="chapter-levels"></div>
           <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
         </div>
-
-        <!-- CHAPITRE 5 : DEVOIRS -->
         <div class="chapter-box" data-chapter="ch5-devoir" data-template-id="template-homework-game" data-game-class="HomeworkGame">
           <h3>Chapitre 5 — Devoirs Maison</h3>
           <p class="chapter-mini">📸 <strong>Photo & IA :</strong> Envoie ton travail !</p>
           <div class="chapter-levels"></div>
           <button class="replay-btn-improved chapter-action-btn">Voir les devoirs</button>
         </div>
-
       </div>
     </section>
 
-    <!-- 3. Jeu -->
     <section id="game" style="display: none;">
       <div class="card quiz-container">
         <div class="game-header-row">
@@ -127,16 +106,12 @@
       </div>
     </section>
     
-    <!-- 4. Dashboard Prof -->
     <section id="profDashboard" class="card" style="margin-top: 24px; display: none;"> 
-      
       <div class="tabs-container">
           <button id="tabStudents" class="tab-btn active">👥 Élèves</button>
           <button id="tabHomeworks" class="tab-btn">📚 Devoirs</button>
           <button id="viewBugsBtn" class="tab-btn" style="color:#7c3aed;">🐛 Bugs</button>
       </div>
-
-      <!-- Onglet Élèves -->
       <div id="contentStudents" class="tab-content active">
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom:15px;">
             <select id="classFilter" class="action-btn">
@@ -151,13 +126,8 @@
             <input id="studentSearch" type="text" placeholder="Rechercher..." class="action-btn"/>
             <button id="resetAllBtn" style="background: var(--warn);">⚠️ Tout Réinitialiser</button>
         </div>
-        <table id="playersTable" style="width: 100%; border-collapse: collapse;">
-            <thead><tr style="background: #f1f5f9;"><th>Prénom et Nom</th><th>Classe</th><th>Chapitre</th><th>Niveau</th><th>Progression</th><th>Actions</th></tr></thead>
-            <tbody id="playersBody"></tbody>
-        </table>
+        <table id="playersTable" style="width: 100%; border-collapse: collapse;"><tbody id="playersBody"></tbody></table>
       </div>
-
-      <!-- Onglet Devoirs -->
       <div id="contentHomeworks" class="tab-content">
           <button id="addHomeworkBtn" class="action-btn" style="background:#8b5cf6; color:white; font-size:16px; padding:10px 20px;">➕ Ajouter un Nouveau Devoir</button>
           <table class="prof-hw-table">
@@ -168,34 +138,25 @@
     </section>
 
     <!-- MODALS -->
-    
-    <!-- Creation Devoir -->
     <div id="createHomeworkModal" class="modal-overlay" style="display: none;">
-      <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
-          <!-- Contenu généré dynamiquement par main.js -->
-      </div>
+      <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;"></div>
     </div>
 
-    <!-- MODALE ÉDITEUR VISUEL (PROF - AVEC NAVIGATION) -->
+    <!-- MODALE ÉDITEUR VISUEL (PROF) -->
     <div id="visualEditorModal" class="modal-overlay" style="display: none; z-index: 2000;">
       <div class="modal-content" style="width: 95vw; height: 95vh; max-width: none; display: flex; flex-direction: column; padding: 0;">
-        <!-- En-tête -->
         <div style="padding: 10px 20px; border-bottom: 1px solid #ddd; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
           <h3 style="margin:0; font-size:1.2em;">🎨 Organiser (Mode Édition)</h3>
-          
           <div id="visualNavControls" style="display: flex; align-items: center; gap: 15px; background: white; padding: 5px 15px; border-radius: 20px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-              <button id="btnPrevLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer; font-weight:bold; color:#334155;">◀</button>
+              <button id="btnPrevLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer;">◀</button>
               <span id="lblCurrentLevel" style="font-weight:bold; color:#2563eb; min-width: 120px; text-align:center;">Question 1 / 1</span>
-              <button id="btnNextLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer; font-weight:bold; color:#334155;">▶</button>
+              <button id="btnNextLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer;">▶</button>
           </div>
-
           <div>
             <button id="saveVisualOrderBtn" style="background: #16a34a; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">💾 Tout Valider</button>
             <button id="closeVisualEditorBtn" style="background: #666; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Fermer</button>
           </div>
         </div>
-        
-        <!-- Zone de travail -->
         <div style="flex: 1; overflow-y: auto; background-color: #334155; padding: 20px; display: flex; flex-direction: column; gap: 20px;">
             <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
                 <h4 style="color: #cbd5e1; margin: 0 0 10px 0; border-bottom: 1px solid #475569; padding-bottom: 5px;">LIGNE 1 (Haut)</h4>
@@ -209,36 +170,93 @@
       </div>
     </div>
 
-    <!-- Bugs Prof -->
     <div id="profBugListModal" class="modal-overlay" style="display: none;">
       <div class="modal-content" style="max-width: 800px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h3>🐛 Rapports de Bugs</h3>
           <button id="closeBugListBtn" style="background:transparent; color:#333; width:auto; font-size:20px;">✖</button>
         </div>
-        <div style="max-height:60vh; overflow-y:auto;">
-          <table id="bugsTable" style="width:100%; font-size:14px; text-align:left;">
-            <thead style="background:#f1f5f9;"><tr><th>Date</th><th>Élève</th><th>Jeu</th><th>Description</th><th>Action</th></tr></thead>
-            <tbody id="bugsBody"></tbody>
-          </table>
-        </div>
+        <div style="max-height:60vh; overflow-y:auto;"><table id="bugsTable" style="width:100%; font-size:14px; text-align:left;"><tbody id="bugsBody"></tbody></table></div>
       </div>
     </div>
 
-    <!-- Autres Modals (Eleve) -->
     <div id="lessonModal" class="lesson-modal" style="display: none;"><div class="lesson-content"><div class="lesson-header"><h3>Fiche de révision</h3><button id="closeLessonBtn">✖</button></div><div id="lessonText" class="lesson-body"></div><div class="lesson-footer"><button id="iAmReadyBtn" class="ready-btn">JE SUIS PRÊT ! 🚀</button></div></div></div>
     <div id="mistakesModal" class="modal-overlay" style="display: none;"><div class="modal-content" style="max-width: 600px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3>📝 Mes Fautes</h3><button id="closeMistakesBtn" style="background:transparent; color:#333; font-size:20px;">✖</button></div><div id="mistakesList" style="max-height:60vh; overflow-y:auto; text-align:left;"></div></div></div>
     <div id="bugModal" class="modal-overlay" style="display: none;"><div class="modal-content"><h3>⏸️ Jeu en Pause</h3><textarea id="bugDescription" rows="4" style="width:100%;" placeholder="Décris le problème..."></textarea><div style="display:flex; gap:10px; justify-content:center; margin-top:10px;"><button id="sendBugBtn" style="background:#ef4444;">Envoyer</button><button id="resumeGameBtn" style="background:#2563eb;">Reprendre</button></div></div></div>
     <div id="activityModal" class="modal-overlay" style="display: none;"><div class="modal-content" style="max-width: 700px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3>🕒 Historique</h3><button id="closeActivityBtn" style="background:transparent; color:#333; font-size:20px;">✖</button></div><h4 id="activityStudentName"></h4><div style="max-height:60vh; overflow-y:auto;"><table style="width:100%; border-collapse:collapse;"><thead style="background:#f1f5f9;"><tr><th style="padding:8px;">Date</th><th style="padding:8px;">Action</th><th style="padding:8px;">Détail</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></div>
     
-    <!-- Overlays -->
     <div id="overlay" style="display:none;"><div class="panel"><h3>💀 Game Over</h3><p>Tu n'as plus de cœurs.</p><button id="restartBtn">Recommencer</button></div></div>
     <div id="correctionOverlay" style="display:none;"><div class="correction-box"><h2>❌ Erreur ! La bonne réponse était :</h2><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div></div>
 
   </main>
 
-  <template id="template-zombie-game"><!-- Contenu Zombie Inchangé --></template>
-  <template id="template-redaction-game"><!-- Contenu Rédaction Inchangé --></template>
+  <!-- TEMPLATE 1 : ZOMBIE -->
+  <template id="template-zombie-game">
+    <style>
+      #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
+      #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; pointer-events: none; }
+      #hero { left: min(3vw, 24px); }
+      #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
+      #projectile { width: 20px; height: 20px; background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: 100px; z-index: 10; }
+      .question-zone { margin: 15px 0; font-size: 1.3em; text-align: center; color: #334155; font-weight: 600; }
+      #ai-input-zone { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; }
+      textarea#answer { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: 2px solid #cbd5e1; resize: none; height: 80px; }
+      button#submit { padding: 10px 20px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
+      #options-grid { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+      .option-btn { padding: 15px; font-size: 16px; background: white; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; color: #1e293b; font-weight: 600; transition: all 0.2s; }
+      .option-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+      .opt-correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534; }
+      .opt-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; }
+      #feedback-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.95); text-align: center; display: none; z-index: 20; border: 2px solid transparent; }
+      .fb-success { border-color:#22c55e; color:#166534; } .fb-error { border-color:#ef4444; color:#991b1b; } .fb-hint { border-color:#f59e0b; color:#92400e; }
+      .spelling-list { margin-top: 8px; padding: 5px; background: #f0fdf4; border-radius: 6px; list-style: none; font-size: 0.9em; text-align: left; }
+      .spelling-item { margin-bottom: 2px; } .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; } .right-word { font-weight: bold; color: #15803d; }
+    </style>
+    <div id="arena"> <img id="hero" src="images/hero.png" alt="Héros" /> <img id="zombie" src="images/zombi.png" alt="Zombie" /> <div id="projectile"></div> <div id="feedback-bubble"></div> </div>
+    <div id="question" class="question-zone"></div>
+    <div id="ai-input-zone"><textarea id="answer" placeholder="Écris ta réponse..." autocomplete="off"></textarea><div class="buttons-row"><button id="submit">Envoyer à l'IA 🤖</button></div></div>
+    <div id="options-grid"><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button></div>
+  </template>
+
+  <!-- TEMPLATE 4 : RÉDACTION -->
+  <template id="template-redaction-game">
+    <style>
+      .redac-container { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px; text-align: center; height: 100%; overflow-y: auto; }
+      .redac-context-box { background: #fff7ed; border-left: 4px solid #f97316; width: 100%; padding: 10px; text-align: left; font-size: 0.95em; color: #431407; display: none; border-radius: 4px; margin-bottom: 5px; }
+      .context-label { font-weight: 800; text-transform: uppercase; font-size: 0.8em; color: #ea580c; display: block; margin-bottom: 4px; }
+      .redac-question { font-size: 1.1em; font-weight: 700; color: #1e293b; background: #e0f2fe; padding: 15px; border-radius: 12px; border: 2px solid #3b82f6; width: 100%; }
+      .redac-input { width: 100%; height: 150px; padding: 15px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 10px; font-family: inherit; resize: vertical; }
+      .redac-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+      .redac-btn { background: #2563eb; color: white; border: none; padding: 12px 30px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: transform 0.1s; }
+      .redac-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+      .redac-continue-btn { background: #16a34a; color: white; border: none; padding: 15px 40px; font-size: 18px; font-weight: 800; border-radius: 10px; cursor: pointer; display: none; margin-top: 10px; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3); animation: pulse 1.5s infinite; }
+      @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+      .result-header { display: none; width: 100%; background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 2px solid #e2e8f0; }
+      .grade-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 1.5em; font-weight: 900; color: white; background: #3b82f6; margin-bottom: 5px; }
+      .short-comment { font-size: 1.1em; font-weight: 700; color: #334155; display: block; }
+      .analysis-container { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; display: none; }
+      .analysis-box { padding: 10px; border-radius: 8px; text-align: left; font-size: 0.95em; line-height: 1.4; }
+      .box-good { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+      .box-missing { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+      .box-title { font-weight: 800; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 0.85em; }
+      .redac-loading { display: none; color: #2563eb; font-weight: 600; margin-top: 10px; }
+    </style>
+    <div class="redac-container">
+      <div id="redac-context" class="redac-context-box"><span class="context-label">Contexte</span><span id="redac-context-text"></span></div>
+      <div id="redac-q" class="redac-question">Question...</div>
+      <textarea id="redac-answer" class="redac-input" placeholder="Rédige ta réponse ici..."></textarea>
+      <div id="redac-loading" class="redac-loading">🧠 Correction en cours...</div>
+      <div id="result-header" class="result-header"><span id="grade-badge" class="grade-badge"></span><span id="short-comment" class="short-comment"></span></div>
+      <button id="redac-submit" class="redac-btn">Envoyer à l'IA 🤖</button>
+      <button id="redac-continue" class="redac-continue-btn">Continuer ➔</button>
+      <div id="analysis-area" class="analysis-container">
+          <div id="box-advice" style="margin-bottom:5px; display:none; padding:10px; background:#fef2f2; border-left:4px solid #ef4444; color:#991b1b; border-radius:4px; text-align:left;"></div>
+          <div id="box-good" class="analysis-box box-good"><span class="box-title">✅ Points forts :</span><span id="text-good"></span></div>
+          <div id="box-missing" class="analysis-box box-missing"><span class="box-title">⚠️ À compléter / corriger :</span><span id="text-missing"></span></div>
+          <div id="box-spelling" style="display:none; font-size:0.9em; border-top:1px solid #ccc; padding-top:10px; color:#b91c1c; text-align:left;"><b>Orthographe :</b> <ul id="list-spelling" style="margin:5px 0; padding-left:20px;"></ul></div>
+      </div>
+    </div>
+  </template>
 
   <!-- TEMPLATE HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT) -->
   <template id="template-homework-game">
@@ -503,10 +521,17 @@
 
             const res = await fetch('/api/analyze-homework', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageUrl, userText: text, homeworkInstruction: currentLevel.instruction, teacherDocUrls: currentLevel.attachmentUrls, classroom: player.classroom })
+                body: JSON.stringify({ 
+                    imageUrl, 
+                    userText: text, 
+                    homeworkInstruction: currentLevel.instruction, 
+                    teacherDocUrls: currentLevel.attachmentUrls, 
+                    classroom: player.classroom,
+                    playerId: player.id || player._id 
+                })
             });
             const data = await res.json();
-            this.resultEl.innerHTML = `<b>Correction :</b><br>${data.feedback.replace(/\n/g, '<br>')}`;
+            this.resultEl.innerHTML = data.feedback; // HTML Direct
             this.resultEl.style.display = "block";
             this.submitBtn.style.display = "none"; this.nextBtn.style.display = "block";
             

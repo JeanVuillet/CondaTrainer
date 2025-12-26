@@ -245,40 +245,115 @@
       </div>
   </template>
 
+<!-- TEMPLATE HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT INTELLIGENT) - RESTAURÉ -->
   <template id="template-homework-game">
+      <style>
+        .hw-layout { position: relative; width: 100%; height: 600px; max-height: 75vh; background-color: #334155; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .hw-list-view { padding: 20px; background: white; height: 100%; overflow-y: auto; display: block; }
+        .hw-list-item { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left; margin-bottom: 10px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .hw-list-item:hover { border-color: #3b82f6; transform: translateX(5px); }
+        
+        .hw-work-view { position: relative; width: 100%; height: 100%; display: none; overflow: hidden; }
+        
+        /* CONTENEUR PRINCIPAL ÉLÈVE */
+        .doc-viewer-container { 
+            width: 100%; height: 100%; 
+            display: flex; flex-direction: column; /* Colonne */
+            background-image: radial-gradient(#475569 1px, transparent 1px); background-size: 20px 20px; 
+        }
+
+        /* ZONE HAUTE (DOCUMENTS) */
+        .doc-zone-top {
+            flex: 1; /* Par défaut 100% (si bas caché) */
+            padding: 10px;
+            overflow-x: auto; 
+            overflow-y: hidden;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.2);
+            transition: flex 0.3s;
+        }
+
+        /* ZONE BASSE (QUESTIONS) - Masquée par défaut */
+        .doc-zone-bottom {
+            display: none; /* Caché si vide */
+            flex: 1; 
+            padding: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.4);
+            border-top: 4px solid #f59e0b; /* Séparateur */
+        }
+
+        /* IMAGES ÉLÈVES */
+        .doc-item-student {
+            height: 90%; /* S'adapte à la hauteur de la zone */
+            width: auto;
+            max-width: none;
+            object-fit: contain;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+            border: 2px solid white;
+            background: #1e293b;
+            flex-shrink: 0;
+        }
+
+        .floating-panel { position: absolute; top: 20px; right: 20px; width: 320px; height: 400px; background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column; z-index: 100; border: 1px solid #cbd5e1; resize: both; overflow: hidden; min-width: 200px; min-height: 200px; }
+        .resizer { position: absolute; background: transparent; z-index: 101; }
+        .resizer.n { top: 0; left: 0; right: 0; height: 6px; cursor: n-resize; } .resizer.s { bottom: 0; left: 0; right: 0; height: 6px; cursor: s-resize; } .resizer.e { top: 0; bottom: 0; right: 0; width: 6px; cursor: e-resize; } .resizer.w { top: 0; bottom: 0; left: 0; width: 6px; cursor: w-resize; }
+        .resizer.ne { top: 0; right: 0; width: 12px; height: 12px; cursor: ne-resize; z-index: 102; } .resizer.nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nw-resize; z-index: 102; } .resizer.se { bottom: 0; right: 0; width: 12px; height: 12px; cursor: se-resize; z-index: 102; } .resizer.sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: sw-resize; z-index: 102; }
+        .panel-header { background: #f1f5f9; padding: 10px 15px; border-bottom: 1px solid #e2e8f0; cursor: move; font-weight: 700; color: #334155; display: flex; justify-content: space-between; align-items: center; user-select: none; border-radius: 12px 12px 0 0; }
+        .panel-body { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .panel-consigne { font-size: 0.9em; color: #64748b; background: #fff7ed; padding: 8px; border-radius: 6px; border-left: 3px solid #f97316; margin-bottom: 5px; }
+        .hw-textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: none; flex: 1; }
+        .hw-upload-mini { font-size: 0.85em; color: #2563eb; cursor: pointer; text-decoration: underline; }
+        .panel-footer { padding: 10px 15px; border-top: 1px solid #e2e8f0; background: #fff; border-radius: 0 0 12px 12px; }
+        .btn-send { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-back { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; cursor: pointer; }
+        .btn-next { width: 100%; padding: 10px; background: #16a34a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; }
+        .ai-feedback-mini { font-size: 0.9em; background: #dcfce7; padding: 10px; border-radius: 6px; border: 1px solid #86efac; color: #166534; display: none; margin-top: 10px; max-height: 200px; overflow-y: auto; }
+        .progress-step { font-size: 0.8em; color:#94a3b8; margin-right: 10px; }
+      </style>
       <div class="hw-layout">
-          <div id="hw-list" class="hw-sidebar">Chargement...</div>
-          <div id="hw-workspace" class="hw-main" style="display:none;">
-              <div class="hw-header">
-                  <div>
-                      <strong id="panel-title" style="color:#1e3a8a; font-size:1.2em;"></strong>
-                      <div id="panel-desc" style="font-size:0.9em; color:#64748b;"></div>
-                  </div>
-                  <button id="btn-close-work" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Quitter</button>
-              </div>
+        <div id="hw-list" class="hw-list-view"><p style="text-align:center; color:#666;">Chargement des devoirs...</p></div>
+        <div id="hw-workspace" class="hw-work-view">
+            
+            <div id="doc-viewer" class="doc-viewer-container">
+                <p id="no-doc-msg" style="color:white; opacity:0.5; pointer-events:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">Aucun document</p>
+                
+                <!-- ZONE HAUTE -->
+                <div id="zone-top" class="doc-zone-top"></div>
+                
+                <!-- ZONE BASSE (Cachée par défaut par JS) -->
+                <div id="zone-bottom" class="doc-zone-bottom"></div>
+            </div>
 
-              <!-- Zone Docs -->
-              <div class="hw-docs-container">
-                  <div style="font-size:0.8em; font-weight:bold; color:#1e40af;">SUJETS :</div>
-                  <div id="zone-top" class="doc-zone"></div>
-                  <div style="font-size:0.8em; font-weight:bold; color:#1e40af; margin-top:10px;">AIDES :</div>
-                  <div id="zone-bottom" class="doc-zone"></div>
-              </div>
-
-              <!-- Zone Réponse -->
-              <div class="hw-input-area">
-                  <textarea id="hw-text" class="hw-textarea" placeholder="Ta réponse..."></textarea>
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                      <label style="cursor:pointer; color:#2563eb; display:flex; align-items:center; gap:5px;">
-                          📷 Photo <input type="file" id="hw-file" style="display:none;" accept="image/*"> <span id="file-name" style="font-size:0.8em; color:#666;"></span>
-                      </label>
-                      <button id="hw-submit" style="background:#2563eb; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer;">Envoyer à l'IA 🤖</button>
-                      <button id="hw-next" style="display:none; background:#16a34a; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer;">Suivant</button>
-                  </div>
-                  <div id="hw-result" style="display:none; margin-top:5px;"></div>
-                  <div id="hw-loading" style="display:none; color:#2563eb; font-weight:bold;">Analyse...</div>
-              </div>
-          </div>
+            <div id="floating-panel" class="floating-panel">
+                <div class="resizer n"></div><div class="resizer s"></div><div class="resizer e"></div><div class="resizer w"></div>
+                <div class="resizer ne"></div><div class="resizer nw"></div><div class="resizer se"></div><div class="resizer sw"></div>
+                <div id="panel-header" class="panel-header">
+                    <span>📝 <span id="question-step" class="progress-step">1/1</span> Ma Réponse</span>
+                    <button id="btn-close-work" class="btn-back">Quitter</button>
+                </div>
+                <div class="panel-body">
+                    <div id="panel-title" style="font-weight:bold; color:#1e293b;"></div>
+                    <div id="panel-desc" class="panel-consigne"></div>
+                    <textarea id="hw-text" class="hw-textarea" placeholder="Rédige ta réponse ici..."></textarea>
+                    <div style="text-align:left;">
+                        <label class="hw-upload-mini">📎 Joindre une photo<input type="file" id="hw-file" accept="image/*" style="display:none;"></label>
+                        <div id="file-name" style="font-size:0.8em; color:#64748b;"></div>
+                    </div>
+                    <div id="hw-loading" style="display:none; text-align:center; color:#2563eb; font-weight:bold;">🔍 Analyse...</div>
+                    <div id="hw-result" class="ai-feedback-mini"></div>
+                </div>
+                <div class="panel-footer">
+                    <button id="hw-submit" class="btn-send">Envoyer à l'IA 🤖</button>
+                    <button id="hw-next" class="btn-next">Question Suivante ➔</button>
+                </div>
+            </div>
+        </div>
       </div>
   </template>
 

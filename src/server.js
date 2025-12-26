@@ -103,7 +103,6 @@ app.get('/api/homework-all', async (req, res) => {
     try { const list = await Homework.find().sort({ date: -1 }); res.json(list); } catch(e) { res.status(500).json([]); }
 });
 
-// Mise à jour d'un devoir (ordre images)
 app.put('/api/homework/:id', async (req, res) => {
     try {
         const { levels } = req.body;
@@ -119,7 +118,7 @@ app.delete('/api/homework/:id', async (req, res) => {
     try { await Homework.findByIdAndDelete(req.params.id); res.json({ ok: true }); } catch(e) { res.status(500).json({ ok: false }); }
 });
 
-// === ROUTE 1 : ANALYSE DEVOIR MAISON (Chapitre 5 - Images) ===
+// === ROUTE 1 : ANALYSE DEVOIR MAISON ===
 app.post('/api/analyze-homework', async (req, res) => {
     const { imageUrl, userText, homeworkInstruction, teacherDocUrls, classroom, playerId } = req.body;
     
@@ -139,25 +138,13 @@ app.post('/api/analyze-homework', async (req, res) => {
 
         const prompt = `
             RÔLE : Professeur correcteur. ${levelInstruction}
-            
             TACHE : Corrige ce devoir maison.
-            1. Analyse les documents fournis (images).
-            2. Vérifie si la réponse de l'élève correspond à la consigne.
-            3. Repère les fautes d'orthographe (Liste-les séparément).
-            
             CONSIGNE : "${homeworkInstruction}"
             RÉPONSE ÉLÈVE : "${userText}"
-            
-            FORMAT JSON ATTENDU :
-            {
-              "content_feedback": "Ton commentaire pédagogique sur le fond (HTML autorisé pour gras/italique)",
-              "spelling_corrections": [ { "wrong": "mot_faux", "correct": "mot_juste" } ]
-            }
+            FORMAT JSON ATTENDU : { "content_feedback": "Ton commentaire", "spelling_corrections": [ { "wrong": "mot_faux", "correct": "mot_juste" } ] }
         `;
 
         let content = [prompt];
-        
-        // Ajout Docs Prof
         if (teacherDocUrls && Array.isArray(teacherDocUrls)) {
             for (const url of teacherDocUrls) {
                 if(!url || url === "BREAK") continue;
@@ -168,8 +155,6 @@ app.post('/api/analyze-homework', async (req, res) => {
                 content.push({ inlineData: { data: docBase64, mimeType: docMime } });
             }
         }
-        
-        // Ajout Copie Élève
         if (imageUrl) {
             const imageResp = await fetch(imageUrl);
             const mimeType = imageResp.headers.get("content-type") || "image/jpeg";
@@ -216,7 +201,7 @@ app.post('/api/analyze-homework', async (req, res) => {
     } catch (error) { res.json({ feedback: `Erreur technique : ${error.message}` }); }
 });
 
-// === ROUTE 2 : VERIFICATION INTELLIGENTE (Zombie/Rédaction) ===
+// === ROUTE 2 : VERIFICATION INTELLIGENTE (CORRIGÉE POUR PHONÉTIQUE) ===
 app.post('/api/verify-answer-ai', async (req, res) => {
   const { question, userAnswer, expectedAnswer, playerId, redactionMode, context } = req.body;
   let finalResponse = null;
@@ -229,38 +214,40 @@ app.post('/api/verify-answer-ai', async (req, res) => {
       let systemInstruction = "";
 
       if (redactionMode) {
-        // ... (Logique Rédaction simplifiée) ...
          systemInstruction = `RÔLE: Professeur. TACHE: Corriger rédaction. ATTENDU: "${expectedAnswer}" FORMAT JSON: { "status": "correct"|"incorrect", "grade": "X/20", "short_comment": "...", "good_points": [], "missing_points": [], "corrections": [{"wrong":"", "correct":""}] }`;
       } 
       else {
-        // --- LOGIQUE ZOMBIE (QUIZ) BIENVEILLANTE ---
+        // --- LOGIQUE ZOMBIE ULTRA TOLÉRANTE ---
         systemInstruction = `
-            RÔLE : Quiz Master Bienveillant.
+            RÔLE : Arbitre de Jeu "Bienveillant".
             
-            TACHE PRINCIPALE :
-            Vérifier si la réponse de l'élève correspond à la réponse attendue sur le fond (le sens).
+            TACHE : Valider la réponse de l'élève.
             
-            RÈGLE DE TOLÉRANCE PHONÉTIQUE :
-            Si la réponse se prononce comme la bonne réponse (ex: "demografi" pour "démographie"), ALORS status = "correct".
-            Ne mets jamais "incorrect" juste pour des fautes d'orthographe si le mot est reconnaissable.
+            ⚠️ RÈGLE CRITIQUE (PHONÉTIQUE) :
+            Si la réponse de l'élève se lit/prononce comme la réponse attendue (même avec de grosses fautes), le champ 'status' DOIT être "correct".
+            Exemples acceptés : "demografi" pour "démographie", "faraon" pour "pharaon", "croissence" pour "croissance".
             
-            RÈGLE ORTHOGRAPHE :
-            Si status est "correct" mais qu'il y a des fautes, liste-les dans 'corrections'.
+            SI CORRECT MAIS FAUTES :
+            Mets 'status': "correct" ET remplis le tableau 'corrections' avec les mots mal écrits.
+            
+            SI SENS PROCHE :
+            Si la réponse contient le mot clé attendu (ex: "une croissance" pour "croissance"), c'est "correct".
             
             QUESTION : "${question}"
             ATTENDU : "${expectedAnswer}"
+            REPONSE ELEVE : "${userAnswer}"
             
-            FORMAT JSON ATTENDU : 
+            FORMAT JSON : 
             { 
                 "status": "correct" | "incorrect", 
-                "feedback": "Court message", 
+                "feedback": "Message court pour l'élève (Bravo ou explication)", 
                 "corrections": [ { "wrong": "mot_eleve", "correct": "mot_juste" } ] 
             }
         `;
       }
 
-      const prompt = `REPONSE ELEVE : "${userAnswer}"\n\nANALYSE : ${systemInstruction}`;
-      const result = await model.generateContent(prompt);
+      const prompt = `ANALYSE CETTE RÉPONSE : "${userAnswer}"`;
+      const result = await model.generateContent([systemInstruction, prompt]);
       finalResponse = JSON.parse(result.response.text());
 
     } catch (error) { console.error(`⚠️ [GEMINI] Échec: ${error.message}`); }
@@ -268,7 +255,6 @@ app.post('/api/verify-answer-ai', async (req, res) => {
 
   if (!finalResponse) { finalResponse = { status: "incorrect", feedback: "Erreur IA.", corrections: [] }; }
   
-  // Sauvegarde des fautes
   if (finalResponse.corrections && finalResponse.corrections.length > 0 && playerId && mongoose.Types.ObjectId.isValid(playerId)) {
       try {
           const player = await Player.findById(playerId);
@@ -309,11 +295,7 @@ app.post('/api/register', async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false }); }
 });
 
-app.post('/api/save-progress', async (req, res) => { 
-    // Logique simplifiée de sauvegarde
-    res.json({ message: 'Saved' }); 
-});
-
+app.post('/api/save-progress', async (req, res) => { res.json({ message: 'Saved' }); });
 app.get('/api/players', async (req, res) => { res.json(await Player.find().sort({ lastName: 1 })); });
 app.get('/api/player-progress/:playerId', async (req, res) => { try { const p = await Player.findById(req.params.playerId); if(!p) return res.status(404).json({}); res.json({ validatedLevels: p.validatedLevels, validatedQuestions: p.validatedQuestions, spellingMistakes: p.spellingMistakes || [], activityLogs: p.activityLogs || [] }); } catch(e) { res.status(500).json({}); } });
 app.post('/api/reset-player', async (req, res) => { await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [], spellingMistakes: [], activityLogs: [] }); res.json({msg:'ok'}); });

@@ -3,38 +3,63 @@ import { uploadFile, verifyWithAI } from '../api.js';
 
 export class HomeworkGame {
     constructor(container, controller) {
-        this.container = container; 
+        this.c = container; 
         this.controller = controller;
 
         // Elements
-        this.listView = container.querySelector("#hw-list"); 
-        this.workView = container.querySelector("#hw-workspace");
-        this.zoneTop = container.querySelector("#zone-top");
-        this.zoneBottom = container.querySelector("#zone-bottom");
-        this.noDocMsg = container.querySelector("#no-doc-msg");
+        this.listView = this.c.querySelector("#hw-list"); 
+        this.workView = this.c.querySelector("#hw-workspace");
         
-        // Panel Flottant
-        this.panel = container.querySelector("#floating-panel"); 
-        this.header = container.querySelector("#panel-header"); 
-        this.closeBtn = container.querySelector("#btn-close-work"); 
-        this.stepIndicator = container.querySelector("#question-step");
-        this.titleEl = container.querySelector("#panel-title"); 
-        this.descEl = container.querySelector("#panel-desc"); 
-        this.textInput = container.querySelector("#hw-text"); 
-        this.fileInput = container.querySelector("#hw-file"); 
-        this.fileNameDisplay = container.querySelector("#file-name"); 
-        this.submitBtn = container.querySelector("#hw-submit"); 
-        this.nextBtn = container.querySelector("#hw-next"); 
-        this.loadingEl = container.querySelector("#hw-loading"); 
-        this.resultEl = container.querySelector("#hw-result");
+        // ZONES
+        this.zoneTop = this.c.querySelector("#zone-top");
+        this.canvasTop = this.c.querySelector("#canvas-top");
+        
+        this.zoneBottom = this.c.querySelector("#zone-bottom");
+        this.canvasBottom = this.c.querySelector("#canvas-bottom");
+        
+        this.noDocMsg = this.c.querySelector("#no-doc-msg");
+        
+        // Panel
+        this.panel = this.c.querySelector("#floating-panel"); 
+        this.header = this.c.querySelector("#panel-header"); 
+        this.closeBtn = this.c.querySelector("#btn-close-work"); 
+        this.stepIndicator = this.c.querySelector("#question-step");
+        this.titleEl = this.c.querySelector("#panel-title"); 
+        this.descEl = this.c.querySelector("#panel-desc"); 
+        this.textInput = this.c.querySelector("#hw-text"); 
+        this.fileInput = this.c.querySelector("#hw-file"); 
+        this.fileNameDisplay = this.c.querySelector("#file-name"); 
+        this.submitBtn = this.c.querySelector("#hw-submit"); 
+        this.nextBtn = this.c.querySelector("#hw-next"); 
+        
+        // Modale IA
+        this.aiModal = document.getElementById("aiFeedbackModal");
+        this.aiModalContent = document.getElementById("aiModalContent");
+        this.aiModalBtn = document.getElementById("aiModalCloseBtn");
+
+        // Zoom
+        this.btnZoomIn = this.c.querySelector("#btn-zoom-in");
+        this.btnZoomOut = this.c.querySelector("#btn-zoom-out");
+
+        // ETAT (Pan/Zoom)
+        this.views = {
+            top: { x: 0, y: 0, scale: 0.6 },
+            bottom: { x: 0, y: 0, scale: 0.6 }
+        };
 
         this.currentHw = null; 
         this.currentLevelIndex = 0;
         
-        // Init
         this.initEvents(); 
         this.initPanelDrag(); 
         this.initPanelResize();
+        
+        // Moteur Toile Infinie
+        this.initCanvasControls(this.zoneTop, 'top', this.canvasTop);
+        this.initCanvasControls(this.zoneBottom, 'bottom', this.canvasBottom);
+        this.initZoomControls();
+        
+        this.loadHomeworks();
     }
 
     initEvents() {
@@ -46,91 +71,95 @@ export class HomeworkGame {
         };
     }
 
-    // Gestion du Drag de la fenêtre blanche
-    initPanelDrag() {
-        this.header.addEventListener('mousedown', (e) => { 
-            this.isDraggingPanel = true; 
-            this.dragOffsetX = e.clientX - this.panel.offsetLeft; 
-            this.dragOffsetY = e.clientY - this.panel.offsetTop; 
-            this.panel.style.opacity = "0.9"; 
+    // --- MOTEUR DE MOUVEMENT (PAN) ---
+    initCanvasControls(zone, key, canvas) {
+        let isDown = false;
+        let startX, startY;
+
+        zone.addEventListener('mousedown', (e) => {
+            if(e.target.closest('#floating-panel') || e.target.tagName === 'BUTTON') return;
+            e.preventDefault();
+            isDown = true;
+            zone.style.cursor = 'grabbing';
+            // On calcule le décalage par rapport à la position actuelle
+            startX = e.clientX - this.views[key].x;
+            startY = e.clientY - this.views[key].y;
         });
-        window.addEventListener('mousemove', (e) => { 
-            if (!this.isDraggingPanel) return; 
-            this.panel.style.left = `${e.clientX - this.dragOffsetX}px`; 
-            this.panel.style.top = `${e.clientY - this.dragOffsetY}px`; 
-        });
-        window.addEventListener('mouseup', () => { 
-            this.isDraggingPanel = false; 
-            this.panel.style.opacity = "1"; 
+
+        const stop = () => { isDown = false; zone.style.cursor = 'grab'; };
+        zone.addEventListener('mouseleave', stop);
+        zone.addEventListener('mouseup', stop);
+
+        zone.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            this.views[key].x = e.clientX - startX;
+            this.views[key].y = e.clientY - startY;
+            this.updateTransform(key);
         });
     }
 
-    // Gestion du Redimensionnement de la fenêtre blanche
-    initPanelResize() {
-        const resizers = this.container.querySelectorAll('.resizer'); 
-        let currentResizer = null;
+    initZoomControls() {
+        if(this.btnZoomIn) this.btnZoomIn.onclick = () => this.zoomAll(0.2);
+        if(this.btnZoomOut) this.btnZoomOut.onclick = () => this.zoomAll(-0.2);
         
-        resizers.forEach(r => {
-            r.addEventListener('mousedown', (e) => { 
-                e.preventDefault(); e.stopPropagation(); currentResizer = r;
-                this.original_width = parseFloat(getComputedStyle(this.panel, null).getPropertyValue('width').replace('px', ''));
-                this.original_height = parseFloat(getComputedStyle(this.panel, null).getPropertyValue('height').replace('px', ''));
-                this.original_x = this.panel.getBoundingClientRect().left; 
-                this.original_y = this.panel.getBoundingClientRect().top;
-                this.original_mouse_x = e.pageX; 
-                this.original_mouse_y = e.pageY;
-                
-                const parentRect = this.workView.getBoundingClientRect(); 
-                this.parent_offset_x = parentRect.left; 
-                this.parent_offset_y = parentRect.top;
-                
-                window.addEventListener('mousemove', resize); 
-                window.addEventListener('mouseup', stopResize);
-            });
-        });
-
-        const resize = (e) => {
-            const cls = currentResizer.className; 
-            let width = this.original_width; 
-            let height = this.original_height; 
-            let top = this.original_y - this.parent_offset_y; 
-            let left = this.original_x - this.parent_offset_x;
-            
-            if (cls.includes('e')) width = this.original_width + (e.pageX - this.original_mouse_x);
-            if (cls.includes('s')) height = this.original_height + (e.pageY - this.original_mouse_y);
-            if (cls.includes('w')) { 
-                width = this.original_width - (e.pageX - this.original_mouse_x); 
-                left = (this.original_x - this.parent_offset_x) + (e.pageX - this.original_mouse_x); 
-            }
-            if (cls.includes('n')) { 
-                height = this.original_height - (e.pageY - this.original_mouse_y); 
-                top = (this.original_y - this.parent_offset_y) + (e.pageY - this.original_mouse_y); 
-            }
-            if (width > 200) { this.panel.style.width = width + 'px'; this.panel.style.left = left + 'px'; }
-            if (height > 200) { this.panel.style.height = height + 'px'; this.panel.style.top = top + 'px'; }
+        const handleWheel = (e, key) => {
+            if (e.target.closest('#floating-panel')) return;
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            this.zoomSingle(key, delta);
         };
-        
-        const stopResize = () => { 
-            window.removeEventListener('mousemove', resize); 
-            window.removeEventListener('mouseup', stopResize); 
-        };
+        this.zoneTop.addEventListener('wheel', (e) => handleWheel(e, 'top'));
+        this.zoneBottom.addEventListener('wheel', (e) => handleWheel(e, 'bottom'));
     }
 
+    zoomAll(delta) {
+        this.zoomSingle('top', delta);
+        this.zoomSingle('bottom', delta);
+    }
+
+    zoomSingle(key, delta) {
+        const v = this.views[key];
+        v.scale = Math.min(Math.max(0.1, v.scale + delta), 4);
+        this.updateTransform(key);
+    }
+
+  updateTransform(key) {
+        const v = this.views[key];
+        const canvas = key === 'top' ? this.canvasTop : this.canvasBottom;
+        
+        if(canvas) {
+            // translate(-50%, -50%) place le centre de la toile au centre de l'écran
+            // + v.x / v.y ajoute le déplacement de la souris
+            canvas.style.transform = `translate(calc(-50% + ${v.x}px), calc(-50% + ${v.y}px)) scale(${v.scale})`;
+        }
+    }
+
+   resetViews() {
+        // Zoom initial à 0.5 pour voir l'ensemble des documents
+        this.views.top = { x: 0, y: 0, scale: 0.5 };
+        this.views.bottom = { x: 0, y: 0, scale: 0.5 };
+        
+        this.updateTransform('top');
+        this.updateTransform('bottom');
+    }
+
+    // --- CHARGEMENT ---
     async loadHomeworks() {
-      this.listView.innerHTML = "Chargement..."; this.showList();
+      this.listView.innerHTML = "<p style='padding:20px'>Chargement...</p>";
       try {
+          if (!state.currentPlayerData) return;
           const res = await fetch(`/api/homework/${state.currentPlayerData.classroom}`); 
           const list = await res.json();
           this.listView.innerHTML = ""; 
-          if (list.length === 0) { this.listView.innerHTML = "<p style='text-align:center'>Aucun devoir à faire.</p>"; return; }
-          list.forEach(hw => {
+          if (list.length === 0) { this.listView.innerHTML = "<p style='text-align:center'>Aucun devoir.</p>"; return; }
+          list.forEach((hw, i) => {
               const div = document.createElement("div"); div.className = "hw-list-item";
-              const qCount = hw.levels ? hw.levels.length : 1;
-              div.innerHTML = `<strong>${hw.title}</strong> (${qCount} Q)<br><small>${new Date(hw.date).toLocaleDateString()}</small>`;
+              div.innerHTML = `<b>${hw.title}</b><br><small>${new Date(hw.date).toLocaleDateString()}</small>`;
               div.onclick = () => this.startHomework(hw);
               this.listView.appendChild(div);
           });
-      } catch(e) { this.listView.innerHTML = "Erreur chargement."; }
+      } catch(e) { this.listView.innerHTML = "Erreur."; }
     }
     
     startHomework(hw) { 
@@ -142,106 +171,115 @@ export class HomeworkGame {
     }
     
     loadLevel() {
-      const levels = this.currentHw.levels || [{ instruction: this.currentHw.description, attachmentUrls: this.currentHw.attachmentUrl ? [this.currentHw.attachmentUrl] : [] }];
+      const levels = this.currentHw.levels || [];
       const currentLevel = levels[this.currentLevelIndex];
-      
       this.titleEl.textContent = this.currentHw.title;
-      this.descEl.textContent = currentLevel.instruction;
+      this.descEl.innerHTML = `<strong>Q${this.currentLevelIndex+1}:</strong> ${currentLevel.instruction}`;
       this.stepIndicator.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
-      this.textInput.value = ""; this.fileInput.value = ""; this.fileNameDisplay.textContent = ""; this.resultEl.style.display = "none";
+      this.textInput.value = ""; this.fileInput.value = ""; this.fileNameDisplay.textContent = "";
       this.submitBtn.style.display = "block"; this.nextBtn.style.display = "none";
 
-      this.zoneTop.innerHTML = "";
-      this.zoneBottom.innerHTML = "";
-      
-      const urls = currentLevel.attachmentUrls || [];
-      this.noDocMsg.style.display = (urls.length > 0) ? "none" : "block";
+      this.canvasTop.innerHTML = ""; this.canvasBottom.innerHTML = "";
+      this.noDocMsg.style.display = (currentLevel.attachmentUrls.length > 0) ? "none" : "block";
 
-      const breakIndex = urls.indexOf("BREAK");
-      const hasBottomContent = (breakIndex !== -1 && breakIndex < urls.length - 1);
-
-      if (hasBottomContent) {
-          this.zoneBottom.style.display = "flex";
-          this.zoneTop.style.flex = "3"; 
-          this.zoneTop.style.borderBottom = "4px solid #f59e0b"; 
+      const breakIndex = currentLevel.attachmentUrls.indexOf("BREAK");
+      if ((breakIndex !== -1 && breakIndex < currentLevel.attachmentUrls.length - 1)) {
+          this.zoneBottom.style.display = "flex"; this.zoneTop.style.flex = "3"; this.zoneTop.style.borderBottom = "4px solid #f59e0b"; 
       } else {
-          this.zoneBottom.style.display = "none";
-          this.zoneTop.style.flex = "1"; 
-          this.zoneTop.style.borderBottom = "none";
+          this.zoneBottom.style.display = "none"; this.zoneTop.style.flex = "1"; this.zoneTop.style.borderBottom = "none";
       }
 
-      let currentZone = this.zoneTop;
-      urls.forEach(url => {
-          if (url === "BREAK") { currentZone = this.zoneBottom; return; }
-          if(!url) return;
+      let currentCanvas = this.canvasTop;
+      currentLevel.attachmentUrls.forEach(u => {
+          if (u === "BREAK") { currentCanvas = this.canvasBottom; return; }
           
           let el;
-          if (url.endsWith(".pdf")) {
-              el = document.createElement("iframe"); el.src = url; el.className = "doc-item-student";
-              el.style.width="500px"; 
+          if (u.endsWith(".pdf")) {
+              el = document.createElement("iframe"); el.src = u; el.className = "doc-item-student";
+              el.style.width="600px"; el.style.height="800px"; 
           } else {
-              el = document.createElement("img"); el.src = url; el.className = "doc-item-student";
+              el = document.createElement("img"); el.src = u; el.className = "doc-item-student";
           }
-          currentZone.appendChild(el);
+          currentCanvas.appendChild(el);
       });
+      
+      this.resetViews();
+    }
+    
+    // --- GESTION PANEL ---
+    initPanelDrag() {
+        this.header.addEventListener('mousedown', (e) => { this.isDraggingPanel = true; this.dragOffsetX = e.clientX - this.panel.offsetLeft; this.dragOffsetY = e.clientY - this.panel.offsetTop; });
+        window.addEventListener('mousemove', (e) => { if (!this.isDraggingPanel) return; this.panel.style.left = `${e.clientX - this.dragOffsetX}px`; this.panel.style.top = `${e.clientY - this.dragOffsetY}px`; });
+        window.addEventListener('mouseup', () => { this.isDraggingPanel = false; });
+    }
+
+    initPanelResize() {
+        const resizers = this.c.querySelectorAll('.resizer'); let currentResizer = null;
+        let oW, oH, oX, oY, oMX, oMY;
+        resizers.forEach(r => {
+            r.addEventListener('mousedown', (e) => { 
+                e.preventDefault(); e.stopPropagation(); currentResizer = r;
+                oW = parseFloat(getComputedStyle(this.panel).width); oH = parseFloat(getComputedStyle(this.panel).height);
+                oMX = e.pageX; oMY = e.pageY;
+                window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize);
+            });
+        });
+        const resize = (e) => {
+            if (!currentResizer) return;
+            const cls = currentResizer.className; 
+            let w = oW + (e.pageX - oMX);
+            let h = oH + (e.pageY - oMY);
+            if (w > 250) this.panel.style.width = w + 'px';
+            if (h > 200) this.panel.style.height = h + 'px';
+        };
+        const stopResize = () => { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); };
     }
     
     showList() { this.workView.style.display = "none"; this.listView.style.display = "block"; }
     
     async submit() {
         const file = this.fileInput.files[0]; const text = this.textInput.value;
-        if (!file && !text) return alert("Remplis au moins le texte ou ajoute une image !");
-        
+        if (!file && !text) return alert("Réponse vide !");
         this.submitBtn.disabled = true; 
-        this.loadingEl.style.display = "block"; 
-        this.resultEl.style.display = "none";
         
+        if(this.aiModal) { this.aiModal.style.display = "flex"; this.aiModalContent.innerHTML = "<p style='text-align:center;'>🧠 Analyse...</p>"; if(this.aiModalBtn) this.aiModalBtn.style.display = "none"; }
+
         try {
             let imageUrl = null;
             if (file) {
-                // Utilisation de la nouvelle fonction API
-                const res = await uploadFile(file);
-                if (res.ok) imageUrl = res.imageUrl; else throw new Error("Erreur upload image");
+                const fd = new FormData(); fd.append('file', file);
+                const r = await fetch('/api/upload', { method: 'POST', body: fd });
+                const d = await r.json();
+                if(d.ok) imageUrl = d.imageUrl;
             }
             
-            const levels = this.currentHw.levels || [{ instruction: this.currentHw.description, attachmentUrls: [this.currentHw.attachmentUrl] }];
-            const currentLevel = levels[this.currentLevelIndex];
-
-            // Utilisation de l'API centralisée (nouvelle architecture)
             const res = await fetch('/api/analyze-homework', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    imageUrl, 
-                    userText: text, 
-                    homeworkInstruction: currentLevel.instruction, 
-                    teacherDocUrls: currentLevel.attachmentUrls, 
-                    classroom: state.currentPlayerData.classroom,
-                    playerId: state.currentPlayerId,
-                    homeworkId: this.currentHw._id 
+                    imageUrl, userText: text, 
+                    homeworkInstruction: this.currentHw.levels[this.currentLevelIndex].instruction, 
+                    teacherDocUrls: this.currentHw.levels[this.currentLevelIndex].attachmentUrls, 
+                    classroom: state.currentPlayerData.classroom, playerId: state.currentPlayerId, homeworkId: this.currentHw._id 
                 })
             });
             const data = await res.json();
             
-            this.resultEl.innerHTML = data.feedback;
-            this.resultEl.style.display = "block";
-            this.submitBtn.style.display = "none"; this.nextBtn.style.display = "block";
-            
-            if (this.currentLevelIndex >= levels.length - 1) { 
-                this.nextBtn.textContent = "Terminer le devoir 🎉"; this.nextBtn.style.backgroundColor = "#eab308"; 
-            } else { 
-                this.nextBtn.textContent = "Question Suivante ➔"; this.nextBtn.style.backgroundColor = "#16a34a"; 
+            if (this.aiModalContent) this.aiModalContent.innerHTML = data.feedback;
+            if (this.aiModalBtn) {
+                this.aiModalBtn.style.display = "inline-block";
+                this.aiModalBtn.textContent = (this.currentLevelIndex < this.currentHw.levels.length - 1) ? "Question Suivante ➔" : "Terminer 🎉";
+                this.aiModalBtn.onclick = () => { this.aiModal.style.display = "none"; this.nextQuestion(); };
             }
-        } catch (e) { alert("Erreur : " + e.message); }
-        
-        this.submitBtn.disabled = false; this.loadingEl.style.display = "none";
+            this.submitBtn.style.display = "none"; this.nextBtn.style.display = "block";
+        } catch (e) { 
+             if(this.aiModalContent) this.aiModalContent.innerHTML = "Erreur.";
+             if (this.aiModalBtn) { this.aiModalBtn.style.display="block"; this.aiModalBtn.textContent="Fermer"; this.aiModalBtn.onclick=()=>this.aiModal.style.display="none"; }
+        }
+        this.submitBtn.disabled = false;
     }
     
     nextQuestion() {
-        const levels = this.currentHw.levels || [{}];
-        if (this.currentLevelIndex < levels.length - 1) { 
-            this.currentLevelIndex++; this.loadLevel(); 
-        } else { 
-            alert("Devoir terminé ! Bravo !"); this.showList(); 
-        }
+        if (this.currentLevelIndex < this.currentHw.levels.length - 1) { this.currentLevelIndex++; this.loadLevel(); } 
+        else { alert("Terminé !"); this.showList(); }
     }
-  }
+}

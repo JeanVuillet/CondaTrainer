@@ -8,33 +8,23 @@
 </head>
 <body>
   
-  <!-- EN-TÊTE -->
   <header>
     <div class="header-left">
       <button id="backToMenuBtn" class="back-menu-btn" style="display:none;">← Menu</button>
       <h1>Plateforme Condamine</h1>
     </div>
     <div class="header-right"> 
-      <!-- Bouton Mes Fautes (Élève) -->
-      <button id="myMistakesBtn" style="display:none; background:#f472b6; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">📝 Fautes</button>
-      
-      <!-- Bouton Bug -->
+      <button id="myMistakesBtn" style="display:none; background:#f472b6; color:white; border:none; padding:6px 12px; border-radius:5px; font-weight:bold;">📝 Fautes</button>
       <button id="pauseReportBtn" class="pause-btn">🐞 Bug / Pause</button>
-      
-      <!-- Bouton Retour Prof (Visible seulement si compte Test) -->
-      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-weight:bold;">🎓 Prof</button>
-      
-      <!-- Badge Nom -->
+      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none; padding:6px 10px; border-radius:5px; font-weight:bold;">🎓 Prof</button>
       <div id="studentBadge" style="font-weight:bold; color:#334155;"></div>
-      
-      <!-- Bouton Déconnexion -->
       <button id="logoutBtn" style="display: none; padding:6px 10px; cursor:pointer; border:1px solid #cbd5e1; background:white; border-radius:5px;">Déconnexion</button>
     </div>
   </header>
 
   <main class="wrap">
     
-    <!-- 1. ÉCRAN DE CONNEXION -->
+    <!-- 1. CONNEXION -->
     <section id="registerCard" class="card">
       <h2>👋 Connexion</h2>
       <form id="registerForm" autocomplete="on">
@@ -51,7 +41,6 @@
           <button id="startBtn" type="submit" style="flex:1; background:#2563eb; color:white; border:none; cursor:pointer;">Entrer</button>
         </div>
       </form>
-      <!-- Modale Mot de Passe Prof (Hors du formulaire) -->
       <div id="profPasswordModal" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
            <label style="font-size:0.9em; font-weight:bold;">Accès Enseignant :</label>
            <div style="display:flex; gap:10px; margin-top:5px;">
@@ -61,7 +50,7 @@
       </div>
     </section>
 
-    <!-- 2. MENU CHAPITRES (ÉLÈVE) -->
+    <!-- 2. MENU -->
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
@@ -83,7 +72,7 @@
       </div>
     </section>
 
-    <!-- 3. ZONE DE JEU -->
+    <!-- 3. JEU -->
     <section id="game" style="display: none;">
       <div class="card quiz-container">
         <h2 id="levelTitle" style="text-align:center;"></h2>
@@ -95,7 +84,7 @@
       </div>
     </section>
     
-    <!-- 4. DASHBOARD PROFESSEUR (Layout Vertical) -->
+    <!-- 4. DASHBOARD PROF -->
     <section id="profDashboard" class="card" style="margin-top: 24px; display: none;"> 
       <div class="tabs-container">
           <button id="tabStudents" class="tab-btn active">👥 Élèves</button>
@@ -104,263 +93,84 @@
       </div>
 
       <div id="contentStudents" class="tab-content active">
-        <!-- Filtres Vertical -->
-        <div style="margin-bottom: 15px;">
-            <select id="classFilter" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: white; font-size: 14px; width: 100%;">
-                <option value="all">Toutes les classes</option>
-                <option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option>
-                <option value="2A">2de A</option><option value="2CD">2de CD</option>
-            </select>
-        </div>
-
-        <!-- Bouton Test -->
-        <button id="testClassBtn" style="width: 100%; background-color: #3b82f6; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;">
-            🎮 Tester classe
-        </button>
-
-        <!-- Recherche -->
-        <input id="studentSearch" type="text" placeholder="Rechercher..." style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; font-size: 14px; background: white;">
-
-        <!-- Bouton Reset -->
-        <button id="resetAllBtn" style="width: 100%; background-color: #ef4444; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 25px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;">
-            ⚠️ Tout Réinitialiser
-        </button>
-
-        <!-- Tableau -->
-        <table id="playersTable" style="width: 100%; border-collapse: collapse; background: white;">
-            <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                <tr>
-                    <th style="padding: 12px; text-align: left; width: 25%;">Prénom et Nom</th>
-                    <th style="padding: 12px; text-align: left; width: 10%;">Classe</th>
-                    <th style="padding: 12px; text-align: left;">Chapitre</th>
-                    <th style="padding: 12px; text-align: left;">Niveau</th>
-                    <th style="padding: 12px; text-align: left;">Progression</th>
-                    <th style="padding: 12px; text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="playersBody"></tbody>
-        </table>
+        <div style="margin-bottom: 15px;"><select id="classFilter" style="width:100%; padding:8px;"><option value="all">Toutes</option><option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option><option value="2A">2de A</option><option value="2CD">2de CD</option></select></div>
+        <button id="testClassBtn" style="width:100%; padding:12px; background:#3b82f6; color:white; border:none; border-radius:8px; margin-bottom:15px; font-weight:bold;">🎮 Tester classe</button>
+        <input id="studentSearch" placeholder="Rechercher..." style="width:100%; padding:10px; margin-bottom:15px;">
+        <button id="resetAllBtn" style="width:100%; padding:12px; background:#ef4444; color:white; border:none; border-radius:8px; margin-bottom:25px; font-weight:bold;">⚠️ Tout Réinitialiser</button>
+        <table id="playersTable" style="width:100%; border-collapse:collapse;"><thead style="background:#f8fafc;"><tr><th style="padding:10px;">Prénom et Nom</th><th style="padding:10px;">Classe</th><th style="padding:10px;">Chapitre</th><th style="padding:10px;">Niveau</th><th style="padding:10px;">Progression</th><th style="padding:10px;">Actions</th></tr></thead><tbody id="playersBody"></tbody></table>
       </div>
 
       <div id="contentHomeworks" class="tab-content">
-          <button id="addHomeworkBtn" class="action-btn" style="background:#8b5cf6; color:white; font-size:16px; padding:10px 20px; margin-bottom:15px;">➕ Nouveau Devoir</button>
-          <table style="width:100%; text-align:left; border-collapse:collapse;"><tbody id="profHomeworksBody"></tbody></table>
+          <button id="addHomeworkBtn" class="action-btn" style="margin-bottom:15px;">➕ Nouveau Devoir</button>
+          <table style="width:100%; text-align:left;"><tbody id="profHomeworksBody"></tbody></table>
       </div>
     </section>
 
-    <!-- TOUTES LES MODALES -->
-
-    <!-- Modale Bugs Prof -->
+    <!-- MODALES -->
     <div id="profBugListModal" class="modal-overlay" style="display:none;"><div class="modal-content"><button id="closeBugListBtn">Fermer</button><div id="bugsBody"></div></div></div>
-    
-    <!-- Modale Création Devoir (Prof) -->
     <div id="createHomeworkModal" class="modal-overlay" style="display:none;"></div>
-    
-    <!-- Modale Leçon (Élève) -->
     <div id="lessonModal" class="modal-overlay" style="display:none;"><div class="modal-content"><div id="lessonText"></div><button onclick="document.getElementById('lessonModal').style.display='none'">Fermer</button></div></div>
-    
-    <!-- Modale Pause/Bug (Élève) -->
-    <div id="bugModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content" style="max-width:500px; text-align:center;">
-            <h3 style="margin-top:0;">⏸️ Pause</h3>
-            <p>Si tu as un problème technique, décris-le ci-dessous :</p>
-            <textarea id="bugDescription" style="width:100%; height:80px; margin-bottom:10px;"></textarea>
-            <button id="sendBugBtn" style="background:#ef4444; color:white;">Envoyer</button>
-            <button id="resumeGameBtn">Reprendre</button>
-        </div>
-    </div>
-    
-    <!-- Modale Feedback IA (Devoirs) -->
-    <div id="aiFeedbackModal" class="modal-overlay" style="display:none; z-index: 5000;">
-        <div class="modal-content ai-modal-content" style="max-width:600px;">
-            <h3 id="aiModalTitle" style="margin-top:0;">🤖 Analyse de l'IA</h3>
-            <div id="aiModalContent" class="ai-feedback-box" style="background:#f1f5f9; padding:15px; border-radius:8px; margin:15px 0; max-height:300px; overflow-y:auto;">Chargement...</div>
-            <div style="text-align:right;">
-                <button id="aiModalCloseBtn" style="background:#2563eb; color:white; padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">J'ai compris</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modale Mes Fautes -->
-    <div id="mistakesModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content" style="max-width: 600px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3>📝 Mes Fautes</h3>
-                <button id="closeMistakesBtn" style="background:transparent; color:#333; font-size:20px; border:none; cursor:pointer;">✖</button>
-            </div>
-            <div id="mistakesList" style="max-height:60vh; overflow-y:auto; text-align:left;"></div>
-        </div>
-    </div>
-
-    <!-- Overlays Jeu -->
-    <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:10px; text-align:center;"><h3>Perdu !</h3><button id="restartBtn" style="padding:10px 20px;">Recommencer</button></div>
-    </div>
-    <div id="correctionOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:10px; max-width:400px; text-align:center;">
-            <h3 style="color:#ef4444;">Faux !</h3><p id="correctionText"></p><button id="closeCorrectionBtn" style="padding:10px 20px; background:#2563eb; color:white; border:none; margin-top:10px;">Continuer</button>
-        </div>
-    </div>
-
+    <div id="bugModal" class="modal-overlay" style="display:none;"><div class="modal-content"><textarea id="bugDescription"></textarea><button id="sendBugBtn">Envoyer</button><button id="resumeGameBtn">Annuler</button></div></div>
+    <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;"><div style="background:white; padding:30px; border-radius:10px; text-align:center;"><h3>Perdu !</h3><button id="restartBtn" style="padding:10px 20px;">Recommencer</button></div></div>
+    <div id="correctionOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;"><div style="background:white; padding:30px; border-radius:10px; max-width:400px; text-align:center;"><h3 style="color:#ef4444;">Faux !</h3><p id="correctionText"></p><button id="closeCorrectionBtn" style="padding:10px 20px;">Continuer</button></div></div>
+    <div id="mistakesModal" class="modal-overlay" style="display: none;"><div class="modal-content"><button id="closeMistakesBtn">X</button><div id="mistakesList"></div></div></div>
+    <div id="aiFeedbackModal" class="modal-overlay" style="display:none; z-index: 5000;"><div class="modal-content ai-modal-content"><h3 id="aiModalTitle">🤖 Analyse IA</h3><div id="aiModalContent" class="ai-feedback-box"></div><div style="text-align:right;"><button id="aiModalCloseBtn">J'ai compris</button></div></div></div>
   </main>
 
-  <!-- ======================== TEMPLATES JEUX ======================== -->
+  <!-- TEMPLATES -->
   
-  <template id="template-zombie-game">
-    <div style="text-align:center;">
-      <div id="zombie-arena" style="height:200px; background:#e0f2fe; position:relative; overflow:hidden; border-radius:10px;">
-        <img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;">
-        <img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;">
-        
-        <!-- PROJECTILE CORRIGÉ -->
-        <div id="z-projectile" style="position:absolute; bottom:25px; left:50px; width:20px; height:20px; background:radial-gradient(circle, #facc15, #ca8a04); border-radius:50%; display:none; z-index:10; box-shadow: 0 0 10px yellow;"></div>
-        
-        <div id="feedback-bubble"></div>
-      </div>
-      <div id="z-question" class="question-zone" style="font-size:1.3em; font-weight:bold; margin:15px 0;">Chargement...</div>
-      
-      <!-- MODE IA -->
-      <div id="ai-input-zone" style="display:flex; justify-content:center; gap:10px;">
-          <input id="z-answer" placeholder="Ta réponse..." style="padding:10px; width:80%; font-size:16px;">
-          <button id="z-submit" style="padding:10px 20px; background:#2563eb; color:white; font-weight:bold;">Valider</button>
-      </div>
-
-      <!-- MODE QCM -->
-      <div id="options-grid" style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-          <button class="option-btn">A</button><button class="option-btn">B</button><button class="option-btn">C</button><button class="option-btn">D</button>
-      </div>
-    </div>
-  </template>
-
-  <template id="template-redaction-game">
-      <div style="display:flex; flex-direction:column; gap:15px;">
-        <div id="redac-q" style="background:#e0f2fe; padding:15px; border-radius:5px; font-weight:bold;"></div>
-        <textarea id="redac-answer" style="height:150px; padding:10px;"></textarea>
-        <button id="redac-submit" style="padding:10px; background:#2563eb; color:white;">Envoyer</button>
-        <div id="redac-loading" style="display:none;">Analyse...</div>
-        <div id="analysis-area" style="display:none; background:#f0fdf4; padding:15px;">
-            <div id="text-good" style="color:#166534;"></div>
-            <button id="redac-continue" style="margin-top:10px;">Continuer</button>
-        </div>
-      </div>
-  </template>
-
-<!-- TEMPLATE HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT INTELLIGENT) - RESTAURÉ -->
+  <!-- HOMEWORK (FINAL) -->
   <template id="template-homework-game">
-      <style>
-        .hw-layout { position: relative; width: 100%; height: 600px; max-height: 75vh; background-color: #334155; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-        .hw-list-view { padding: 20px; background: white; height: 100%; overflow-y: auto; display: block; }
-        .hw-list-item { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left; margin-bottom: 10px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .hw-list-item:hover { border-color: #3b82f6; transform: translateX(5px); }
-        
-        .hw-work-view { position: relative; width: 100%; height: 100%; display: none; overflow: hidden; }
-        
-        /* CONTENEUR PRINCIPAL ÉLÈVE */
-        .doc-viewer-container { 
-            width: 100%; height: 100%; 
-            display: flex; flex-direction: column; /* Colonne */
-            background-image: radial-gradient(#475569 1px, transparent 1px); background-size: 20px 20px; 
-        }
-
-        /* ZONE HAUTE (DOCUMENTS) */
-        .doc-zone-top {
-            flex: 1; /* Par défaut 100% (si bas caché) */
-            padding: 10px;
-            overflow-x: auto; 
-            overflow-y: hidden;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.2);
-            transition: flex 0.3s;
-        }
-
-        /* ZONE BASSE (QUESTIONS) - Masquée par défaut */
-        .doc-zone-bottom {
-            display: none; /* Caché si vide */
-            flex: 1; 
-            padding: 10px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            align-items: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.4);
-            border-top: 4px solid #f59e0b; /* Séparateur */
-        }
-
-        /* IMAGES ÉLÈVES */
-        .doc-item-student {
-            height: 90%; /* S'adapte à la hauteur de la zone */
-            width: auto;
-            max-width: none;
-            object-fit: contain;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
-            border: 2px solid white;
-            background: #1e293b;
-            flex-shrink: 0;
-        }
-
-        .floating-panel { position: absolute; top: 20px; right: 20px; width: 320px; height: 400px; background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column; z-index: 100; border: 1px solid #cbd5e1; resize: both; overflow: hidden; min-width: 200px; min-height: 200px; }
-        .resizer { position: absolute; background: transparent; z-index: 101; }
-        .resizer.n { top: 0; left: 0; right: 0; height: 6px; cursor: n-resize; } .resizer.s { bottom: 0; left: 0; right: 0; height: 6px; cursor: s-resize; } .resizer.e { top: 0; bottom: 0; right: 0; width: 6px; cursor: e-resize; } .resizer.w { top: 0; bottom: 0; left: 0; width: 6px; cursor: w-resize; }
-        .resizer.ne { top: 0; right: 0; width: 12px; height: 12px; cursor: ne-resize; z-index: 102; } .resizer.nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nw-resize; z-index: 102; } .resizer.se { bottom: 0; right: 0; width: 12px; height: 12px; cursor: se-resize; z-index: 102; } .resizer.sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: sw-resize; z-index: 102; }
-        .panel-header { background: #f1f5f9; padding: 10px 15px; border-bottom: 1px solid #e2e8f0; cursor: move; font-weight: 700; color: #334155; display: flex; justify-content: space-between; align-items: center; user-select: none; border-radius: 12px 12px 0 0; }
-        .panel-body { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .panel-consigne { font-size: 0.9em; color: #64748b; background: #fff7ed; padding: 8px; border-radius: 6px; border-left: 3px solid #f97316; margin-bottom: 5px; }
-        .hw-textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: none; flex: 1; }
-        .hw-upload-mini { font-size: 0.85em; color: #2563eb; cursor: pointer; text-decoration: underline; }
-        .panel-footer { padding: 10px 15px; border-top: 1px solid #e2e8f0; background: #fff; border-radius: 0 0 12px 12px; }
-        .btn-send { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-back { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; cursor: pointer; }
-        .btn-next { width: 100%; padding: 10px; background: #16a34a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; }
-        .ai-feedback-mini { font-size: 0.9em; background: #dcfce7; padding: 10px; border-radius: 6px; border: 1px solid #86efac; color: #166534; display: none; margin-top: 10px; max-height: 200px; overflow-y: auto; }
-        .progress-step { font-size: 0.8em; color:#94a3b8; margin-right: 10px; }
-      </style>
       <div class="hw-layout">
-        <div id="hw-list" class="hw-list-view"><p style="text-align:center; color:#666;">Chargement des devoirs...</p></div>
+        <div id="hw-list" class="hw-list-view">Chargement...</div>
         <div id="hw-workspace" class="hw-work-view">
             
             <div id="doc-viewer" class="doc-viewer-container">
-                <p id="no-doc-msg" style="color:white; opacity:0.5; pointer-events:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">Aucun document</p>
+                <p id="no-doc-msg" style="color:white; opacity:0.5; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">Aucun document</p>
                 
                 <!-- ZONE HAUTE -->
-                <div id="zone-top" class="doc-zone-top"></div>
-                
-                <!-- ZONE BASSE (Cachée par défaut par JS) -->
-                <div id="zone-bottom" class="doc-zone-bottom"></div>
+                <div id="zone-top" class="doc-zone-top">
+                    <!-- TOILE HORIZONTALE -->
+                    <div id="canvas-top" class="canvas-layer"></div>
+                </div>
+
+                <!-- ZONE BASSE -->
+                <div id="zone-bottom" class="doc-zone-bottom">
+                    <!-- TOILE HORIZONTALE -->
+                    <div id="canvas-bottom" class="canvas-layer"></div>
+                </div>
+
+                <div class="doc-controls">
+                    <button class="zoom-btn" id="btn-zoom-out">➖</button>
+                    <button class="zoom-btn" id="btn-zoom-in">➕</button>
+                </div>
             </div>
 
             <div id="floating-panel" class="floating-panel">
-                <div class="resizer n"></div><div class="resizer s"></div><div class="resizer e"></div><div class="resizer w"></div>
-                <div class="resizer ne"></div><div class="resizer nw"></div><div class="resizer se"></div><div class="resizer sw"></div>
-                <div id="panel-header" class="panel-header">
-                    <span>📝 <span id="question-step" class="progress-step">1/1</span> Ma Réponse</span>
-                    <button id="btn-close-work" class="btn-back">Quitter</button>
-                </div>
+                <div class="resizer se"></div>
+                <div id="panel-header" class="panel-header"><span>📝 <span id="question-step">1/1</span> Ma Réponse</span><button id="btn-close-work" class="btn-back">Quitter</button></div>
                 <div class="panel-body">
-                    <div id="panel-title" style="font-weight:bold; color:#1e293b;"></div>
+                    <div id="panel-title" style="font-weight:bold;"></div>
                     <div id="panel-desc" class="panel-consigne"></div>
-                    <textarea id="hw-text" class="hw-textarea" placeholder="Rédige ta réponse ici..."></textarea>
-                    <div style="text-align:left;">
-                        <label class="hw-upload-mini">📎 Joindre une photo<input type="file" id="hw-file" accept="image/*" style="display:none;"></label>
-                        <div id="file-name" style="font-size:0.8em; color:#64748b;"></div>
-                    </div>
-                    <div id="hw-loading" style="display:none; text-align:center; color:#2563eb; font-weight:bold;">🔍 Analyse...</div>
-                    <div id="hw-result" class="ai-feedback-mini"></div>
+                    <textarea id="hw-text" class="hw-textarea" placeholder="Réponse..."></textarea>
+                    <div style="text-align:left;"><label class="hw-upload-mini">📎 Photo<input type="file" id="hw-file" style="display:none;" accept="image/*"></label><div id="file-name"></div></div>
+                    <div id="hw-loading" style="display:none;">Analyse...</div>
                 </div>
                 <div class="panel-footer">
                     <button id="hw-submit" class="btn-send">Envoyer à l'IA 🤖</button>
-                    <button id="hw-next" class="btn-next">Question Suivante ➔</button>
+                    <button id="hw-next" class="btn-next">Suivant ➔</button>
                 </div>
             </div>
         </div>
       </div>
   </template>
 
+  <!-- AUTRES TEMPLATES (Simplifiés) -->
+  <template id="template-zombie-game"><div style="text-align:center;"><div id="zombie-arena"><img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;"><img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;"><div id="z-projectile"></div><div id="feedback-bubble"></div></div><div id="z-question" class="question-zone"></div><div id="ai-input-zone"><input id="z-answer"><button id="z-submit">Valider</button></div><div id="options-grid"></div></div></template>
+  <template id="template-redaction-game"><div id="redac-q"></div><textarea id="redac-answer"></textarea><button id="redac-submit">Envoyer</button><div id="redac-loading"></div><div id="analysis-area"><div id="text-good"></div><button id="redac-continue">Continuer</button></div></template>
   <template id="template-starship-game"><div id="starship-game-area"><div id="ship"></div><div id="question"></div></div></template>
   <template id="template-jumper-game"><div id="jumper-area"><div id="player"></div><div id="q-text"></div><div id="options-grid"></div></div></template>
 
-  <!-- SCRIPT UNIQUE MODULAIRE -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

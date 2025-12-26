@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { reportBug } from './api.js';
 
-// IMPORTS JEUX
+// IMPORTS
 import { ZombieGame } from './games/ZombieGame.js';
 import { RedactionGame } from './games/RedactionGame.js';
 import { HomeworkGame } from './games/HomeworkGame.js';
@@ -18,28 +18,33 @@ const GameClasses = {
 
 export async function initStudentInterface() {
     console.log("🚀 Init Élève");
-    
-    // UI
     document.getElementById("chapterSelection").style.display = "block";
-    const logoutBtn = document.getElementById("logoutBtn");
-    if(logoutBtn) logoutBtn.style.display = "block";
+    if(document.getElementById("logoutBtn")) document.getElementById("logoutBtn").style.display = "block";
 
-    // CHARGER QUESTIONS
     if(state.currentPlayerData && state.currentPlayerData.classroom) {
         const classKey = state.getClassKey(state.currentPlayerData.classroom);
         try {
             const res = await fetch(`questions/questions-${classKey}.json`);
-            if(res.ok) state.allQuestionsData[classKey] = await res.json();
-            // Met à jour les cadenas
-            // (Tu peux ajouter updateChapterUI ici si tu as gardé la fonction)
-        } catch(e) { console.log("Info: Pas de JSON questions"); }
+            if(res.ok) {
+                state.allQuestionsData[classKey] = await res.json();
+                console.log(`✅ Questions ${classKey} chargées.`);
+            }
+        } catch(e) { console.log("Pas de questions JSON"); }
         document.querySelectorAll(".chapter-action-btn").forEach(b => b.disabled = false);
     }
     
     // NAVIGATION
     document.getElementById("backToMenuBtn").onclick = () => window.location.reload();
-
-    // Retour Prof
+    
+    // MES FAUTES
+    const btnMistakes = document.getElementById("myMistakesBtn");
+    if(btnMistakes && state.currentPlayerData.id !== "prof") {
+        btnMistakes.style.display = "block";
+        btnMistakes.onclick = loadMistakes;
+        document.getElementById("closeMistakesBtn").onclick = () => document.getElementById("mistakesModal").style.display = "none";
+    }
+    
+    // RETOUR PROF
     if(state.currentPlayerData.firstName === "Eleve" && state.currentPlayerData.lastName === "Test") {
         const btnProf = document.getElementById("backToProfBtn");
         if(btnProf) {
@@ -51,40 +56,40 @@ export async function initStudentInterface() {
         }
     }
     
-    // Mes Fautes
-    const btnMistakes = document.getElementById("myMistakesBtn");
-    if(btnMistakes && state.currentPlayerData.id !== "prof") {
-        btnMistakes.style.display = "block";
-        btnMistakes.onclick = loadMistakes;
-        document.getElementById("closeMistakesBtn").onclick = () => document.getElementById("mistakesModal").style.display = "none";
-    }
-
-    // Bugs
+    // BUGS
     document.getElementById("pauseReportBtn").onclick = () => { state.isGlobalPaused = true; document.getElementById("bugModal").style.display="flex"; };
     document.getElementById("resumeGameBtn").onclick = () => { state.isGlobalPaused = false; document.getElementById("bugModal").style.display="none"; };
     document.getElementById("sendBugBtn").onclick = async () => {
         await reportBug({ reporterName: state.currentPlayerData.firstName, description: document.getElementById("bugDescription").value });
         alert("Envoyé !"); document.getElementById("bugModal").style.display="none"; state.isGlobalPaused = false;
     };
+    
+    // CHEAT BARRE
+    const mainBar = document.getElementById("mainProgress");
+    if (mainBar) {
+        mainBar.onclick = () => {
+            if (state.isGameActive && state.isRKeyDown && state.isTKeyDown) {
+                state.general = state.levels[state.currentLevel].questions.length;
+                updateBars();
+                nextQuestion(false);
+            }
+        };
+    }
 }
 
 async function loadMistakes() {
     const list = document.getElementById("mistakesList");
-    const modal = document.getElementById("mistakesModal");
+    document.getElementById("mistakesModal").style.display = "flex";
     list.innerHTML = "Chargement...";
-    modal.style.display = "flex";
     try {
         const res = await fetch(`/api/player-progress/${state.currentPlayerId}`);
         const data = await res.json();
         const mistakes = data.spellingMistakes || [];
-        if(mistakes.length === 0) list.innerHTML = "<p>Aucune faute !</p>";
-        else {
-            list.innerHTML = `<ul class='spelling-list'>` + mistakes.map(m => `<li class='spelling-item'><span class='wrong-word'>${m.wrong}</span> 👉 <span class='right-word'>${m.correct}</span></li>`).join('') + `</ul>`;
-        }
+        if(mistakes.length === 0) list.innerHTML = "<p>Aucune faute.</p>";
+        else list.innerHTML = `<ul class='spelling-list'>` + mistakes.map(m => `<li><s>${m.wrong}</s> 👉 <b>${m.correct}</b></li>`).join('') + `</ul>`;
     } catch(e) { list.innerHTML = "Erreur."; }
 }
 
-// LANCEUR
 document.body.addEventListener('click', async (e) => {
     if (e.target.matches('.chapter-action-btn')) {
         const parent = e.target.closest('.chapter-box');
@@ -95,8 +100,7 @@ document.body.addEventListener('click', async (e) => {
         document.getElementById("chapterSelection").style.display = 'none';
         document.getElementById("game").style.display = 'block';
         document.getElementById("backToMenuBtn").style.display = 'inline-block';
-        const btnMistakes = document.getElementById("myMistakesBtn");
-        if(btnMistakes) btnMistakes.style.display = 'none';
+        if(document.getElementById("myMistakesBtn")) document.getElementById("myMistakesBtn").style.display = 'none';
 
         const container = document.getElementById("gameModuleContainer");
         container.innerHTML = "";
@@ -126,13 +130,12 @@ document.body.addEventListener('click', async (e) => {
                 const allLevels = state.allQuestionsData[classKey] || [];
                 state.levels = allLevels.filter(l => l.chapterId === chapterId);
                 
-                // On reprend au premier niveau non fini
                 const validatedIds = (state.currentPlayerData.validatedLevels || []).map(v => (typeof v === 'string' ? v : v.levelId));
                 let startLvl = state.levels.findIndex(l => !validatedIds.includes(l.id));
-                if (startLvl === -1) startLvl = 0; // Tout fini, on recommence
+                if (startLvl === -1) startLvl = 0; 
 
                 if(state.levels.length > 0) setupLevel(startLvl);
-                else container.innerHTML = "<h3 style='text-align:center; margin-top:50px'>Pas de niveaux.</h3>";
+                else container.innerHTML = "<h3 style='text-align:center;'>Pas de niveaux.</h3>";
             }
         }
     }
@@ -146,9 +149,9 @@ function toggleUI(show) {
     document.getElementById("lives").style.display = flex;
 }
 
-// --- MOTEUR DE JEU ---
+// MOTEUR
 function setupLevel(idx) {
-    if(!state.levels[idx]) { document.getElementById("gameModuleContainer").innerHTML = "<h1 style='text-align:center'>Terminé ! 🏆</h1>"; return; }
+    if(!state.levels[idx]) { document.getElementById("gameModuleContainer").innerHTML = "<h1>Terminé ! 🏆</h1>"; return; }
     state.currentLevel = idx;
     const lvl = state.levels[idx];
     document.getElementById("levelTitle").textContent = lvl.title;
@@ -167,13 +170,10 @@ function setupLevel(idx) {
     lvl.questions.forEach((_, i) => {
         const d = document.createElement("div"); d.className = "subProgress";
         d.innerHTML = `<div class="subBar" id="subBar${i}"></div>`;
-        
-        // CHEAT BARRE
         d.onclick = () => {
             if (state.isGameActive && state.isRKeyDown && state.isTKeyDown) {
                 state.currentIndex = i; 
-                incrementProgress(1); // +1/3
-                // Force reload pour voir l'effet
+                incrementProgress(1); 
                 loadActiveQuestion();
             }
         };
@@ -190,7 +190,7 @@ function nextQuestion(keep) {
     if(state.general >= lvl.questions.length) {
         saveProgress("level", lvl.id, "A");
         if(state.currentLevel < state.levels.length - 1) setTimeout(() => setupLevel(state.currentLevel + 1), 1500);
-        else document.getElementById("gameModuleContainer").innerHTML = "<h1 style='text-align:center'>Bravo ! 👑</h1>";
+        else document.getElementById("gameModuleContainer").innerHTML = "<h1>Bravo ! 👑</h1>";
         return;
     }
     
@@ -205,23 +205,25 @@ function nextQuestion(keep) {
     }
 }
 
-// --- FONCTION INTELLIGENTE : CHOIX MODE ---
+// FONCTION CLÉ : CHOIX QCM OU TEXTE
 function loadActiveQuestion() {
     if(!state.currentGameModuleInstance || !state.currentGameModuleInstance.loadQuestion) return;
     
     const lvl = state.levels[state.currentLevel];
     const q = lvl.questions[state.currentIndex];
+    
+    if (typeof state.localScores[state.currentIndex] === 'undefined') state.localScores[state.currentIndex] = 0;
     const score = state.localScores[state.currentIndex];
     const req = lvl.requiredPerQuestion || 3;
     
-    // CLONE la question
-    const qToSend = { ...q };
+    const qToSend = JSON.parse(JSON.stringify(q));
     
-    // RÈGLE D'OR : Si on est au dernier cran (ex: score 2 pour objectif 3), ON FORCE LE TEXTE
-    // On supprime les options du clone pour que le ZombieGame passe en mode IA
+    // Si c'est le dernier point avant validation (ex: score 2 pour objectif 3)
     if (score >= req - 1) {
-        console.log("🔥 DERNIER PALIER : Mode Rédaction activé !");
-        delete qToSend.options; 
+        console.log(`🔥 Score ${score}/${req} -> MODE TEXTE (Dernier palier)`);
+        delete qToSend.options; // ON SUPPRIME LES OPTIONS POUR FORCER L'INPUT
+    } else {
+        console.log(`🟢 Score ${score}/${req} -> MODE QCM`);
     }
     
     state.currentGameModuleInstance.loadQuestion(qToSend);
@@ -231,13 +233,11 @@ function incrementProgress(val) {
     const req = state.levels[state.currentLevel].requiredPerQuestion || 3;
     state.localScores[state.currentIndex] = Math.max(0, Math.min(req, state.localScores[state.currentIndex] + val));
     
-    // Validation
     if (state.localScores[state.currentIndex] >= req) { 
         state.general++; 
-        setTimeout(() => nextQuestion(false), 1200); 
+        setTimeout(() => nextQuestion(false), 1000); 
     } else {
-        // Pas fini, on recharge la même question (pour potentiellement changer de mode si on arrive au dernier cran)
-        // Mais avec un petit délai pour l'anim
+        // IMPORTANT : On recharge pour mettre à jour l'affichage (passer du QCM au texte si besoin)
         setTimeout(() => loadActiveQuestion(), 1000);
     }
     updateBars();
@@ -253,18 +253,14 @@ function updateBars() {
             if(score >= req) bar.parentElement.classList.add("completed"); 
         }
     });
-    const mainPct = (state.general / state.levels[state.currentLevel].questions.length) * 100;
-    document.getElementById("mainBar").style.width = mainPct + "%";
+    document.getElementById("mainBar").style.width = (state.general / state.levels[state.currentLevel].questions.length * 100) + "%";
 }
 
 function renderLives() { document.getElementById("lives").innerHTML = "❤️❤️❤️❤️".substring(0, state.lives*2); }
 
 function wrongAnswerFlow(msg) {
     state.lives--; renderLives();
-    
-    // Pénalité : On recule d'un cran dans la barre !
-    incrementProgress(-1);
-
+    incrementProgress(-1); 
     if(state.lives <= 0) document.getElementById("overlay").style.display = "flex";
     else { 
         if(msg) { 

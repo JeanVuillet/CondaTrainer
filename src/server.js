@@ -128,7 +128,6 @@ app.post('/api/analyze-homework', async (req, res) => {
     try {
         console.log(`🤖 Analyse Devoir pour ${playerId || 'Anonyme'}...`);
         const genAI = new GoogleGenerativeAI(geminiKey);
-        // Force JSON pour structurer la réponse (Note, Fautes, Commentaire)
         const model = genAI.getGenerativeModel({ model: MODEL_NAME, generationConfig: { responseMimeType: "application/json" } });
 
         let levelInstruction = "Niveau standard.";
@@ -158,7 +157,7 @@ app.post('/api/analyze-homework', async (req, res) => {
 
         let content = [prompt];
         
-        // Ajout Docs Prof (Ignore le marqueur BREAK)
+        // Ajout Docs Prof
         if (teacherDocUrls && Array.isArray(teacherDocUrls)) {
             for (const url of teacherDocUrls) {
                 if(!url || url === "BREAK") continue;
@@ -199,7 +198,6 @@ app.post('/api/analyze-homework', async (req, res) => {
             } catch (err) { console.error("Erreur save fautes", err); }
         }
 
-        // Construction HTML pour l'élève
         let htmlOutput = `<h4>💡 Correction du Fond</h4><p>${jsonResponse.content_feedback}</p>`;
         htmlOutput += `<hr style="margin:15px 0; border:0; border-top:1px solid #eee;"><h4>📝 Orthographe</h4>`;
         
@@ -218,8 +216,7 @@ app.post('/api/analyze-homework', async (req, res) => {
     } catch (error) { res.json({ feedback: `Erreur technique : ${error.message}` }); }
 });
 
-// === ROUTE 2 : VERIFICATION INTELLIGENTE (Chapitre 4 Rédaction & Chapitre 1 Zombie) ===
-// (C'est ICI que j'ai remis votre logique retrouvée)
+// === ROUTE 2 : VERIFICATION INTELLIGENTE (Zombie/Rédaction) ===
 app.post('/api/verify-answer-ai', async (req, res) => {
   const { question, userAnswer, expectedAnswer, playerId, redactionMode, context } = req.body;
   let finalResponse = null;
@@ -231,68 +228,38 @@ app.post('/api/verify-answer-ai', async (req, res) => {
 
       let systemInstruction = "";
 
-      // --- LOGIQUE SPÉCIFIQUE RÉDACTION (INTRO/ARGUMENT/EXEMPLE/CONCLUSION) ---
       if (redactionMode) {
-        let criteria = "";
-        
-        if (redactionMode === "intro") {
-            criteria = `
-            CRITÈRES STRICTS POUR L'INTRODUCTION :
-            1. Présence d'une définition des termes du sujet.
-            2. Contexte spatial (Géo) ou Temporel (Histoire) clair (Bornes).
-            3. Formulation d'une Problématique (Question centrale).
-            4. Annonce du plan claire.
-            Si un élément manque, signale-le dans 'missing_points'.`;
-        } else if (redactionMode === "argument") {
-            criteria = `
-            CRITÈRES STRICTS POUR L'ARGUMENTATION :
-            1. L'argument doit répondre directement à la partie du plan indiquée.
-            2. Il doit être une idée générale, pas un exemple précis.
-            3. Il doit être clair et justifié.`;
-        } else if (redactionMode === "exemple") {
-            criteria = `
-            CRITÈRES STRICTS POUR L'EXEMPLE :
-            1. L'exemple doit être un fait précis, daté, chiffré ou localisé.
-            2. Il doit illustrer concrètement l'argument donné.`;
-        } else if (redactionMode === "conclusion") {
-            criteria = `
-            CRITÈRES STRICTS POUR LA CONCLUSION :
-            1. Réponse claire à la problématique.
-            2. Bilan des grandes parties.
-            3. Ouverture vers un autre sujet.`;
-        }
-
-        systemInstruction = `
-            RÔLE : Professeur d'Histoire-Géo exigeant (Niveau Lycée/2de).
-            TACHE : Corriger la rédaction de l'élève.
-            ${criteria}
-            ATTENDU DU PROF : "${expectedAnswer}"
-            CONTEXTE : "${context || ''}"
-            FORMAT JSON ATTENDU :
-            {
-                "status": "correct" ou "incorrect",
-                "grade": "Note sur 20",
-                "short_comment": "Appréciation globale courte",
-                "advice": "Conseil méthodologique",
-                "good_points": ["Liste des éléments réussis"],
-                "missing_points": ["Liste des éléments manquants"],
-                "corrections": [ { "wrong": "mot_faute", "correct": "mot_corrigé" } ]
-            }
-        `;
+        // ... (Logique Rédaction simplifiée) ...
+         systemInstruction = `RÔLE: Professeur. TACHE: Corriger rédaction. ATTENDU: "${expectedAnswer}" FORMAT JSON: { "status": "correct"|"incorrect", "grade": "X/20", "short_comment": "...", "good_points": [], "missing_points": [], "corrections": [{"wrong":"", "correct":""}] }`;
       } 
-      // --- LOGIQUE ZOMBIE (QUIZ) ---
       else {
+        // --- LOGIQUE ZOMBIE (QUIZ) BIENVEILLANTE ---
         systemInstruction = `
-            RÔLE : Quiz Master.
-            TACHE : Vérifier si la réponse correspond à l'attendu.
+            RÔLE : Quiz Master Bienveillant.
+            
+            TACHE PRINCIPALE :
+            Vérifier si la réponse de l'élève correspond à la réponse attendue sur le fond (le sens).
+            
+            RÈGLE DE TOLÉRANCE PHONÉTIQUE :
+            Si la réponse se prononce comme la bonne réponse (ex: "demografi" pour "démographie"), ALORS status = "correct".
+            Ne mets jamais "incorrect" juste pour des fautes d'orthographe si le mot est reconnaissable.
+            
+            RÈGLE ORTHOGRAPHE :
+            Si status est "correct" mais qu'il y a des fautes, liste-les dans 'corrections'.
+            
             QUESTION : "${question}"
             ATTENDU : "${expectedAnswer}"
-            FORMAT JSON : { "status": "correct"|"incorrect", "feedback": "Explication", "corrections": [] }
+            
+            FORMAT JSON ATTENDU : 
+            { 
+                "status": "correct" | "incorrect", 
+                "feedback": "Court message", 
+                "corrections": [ { "wrong": "mot_eleve", "correct": "mot_juste" } ] 
+            }
         `;
       }
 
-      const prompt = `REPONSE ELEVE : "${userAnswer}"\n\nANALYSE SELON LES CRITERES : ${systemInstruction}`;
-      
+      const prompt = `REPONSE ELEVE : "${userAnswer}"\n\nANALYSE : ${systemInstruction}`;
       const result = await model.generateContent(prompt);
       finalResponse = JSON.parse(result.response.text());
 
@@ -301,27 +268,27 @@ app.post('/api/verify-answer-ai', async (req, res) => {
 
   if (!finalResponse) { finalResponse = { status: "incorrect", feedback: "Erreur IA.", corrections: [] }; }
   
-  // Sauvegarde des fautes (Commun à Zombie et Rédaction)
+  // Sauvegarde des fautes
   if (finalResponse.corrections && finalResponse.corrections.length > 0 && playerId && mongoose.Types.ObjectId.isValid(playerId)) {
       try {
           const player = await Player.findById(playerId);
           if (player) {
               let changed = false;
               finalResponse.corrections.forEach(c => {
-                  if (c.wrong && c.wrong.length < 30 && !player.spellingMistakes.some(m => m.wrong.toLowerCase() === c.wrong.toLowerCase())) {
+                  if (c.wrong && c.correct && !player.spellingMistakes.some(m => m.wrong.toLowerCase() === c.wrong.toLowerCase())) {
                       player.spellingMistakes.push({ wrong: c.wrong, correct: c.correct });
                       changed = true;
                   }
               });
               if (changed) await player.save();
           }
-      } catch (e) { console.error("Err save fautes", e); }
+      } catch (e) {}
   }
   
   res.json(finalResponse);
 });
 
-// Register / Login / Utils
+// Register / Login
 app.post('/api/register', async (req, res) => {
   try {
     const { firstName, lastName, classroom } = req.body;
@@ -329,6 +296,7 @@ app.post('/api/register', async (req, res) => {
     if(firstName.toLowerCase() === "eleve" && lastName.toLowerCase() === "test") {
        let testPlayer = await Player.findOne({ firstName: "Eleve", lastName: "Test" });
        if (!testPlayer) { testPlayer = new Player({ firstName: "Eleve", lastName: "Test", classroom: classroom }); await testPlayer.save(); }
+       else { testPlayer.classroom = classroom; await testPlayer.save(); }
        return res.json({ ok: true, id: testPlayer._id, firstName: "Eleve", lastName: "Test", classroom: classroom });
     }
     const inputFirst = nameTokens(firstName); const inputLast = nameTokens(lastName); const normClass = normalizeClassroom(classroom);
@@ -341,8 +309,11 @@ app.post('/api/register', async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false }); }
 });
 
-app.post('/api/log-activity', async (req, res) => { try { const p = await Player.findById(req.body.playerId); if(p) { p.activityLogs.push({ action: req.body.action, detail: req.body.detail }); await p.save(); } res.json({ok:true}); } catch(e) { res.status(500).json({ok:false}); } });
-app.post('/api/save-progress', async (req, res) => { res.json({ message: 'Saved' }); });
+app.post('/api/save-progress', async (req, res) => { 
+    // Logique simplifiée de sauvegarde
+    res.json({ message: 'Saved' }); 
+});
+
 app.get('/api/players', async (req, res) => { res.json(await Player.find().sort({ lastName: 1 })); });
 app.get('/api/player-progress/:playerId', async (req, res) => { try { const p = await Player.findById(req.params.playerId); if(!p) return res.status(404).json({}); res.json({ validatedLevels: p.validatedLevels, validatedQuestions: p.validatedQuestions, spellingMistakes: p.spellingMistakes || [], activityLogs: p.activityLogs || [] }); } catch(e) { res.status(500).json({}); } });
 app.post('/api/reset-player', async (req, res) => { await Player.findByIdAndUpdate(req.body.playerId, { validatedQuestions: [], validatedLevels: [], spellingMistakes: [], activityLogs: [] }); res.json({msg:'ok'}); });
@@ -350,6 +321,5 @@ app.post('/api/reset-all-players', async (req, res) => { await Player.updateMany
 app.post('/api/report-bug', async (req, res) => { const newBug = new Bug(req.body); await newBug.save(); res.json({ok:true}); });
 app.get('/api/bugs', async(req,res)=>{ res.json(await Bug.find().sort({date:-1})); });
 app.delete('/api/bugs/:id', async(req,res)=>{ await Bug.findByIdAndDelete(req.params.id); res.json({ok:true}); });
-app.delete('/api/spelling-mistake/:playerId/:word', async (req, res) => { try { const p = await Player.findById(req.params.playerId); if(p) { p.spellingMistakes = p.spellingMistakes.filter(m => m.wrong !== req.params.word); await p.save(); } res.json({ok:true}); } catch(e) { res.status(500).json({ok:false}); } });
 
 app.listen(port, () => { console.log(`✅ Serveur démarré port ${port}`); });

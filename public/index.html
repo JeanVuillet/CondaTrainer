@@ -166,7 +166,39 @@
   </template>
 
   <!-- AUTRES TEMPLATES (Simplifiés) -->
-  <template id="template-zombie-game"><div style="text-align:center;"><div id="zombie-arena"><img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;"><img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;"><div id="z-projectile"></div><div id="feedback-bubble"></div></div><div id="z-question" class="question-zone"></div><div id="ai-input-zone"><input id="z-answer"><button id="z-submit">Valider</button></div><div id="options-grid"></div></div></template>
+ <!-- TEMPLATE 1 : ZOMBIE (VERSION ROBUSTE) -->
+  <template id="template-zombie-game">
+    <div style="text-align:center; height: 100%; display: flex; flex-direction: column;">
+      
+      <!-- ZONE JEU -->
+      <div id="zombie-arena" style="height:220px; background:#e0f2fe; position:relative; overflow:hidden; border-radius:10px; border-bottom: 4px solid #7dd3fc; flex-shrink: 0;">
+        <img id="z-hero" src="images/hero.png" class="game-character" style="left:20px; position:absolute; bottom:10px; height:100px;">
+        <img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px; position:absolute; bottom:10px; height:100px;">
+        <div id="z-projectile" style="position:absolute; bottom:45px; left:50px; width:20px; height:20px; background:radial-gradient(circle, #facc15, #ca8a04); border-radius:50%; display:none; z-index:10; box-shadow: 0 0 10px yellow;"></div>
+        <div id="feedback-bubble"></div>
+      </div>
+
+      <!-- QUESTION -->
+      <div id="z-question" class="question-zone" style="font-size:1.4em; font-weight:800; margin:15px 0; color:#1e3a8a; min-height: 3em; display:flex; align-items:center; justify-content:center;">
+          Chargement...
+      </div>
+      
+      <!-- ZONE SAISIE (CACHÉE PAR DÉFAUT) -->
+      <div id="ai-input-zone" style="display:none; justify-content:center; gap:10px; margin-top: auto; margin-bottom: 20px;">
+          <input id="z-answer" placeholder="Ta réponse..." style="padding:12px; width:60%; font-size:16px; border:2px solid #cbd5e1; border-radius:8px;">
+          <button id="z-submit" style="padding:12px 24px; background:#2563eb; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer;">Valider</button>
+      </div>
+
+      <!-- ZONE BOUTONS (CACHÉE PAR DÉFAUT, GRILLE FORCEE PAR JS) -->
+      <div id="options-grid" style="display:none; grid-template-columns: 1fr 1fr; gap:15px; margin-top: auto; margin-bottom: 20px; width: 100%; padding: 0 20px;">
+          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">A</button>
+          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">B</button>
+          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">C</button>
+          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">D</button>
+      </div>
+      
+    </div>
+  </template>
   <template id="template-redaction-game"><div id="redac-q"></div><textarea id="redac-answer"></textarea><button id="redac-submit">Envoyer</button><div id="redac-loading"></div><div id="analysis-area"><div id="text-good"></div><button id="redac-continue">Continuer</button></div></template>
   <template id="template-starship-game"><div id="starship-game-area"><div id="ship"></div><div id="question"></div></div></template>
   <template id="template-jumper-game"><div id="jumper-area"><div id="player"></div><div id="q-text"></div><div id="options-grid"></div></div></template>

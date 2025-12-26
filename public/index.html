@@ -92,28 +92,49 @@
           <button id="tabHomeworks" class="tab-btn">📚 Devoirs</button>
           <button id="viewBugsBtn" class="tab-btn" style="color:#7c3aed; margin-left:auto;">🐛 Bugs</button>
       </div>
-      <div id="contentStudents" class="tab-content active">
-        <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-            <select id="classFilter" class="action-btn"><option value="all">Toutes</option><option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option><option value="2A">2de A</option><option value="2CD">2de CD</option></select>
-            <input id="studentSearch" placeholder="Recherche..." class="action-btn" />
-            <button id="testClassBtn" style="background:#3b82f6; color:white;">+ Test</button>
-            <button id="resetAllBtn" style="background:#ef4444; color:white;">Reset All</button>
+<div id="contentStudents" class="tab-content active">
+        
+        <!-- 1. Filtre Classe (Simple, fond blanc) -->
+        <div style="margin-bottom: 15px;">
+            <select id="classFilter" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: white; font-size: 14px;">
+                <option value="all">Toutes les classes</option>
+                <option value="6D">6eD</option>
+                <option value="5B">5eB</option>
+                <option value="5C">5eC</option>
+                <option value="2A">2de A</option>
+                <option value="2CD">2de CD</option>
+            </select>
         </div>
-        <table id="playersTable" style="width:100%; border-collapse:collapse;">
-          <table id="playersTable" style="width: 100%; border-collapse: collapse;">
-    <thead style="background: #f1f5f9;">
-        <tr>
-            <th style="padding:10px;">Prénom et Nom</th>
-            <th style="padding:10px;">Classe</th>
-            <th style="padding:10px;">Chapitre</th>
-            <th style="padding:10px;">Niveau</th>
-            <th style="padding:10px;">Progression</th>
-            <th style="padding:10px;">Actions</th>
-        </tr>
-    </thead>
-    <tbody id="playersBody"></tbody>
-</table>
-          <tbody id="playersBody"></tbody></table>
+
+        <!-- 2. Gros Bouton Bleu (Tester) -->
+        <button id="testClassBtn" style="width: 100%; background-color: #3b82f6; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;">
+            🎮 Tester classe
+        </button>
+
+        <!-- 3. Barre de recherche (Simple, fond blanc) -->
+        <input id="studentSearch" type="text" placeholder="Rechercher..." style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; font-size: 14px; background: white;">
+
+        <!-- 4. Gros Bouton Rouge (Reset) -->
+        <button id="resetAllBtn" style="width: 100%; background-color: #ef4444; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 25px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;">
+            ⚠️ Tout Réinitialiser
+        </button>
+
+        <!-- 5. Tableau Détaillé -->
+        <table id="playersTable" style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                <tr>
+                    <th style="padding: 12px; text-align: left; width: 25%;">Prénom et Nom</th>
+                    <th style="padding: 12px; text-align: left; width: 10%;">Classe</th>
+                    <th style="padding: 12px; text-align: left;">Chapitre</th>
+                    <th style="padding: 12px; text-align: left;">Niveau</th>
+                    <th style="padding: 12px; text-align: left;">Progression</th>
+                    <th style="padding: 12px; text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="playersBody">
+                <!-- Rempli par prof.js -->
+            </tbody>
+        </table>
       </div>
       <div id="contentHomeworks" class="tab-content">
           <button id="addHomeworkBtn" class="action-btn" style="background:#8b5cf6; color:white; font-size:16px; padding:10px 20px; margin-bottom:15px;">➕ Nouveau Devoir</button>

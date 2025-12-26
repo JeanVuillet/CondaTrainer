@@ -3,179 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>5e Entraîneur – Quiz Interactif</title>
+  <title>Platforme Condamine</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* --- HEADER LAYOUT (CORRECTIF) --- */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      height: 70px; /* Hauteur fixe pour stabilité */
-      box-sizing: border-box;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 20px; /* Espace forcé entre le bouton et le titre */
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      white-space: nowrap;
-      line-height: 1;
-    }
-
-    /* Styles spécifiques Dashboard Onglets */
-    .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-    .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 16px; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; }
-    .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    
-    /* Table Devoirs Prof */
-    .prof-hw-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    .prof-hw-table th, .prof-hw-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
-    .prof-hw-table th { background: #f8fafc; font-weight: 600; }
-    .btn-delete { background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-    .btn-delete:hover { background: #ef4444; color: white; }
-    
-    /* STYLE DU BOUTON VOIR */
-    .btn-view { background: #3b82f6; color: white; border: 1px solid #2563eb; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
-    .btn-view:hover { background: #1d4ed8; }
-
-    /* Drag & Drop Creation Devoir */
-    .drag-area { border: 2px dashed #ccc; padding: 10px; min-height: 50px; background: #f9f9f9; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-    .drag-item { width: 80px; height: 80px; border: 1px solid #ddd; cursor: grab; background: white; position: relative; object-fit: cover; }
-    .drag-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-    .drag-placeholder { color: #aaa; width: 100%; text-align: center; line-height: 50px; }
-
-    /* NOUVEAU STYLE POUR LE BOUTON RETOUR DANS LE HEADER */
-    .back-menu-btn {
-        position: static !important; /* Force le bouton à ne pas flotter */
-        background-color: white;
-        color: #475569;
-        border: 2px solid #cbd5e1;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: none; /* Caché par défaut, affiché par JS */
-        white-space: nowrap;
-    }
-    .back-menu-btn:hover {
-        background-color: #f1f5f9;
-        color: #1e293b;
-        border-color: #94a3b8;
-    }
-  </style>
 </head>
 <body>
   
-  <!-- HEADER CORRIGÉ -->
   <header>
     <div class="header-left">
-      <button id="backToMenuBtn" class="back-menu-btn">← Menu</button>
-      <h1>5e Entraîneur</h1>
+      <button id="backToMenuBtn" class="back-menu-btn" style="display:none;">← Menu</button>
+      <h1>Platforme Condamine</h1>
     </div>
-
     <div class="header-right"> 
-      <button id="myMistakesBtn" class="action-btn" style="background:#f472b6; color:white; display:none;">📝 Mes Fautes</button>
-      <button id="pauseReportBtn" class="pause-btn">⏸️ Pause / Bug</button>
-      
-      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none;">🎓 Retour Prof</button>
-      
-      <div id="studentBadge" style="font-weight:bold; color:#334155;">Non connecté</div>
-      <button id="logoutBtn" style="display: none;">Se déconnecter</button>
+      <button id="myMistakesBtn" style="display:none; background:#f472b6; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">📝 Fautes</button>
+      <button id="pauseReportBtn" class="pause-btn">🐞 Bug / Pause</button>
+      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-weight:bold;">🎓 Prof</button>
+      <div id="studentBadge" style="font-weight:bold; color:#334155;"></div>
+      <button id="logoutBtn" style="display: none; padding:6px 10px; cursor:pointer; border:1px solid #cbd5e1; background:white; border-radius:5px;">Déconnexion</button>
     </div>
   </header>
 
   <main class="wrap">
-    <!-- 1. Connexion -->
+    
+    <!-- 1. LOGIN -->
     <section id="registerCard" class="card">
-      <h2>👋 Avant de commencer</h2>
-      <form id="registerForm" class="form" autocomplete="on">
-        <p class="hint">Prénom, Nom et Classe.</p>
-        <div class="row">
-          <div><label>Prénom</label><input id="firstName" placeholder="Ex : Jeanne" required /></div>
-          <div><label>Nom</label><input id="lastName" placeholder="Ex : Martin" required /></div>
+      <h2>👋 Connexion</h2>
+      <form id="registerForm" autocomplete="on">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <input id="firstName" placeholder="Prénom" required style="flex:1; padding:10px;" />
+          <input id="lastName" placeholder="Nom" required style="flex:1; padding:10px;" />
         </div>
-        <div class="row">
-          <div>
-            <label>Classe</label>
-            <select id="classroom">
-              <option value="" disabled selected>Choisis ta classe...</option>
-              <option value="6D">6eD</option>
-              <option value="5B">5eB</option>
-              <option value="5C">5eC</option>
-              <option value="2A">2de A</option>
-              <option value="2CD">2de CD</option>
-            </select>
-          </div>
-          <div><label>&nbsp;</label><button id="startBtn" type="submit">Commencer</button></div>
+        <div style="display:flex; gap:10px;">
+          <select id="classroom" style="flex:1; padding:10px;">
+              <option value="" disabled selected>Classe...</option>
+              <option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option>
+              <option value="2A">2de A</option><option value="2CD">2de CD</option>
+          </select>
+          <button id="startBtn" type="submit" style="flex:1; background:#2563eb; color:white; border:none; cursor:pointer;">Entrer</button>
         </div>
-        <div id="formMsg" class="hint"></div>
       </form>
-      <div id="profPasswordModal" style="display: none;">
-        <h4>🔐 Accès Professeur</h4>
-        <input type="password" id="profPassword" placeholder="••••••••••" />
-        <button id="validateProfPasswordBtn">Valider</button>
+      <!-- Modale Prof HORS du formulaire -->
+      <div id="profPasswordModal" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+           <label style="font-size:0.9em; font-weight:bold;">Accès Enseignant :</label>
+           <div style="display:flex; gap:10px; margin-top:5px;">
+               <input type="password" id="profPassword" placeholder="Mot de passe" style="padding:10px; flex:1;" autocomplete="current-password">
+               <button id="validateProfPasswordBtn" type="button" style="padding:10px; background:#f59e0b; color:white; border:none; cursor:pointer;">Valider</button>
+           </div>
       </div>
     </section>
 
-    <!-- 2. Sélection Chapitre -->
+    <!-- 2. MENU -->
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
-        
-        <!-- CHAPITRE 1 : ZOMBIE -->
         <div class="chapter-box" data-chapter="ch1-zombie" data-template-id="template-zombie-game" data-game-class="ZombieGame">
-          <h3>Chapitre 1 — L’Attaque des Zombies</h3>
-          <p class="chapter-mini">🎮 <strong>Mini-jeu :</strong> Survivre à l’invasion</p>
-          <div class="chapter-levels"></div>
-          <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
+          <h3>Chapitre 1 — Zombies</h3><p>🎮 Mode Survie</p><div class="chapter-levels"></div><button class="chapter-action-btn">1 JOUER</button>
         </div>
-
-        <!-- CHAPITRE 4 : RÉDACTION -->
         <div class="chapter-box" data-chapter="ch4-redaction" data-template-id="template-redaction-game" data-game-class="RedactionGame">
-          <h3>Chapitre 4 — Atelier Rédaction</h3>
-          <p class="chapter-mini">📝 <strong>Mini-jeu :</strong> Méthode Dissertation</p>
-          <div class="chapter-levels"></div>
-          <button class="replay-btn-improved chapter-action-btn">1 Jouer</button>
+          <h3>Chapitre 4 — Rédaction</h3><p>✍️ Dissertation</p><div class="chapter-levels"></div><button class="chapter-action-btn">1 JOUER</button>
         </div>
-
-        <!-- CHAPITRE 5 : DEVOIRS -->
         <div class="chapter-box" data-chapter="ch5-devoir" data-template-id="template-homework-game" data-game-class="HomeworkGame">
-          <h3>Chapitre 5 — Devoirs Maison</h3>
-          <p class="chapter-mini">📸 <strong>Photo & IA :</strong> Envoie ton travail !</p>
-          <div class="chapter-levels"></div>
-          <button class="replay-btn-improved chapter-action-btn">Voir les devoirs</button>
+          <h3>Chapitre 5 — Devoirs</h3><p>📸 Photo & IA</p><div class="chapter-levels"></div><button class="chapter-action-btn">VOIR</button>
         </div>
-
+        <div class="chapter-box" data-chapter="ch2-starship" data-template-id="template-starship-game" data-game-class="StarshipGame">
+          <h3>Chapitre 2 — Starship</h3><p>🚀 Espace</p><div class="chapter-levels"></div><button class="chapter-action-btn">1 JOUER</button>
+        </div>
+        <div class="chapter-box" data-chapter="ch3-jumper" data-template-id="template-jumper-game" data-game-class="JumperGame">
+          <h3>Chapitre 3 — Jumper</h3><p>🏃‍♂️ Plateforme</p><div class="chapter-levels"></div><button class="chapter-action-btn">1 JOUER</button>
+        </div>
       </div>
     </section>
 
-    <!-- 3. Jeu -->
+    <!-- 3. JEU -->
     <section id="game" style="display: none;">
       <div class="card quiz-container">
-        <div class="game-header-row">
-          <!-- Titre centré, le bouton retour est maintenant dans le header -->
-          <h2 id="levelTitle" style="width:100%; text-align:center; margin:0;"></h2>
-        </div>
-        <p class="hint" id="welcomeText" style="text-align:center;"></p>
+        <h2 id="levelTitle" style="text-align:center;"></h2>
+        <div id="openLessonBtn" style="display:none; text-align:center; margin-bottom:10px;"><button onclick="document.getElementById('lessonModal').style.display='flex'">📚 Leçon</button></div>
         <div id="mainProgress"><div id="mainBar"></div></div>
         <div id="subBars"></div>
         <div id="lives"></div>
@@ -183,479 +85,72 @@
       </div>
     </section>
     
-    <!-- 4. Dashboard Prof -->
+    <!-- 4. DASHBOARD PROF -->
     <section id="profDashboard" class="card" style="margin-top: 24px; display: none;"> 
-      
       <div class="tabs-container">
           <button id="tabStudents" class="tab-btn active">👥 Élèves</button>
           <button id="tabHomeworks" class="tab-btn">📚 Devoirs</button>
-          <button id="viewBugsBtn" class="tab-btn" style="color:#7c3aed;">🐛 Bugs</button>
+          <button id="viewBugsBtn" class="tab-btn" style="color:#7c3aed; margin-left:auto;">🐛 Bugs</button>
       </div>
-
-      <!-- Onglet Élèves -->
       <div id="contentStudents" class="tab-content active">
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom:15px;">
-            <select id="classFilter" class="action-btn">
-                <option value="all">Toutes les classes</option>
-                <option value="6D">6eD</option>
-                <option value="5B">5eB</option>
-                <option value="5C">5eC</option>
-                <option value="2A">2de A</option>
-                <option value="2CD">2de CD</option>
-            </select>
-            <button id="testClassBtn" style="background: #3b82f6; color: white;">🎮 Tester classe</button>
-            <input id="studentSearch" type="text" placeholder="Rechercher..." class="action-btn"/>
-            <button id="resetAllBtn" style="background: var(--warn);">⚠️ Tout Réinitialiser</button>
+        <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+            <select id="classFilter" class="action-btn"><option value="all">Toutes</option><option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option><option value="2A">2de A</option><option value="2CD">2de CD</option></select>
+            <input id="studentSearch" placeholder="Recherche..." class="action-btn" />
+            <button id="testClassBtn" style="background:#3b82f6; color:white;">+ Test</button>
+            <button id="resetAllBtn" style="background:#ef4444; color:white;">Reset All</button>
         </div>
-        <table id="playersTable" style="width: 100%; border-collapse: collapse;">
-            <thead><tr style="background: #f1f5f9;"><th>Prénom et Nom</th><th>Classe</th><th>Chapitre</th><th>Niveau</th><th>Progression</th><th>Actions</th></tr></thead>
-            <tbody id="playersBody"></tbody>
-        </table>
+        <table id="playersTable" style="width:100%; border-collapse:collapse;"><tbody id="playersBody"></tbody></table>
       </div>
-
-      <!-- Onglet Devoirs -->
       <div id="contentHomeworks" class="tab-content">
-          <button id="addHomeworkBtn" class="action-btn" style="background:#8b5cf6; color:white; font-size:16px; padding:10px 20px;">➕ Ajouter un Nouveau Devoir</button>
-          <table class="prof-hw-table">
-              <thead><tr><th>Date</th><th>Titre</th><th>Classe</th><th>Consigne</th><th>Actions</th></tr></thead>
-              <tbody id="profHomeworksBody"></tbody>
-          </table>
+          <button id="addHomeworkBtn" class="action-btn" style="background:#8b5cf6; color:white; font-size:16px; padding:10px 20px; margin-bottom:15px;">➕ Nouveau Devoir</button>
+          <table style="width:100%; text-align:left; border-collapse:collapse;"><tbody id="profHomeworksBody"></tbody></table>
       </div>
     </section>
 
-    <!-- MODALS -->
-    
-    <!-- Creation Devoir -->
-    <div id="createHomeworkModal" class="modal-overlay" style="display: none;">
-      <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
-          <!-- Contenu généré dynamiquement par main.js -->
-      </div>
-    </div>
-
-    <!-- MODALE ÉDITEUR VISUEL (PROF - AVEC NAVIGATION) -->
-    <div id="visualEditorModal" class="modal-overlay" style="display: none; z-index: 2000;">
-      <div class="modal-content" style="width: 95vw; height: 95vh; max-width: none; display: flex; flex-direction: column; padding: 0;">
-        <!-- En-tête -->
-        <div style="padding: 10px 20px; border-bottom: 1px solid #ddd; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="margin:0; font-size:1.2em;">🎨 Organiser (Mode Édition)</h3>
-          
-          <div id="visualNavControls" style="display: flex; align-items: center; gap: 15px; background: white; padding: 5px 15px; border-radius: 20px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-              <button id="btnPrevLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer; font-weight:bold; color:#334155;">◀</button>
-              <span id="lblCurrentLevel" style="font-weight:bold; color:#2563eb; min-width: 120px; text-align:center;">Question 1 / 1</span>
-              <button id="btnNextLevel" style="background:none; border:none; font-size:1.2em; cursor:pointer; font-weight:bold; color:#334155;">▶</button>
-          </div>
-
-          <div>
-            <button id="saveVisualOrderBtn" style="background: #16a34a; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">💾 Tout Valider</button>
-            <button id="closeVisualEditorBtn" style="background: #666; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Fermer</button>
-          </div>
-        </div>
-        
-        <!-- Zone de travail -->
-        <div style="flex: 1; overflow-y: auto; background-color: #334155; padding: 20px; display: flex; flex-direction: column; gap: 20px;">
-            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                <h4 style="color: #cbd5e1; margin: 0 0 10px 0; border-bottom: 1px solid #475569; padding-bottom: 5px;">LIGNE 1 (Haut)</h4>
-                <div id="visualRow1" class="drop-zone" data-row="1" style="min-height: 260px; display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 2px dashed #94a3b8; border-radius: 8px;"></div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                <h4 style="color: #cbd5e1; margin: 0 0 10px 0; border-bottom: 1px solid #475569; padding-bottom: 5px;">LIGNE 2 (Bas)</h4>
-                <div id="visualRow2" class="drop-zone" data-row="2" style="min-height: 260px; display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 2px dashed #94a3b8; border-radius: 8px;"></div>
-            </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bugs Prof -->
-    <div id="profBugListModal" class="modal-overlay" style="display: none;">
-      <div class="modal-content" style="max-width: 800px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <h3>🐛 Rapports de Bugs</h3>
-          <button id="closeBugListBtn" style="background:transparent; color:#333; width:auto; font-size:20px;">✖</button>
-        </div>
-        <div style="max-height:60vh; overflow-y:auto;">
-          <table id="bugsTable" style="width:100%; font-size:14px; text-align:left;">
-            <thead style="background:#f1f5f9;"><tr><th>Date</th><th>Élève</th><th>Jeu</th><th>Description</th><th>Action</th></tr></thead>
-            <tbody id="bugsBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Autres Modals (Eleve) -->
-    <div id="lessonModal" class="lesson-modal" style="display: none;"><div class="lesson-content"><div class="lesson-header"><h3>Fiche de révision</h3><button id="closeLessonBtn">✖</button></div><div id="lessonText" class="lesson-body"></div><div class="lesson-footer"><button id="iAmReadyBtn" class="ready-btn">JE SUIS PRÊT ! 🚀</button></div></div></div>
-    <div id="mistakesModal" class="modal-overlay" style="display: none;"><div class="modal-content" style="max-width: 600px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3>📝 Mes Fautes</h3><button id="closeMistakesBtn" style="background:transparent; color:#333; font-size:20px;">✖</button></div><div id="mistakesList" style="max-height:60vh; overflow-y:auto; text-align:left;"></div></div></div>
-    <div id="bugModal" class="modal-overlay" style="display: none;"><div class="modal-content"><h3>⏸️ Jeu en Pause</h3><textarea id="bugDescription" rows="4" style="width:100%;" placeholder="Décris le problème..."></textarea><div style="display:flex; gap:10px; justify-content:center; margin-top:10px;"><button id="sendBugBtn" style="background:#ef4444;">Envoyer</button><button id="resumeGameBtn" style="background:#2563eb;">Reprendre</button></div></div></div>
-    <div id="activityModal" class="modal-overlay" style="display: none;"><div class="modal-content" style="max-width: 700px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3>🕒 Historique</h3><button id="closeActivityBtn" style="background:transparent; color:#333; font-size:20px;">✖</button></div><h4 id="activityStudentName"></h4><div style="max-height:60vh; overflow-y:auto;"><table style="width:100%; border-collapse:collapse;"><thead style="background:#f1f5f9;"><tr><th style="padding:8px;">Date</th><th style="padding:8px;">Action</th><th style="padding:8px;">Détail</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></div>
-    
-    <!-- Overlays -->
-    <div id="overlay" style="display:none;"><div class="panel"><h3>💀 Game Over</h3><p>Tu n'as plus de cœurs.</p><button id="restartBtn">Recommencer</button></div></div>
-    <div id="correctionOverlay" style="display:none;"><div class="correction-box"><h2>❌ Erreur ! La bonne réponse était :</h2><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div></div>
-
+    <!-- MODALES -->
+    <div id="profBugListModal" class="modal-overlay" style="display:none;"><div class="modal-content"><button id="closeBugListBtn">Fermer</button><div id="bugsBody"></div></div></div>
+    <div id="createHomeworkModal" class="modal-overlay" style="display:none;"></div>
+    <div id="lessonModal" class="modal-overlay" style="display:none;"><div class="modal-content"><div id="lessonText"></div><button onclick="document.getElementById('lessonModal').style.display='none'">Fermer</button></div></div>
+    <div id="bugModal" class="modal-overlay" style="display:none;"><div class="modal-content"><textarea id="bugDescription"></textarea><button id="sendBugBtn">Envoyer</button><button id="resumeGameBtn">Annuler</button></div></div>
+    <div id="overlay" style="display:none;"><div class="modal-content"><h3>Perdu</h3><button id="restartBtn">Recommencer</button></div></div>
+    <div id="correctionOverlay" style="display:none;"><div class="modal-content"><p id="correctionText"></p><button id="closeCorrectionBtn">Continuer</button></div></div>
+    <div id="mistakesModal" class="modal-overlay" style="display: none;"><div class="modal-content"><button id="closeMistakesBtn">X</button><div id="mistakesList"></div></div></div>
   </main>
 
-  <!-- ======================== TEMPLATES JEUX ======================== -->
-
-  <!-- TEMPLATE 1 : ZOMBIE -->
+  <!-- TEMPLATES JEUX -->
+  
   <template id="template-zombie-game">
-    <style>
-      #arena { position: relative; height: clamp(180px, 36vh, 320px); margin-top: 10px; background: linear-gradient(#f0f9ff, #e0f2fe); border-radius: 12px; overflow: hidden; box-shadow: inset 0 -6px 0 #cbd5e1; }
-      #hero, #zombie, #projectile { position: absolute; bottom: 0; height: clamp(90px, 26vh, 200px); max-width: 32vw; object-fit: contain; pointer-events: none; }
-      #hero { left: min(3vw, 24px); }
-      #zombie { right: min(3vw, 24px); transition: right 0.08s linear; }
-      #projectile { width: 20px; height: 20px; background: radial-gradient(circle, #38bdf8 0%, #0284c7 80%); border-radius: 50%; display: none; bottom: 100px; z-index: 10; }
-      .question-zone { margin: 15px 0; font-size: 1.3em; text-align: center; color: #334155; font-weight: 600; }
-      #ai-input-zone { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto; }
-      textarea#answer { width: 100%; padding: 12px; font-size: 16px; border-radius: 10px; border: 2px solid #cbd5e1; resize: none; height: 80px; }
-      button#submit { padding: 10px 20px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
-      #options-grid { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-      .option-btn { padding: 15px; font-size: 16px; background: white; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; color: #1e293b; font-weight: 600; transition: all 0.2s; }
-      .option-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-      .opt-correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534; }
-      .opt-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b; }
-      #feedback-bubble { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.95); text-align: center; display: none; z-index: 20; border: 2px solid transparent; }
-      .fb-success { border-color:#22c55e; color:#166534; } .fb-error { border-color:#ef4444; color:#991b1b; } .fb-hint { border-color:#f59e0b; color:#92400e; }
-      .spelling-list { margin-top: 8px; padding: 5px; background: #f0fdf4; border-radius: 6px; list-style: none; font-size: 0.9em; text-align: left; }
-      .spelling-item { margin-bottom: 2px; } .wrong-word { text-decoration: line-through; color: #ef4444; margin-right: 5px; } .right-word { font-weight: bold; color: #15803d; }
-    </style>
-    <div id="arena"> <img id="hero" src="images/hero.png" alt="Héros" /> <img id="zombie" src="images/zombi.png" alt="Zombie" /> <div id="projectile"></div> <div id="feedback-bubble"></div> </div>
-    <div id="question" class="question-zone"></div>
-    <div id="ai-input-zone"><textarea id="answer" placeholder="Écris ta réponse..." autocomplete="off"></textarea><div class="buttons-row"><button id="submit">Envoyer à l'IA 🤖</button></div></div>
-    <div id="options-grid"><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button><button class="option-btn"></button></div>
-  </template>
+    <div style="text-align:center;">
+      <div id="zombie-arena">
+        <img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;">
+        <img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;">
+        <div id="z-projectile" class="projectile"></div>
+        <div id="feedback-bubble"></div>
+      </div>
+      <div id="z-question" class="question-zone">Chargement...</div>
+      
+      <!-- MODE IA -->
+      <div id="ai-input-zone" style="display:flex; justify-content:center; gap:10px;">
+          <input id="z-answer" placeholder="Ta réponse..." style="padding:10px; width:80%; font-size:16px;">
+          <button id="z-submit" style="padding:10px 20px; background:#2563eb; color:white; font-weight:bold;">Valider</button>
+      </div>
 
-  <!-- TEMPLATE 4 : RÉDACTION -->
-  <template id="template-redaction-game">
-    <style>
-      .redac-container { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px; text-align: center; height: 100%; overflow-y: auto; }
-      .redac-context-box { background: #fff7ed; border-left: 4px solid #f97316; width: 100%; padding: 10px; text-align: left; font-size: 0.95em; color: #431407; display: none; border-radius: 4px; margin-bottom: 5px; }
-      .context-label { font-weight: 800; text-transform: uppercase; font-size: 0.8em; color: #ea580c; display: block; margin-bottom: 4px; }
-      .redac-question { font-size: 1.1em; font-weight: 700; color: #1e293b; background: #e0f2fe; padding: 15px; border-radius: 12px; border: 2px solid #3b82f6; width: 100%; }
-      .redac-input { width: 100%; height: 150px; padding: 15px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 10px; font-family: inherit; resize: vertical; }
-      .redac-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
-      .redac-btn { background: #2563eb; color: white; border: none; padding: 12px 30px; font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer; transition: transform 0.1s; }
-      .redac-btn:disabled { background: #94a3b8; cursor: not-allowed; }
-      .redac-continue-btn { background: #16a34a; color: white; border: none; padding: 15px 40px; font-size: 18px; font-weight: 800; border-radius: 10px; cursor: pointer; display: none; margin-top: 10px; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3); animation: pulse 1.5s infinite; }
-      @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-      .result-header { display: none; width: 100%; background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 2px solid #e2e8f0; }
-      .grade-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 1.5em; font-weight: 900; color: white; background: #3b82f6; margin-bottom: 5px; }
-      .short-comment { font-size: 1.1em; font-weight: 700; color: #334155; display: block; }
-      .analysis-container { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; display: none; }
-      .analysis-box { padding: 10px; border-radius: 8px; text-align: left; font-size: 0.95em; line-height: 1.4; }
-      .box-good { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
-      .box-missing { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
-      .box-title { font-weight: 800; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 0.85em; }
-      .redac-loading { display: none; color: #2563eb; font-weight: 600; margin-top: 10px; }
-    </style>
-    <div class="redac-container">
-      <div id="redac-context" class="redac-context-box"><span class="context-label">Contexte</span><span id="redac-context-text"></span></div>
-      <div id="redac-q" class="redac-question">Question...</div>
-      <textarea id="redac-answer" class="redac-input" placeholder="Rédige ta réponse ici..."></textarea>
-      <div id="redac-loading" class="redac-loading">🧠 Correction en cours...</div>
-      <div id="result-header" class="result-header"><span id="grade-badge" class="grade-badge"></span><span id="short-comment" class="short-comment"></span></div>
-      <button id="redac-submit" class="redac-btn">Envoyer à l'IA 🤖</button>
-      <button id="redac-continue" class="redac-continue-btn">Continuer ➔</button>
-      <div id="analysis-area" class="analysis-container">
-          <div id="box-advice" style="margin-bottom:5px; display:none; padding:10px; background:#fef2f2; border-left:4px solid #ef4444; color:#991b1b; border-radius:4px; text-align:left;"></div>
-          <div id="box-good" class="analysis-box box-good"><span class="box-title">✅ Points forts :</span><span id="text-good"></span></div>
-          <div id="box-missing" class="analysis-box box-missing"><span class="box-title">⚠️ À compléter / corriger :</span><span id="text-missing"></span></div>
-          <div id="box-spelling" style="display:none; font-size:0.9em; border-top:1px solid #ccc; padding-top:10px; color:#b91c1c; text-align:left;"><b>Orthographe :</b> <ul id="list-spelling" style="margin:5px 0; padding-left:20px;"></ul></div>
+      <!-- MODE QCM -->
+      <div id="options-grid" style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+          <button class="option-btn">A</button><button class="option-btn">B</button><button class="option-btn">C</button><button class="option-btn">D</button>
       </div>
     </div>
   </template>
 
-  <!-- TEMPLATE HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT INTELLIGENT) -->
-  <template id="template-homework-game">
-      <style>
-        .hw-layout { position: relative; width: 100%; height: 600px; max-height: 75vh; background-color: #334155; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-        .hw-list-view { padding: 20px; background: white; height: 100%; overflow-y: auto; display: block; }
-        .hw-list-item { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left; margin-bottom: 10px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .hw-list-item:hover { border-color: #3b82f6; transform: translateX(5px); }
-        
-        .hw-work-view { position: relative; width: 100%; height: 100%; display: none; overflow: hidden; }
-        
-        /* CONTENEUR PRINCIPAL ÉLÈVE */
-        .doc-viewer-container { 
-            width: 100%; height: 100%; 
-            display: flex; flex-direction: column; /* Colonne */
-            background-image: radial-gradient(#475569 1px, transparent 1px); background-size: 20px 20px; 
-        }
-
-        /* ZONE HAUTE (DOCUMENTS) */
-        .doc-zone-top {
-            flex: 1; /* Par défaut 100% (si bas caché) */
-            padding: 10px;
-            overflow-x: auto; 
-            overflow-y: hidden;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.2);
-            transition: flex 0.3s;
-        }
-
-        /* ZONE BASSE (QUESTIONS) - Masquée par défaut */
-        .doc-zone-bottom {
-            display: none; /* Caché si vide */
-            flex: 1; 
-            padding: 10px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            align-items: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.4);
-            border-top: 4px solid #f59e0b; /* Séparateur */
-        }
-
-        /* IMAGES ÉLÈVES */
-        .doc-item-student {
-            height: 90%; /* S'adapte à la hauteur de la zone */
-            width: auto;
-            max-width: none;
-            object-fit: contain;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
-            border: 2px solid white;
-            background: #1e293b;
-            flex-shrink: 0;
-        }
-
-        .floating-panel { position: absolute; top: 20px; right: 20px; width: 320px; height: 400px; background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); display: flex; flex-direction: column; z-index: 100; border: 1px solid #cbd5e1; resize: both; overflow: hidden; min-width: 200px; min-height: 200px; }
-        .resizer { position: absolute; background: transparent; z-index: 101; }
-        .resizer.n { top: 0; left: 0; right: 0; height: 6px; cursor: n-resize; } .resizer.s { bottom: 0; left: 0; right: 0; height: 6px; cursor: s-resize; } .resizer.e { top: 0; bottom: 0; right: 0; width: 6px; cursor: e-resize; } .resizer.w { top: 0; bottom: 0; left: 0; width: 6px; cursor: w-resize; }
-        .resizer.ne { top: 0; right: 0; width: 12px; height: 12px; cursor: ne-resize; z-index: 102; } .resizer.nw { top: 0; left: 0; width: 12px; height: 12px; cursor: nw-resize; z-index: 102; } .resizer.se { bottom: 0; right: 0; width: 12px; height: 12px; cursor: se-resize; z-index: 102; } .resizer.sw { bottom: 0; left: 0; width: 12px; height: 12px; cursor: sw-resize; z-index: 102; }
-        .panel-header { background: #f1f5f9; padding: 10px 15px; border-bottom: 1px solid #e2e8f0; cursor: move; font-weight: 700; color: #334155; display: flex; justify-content: space-between; align-items: center; user-select: none; border-radius: 12px 12px 0 0; }
-        .panel-body { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .panel-consigne { font-size: 0.9em; color: #64748b; background: #fff7ed; padding: 8px; border-radius: 6px; border-left: 3px solid #f97316; margin-bottom: 5px; }
-        .hw-textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; resize: none; flex: 1; }
-        .hw-upload-mini { font-size: 0.85em; color: #2563eb; cursor: pointer; text-decoration: underline; }
-        .panel-footer { padding: 10px 15px; border-top: 1px solid #e2e8f0; background: #fff; border-radius: 0 0 12px 12px; }
-        .btn-send { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-back { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; cursor: pointer; }
-        .btn-next { width: 100%; padding: 10px; background: #16a34a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; }
-        .ai-feedback-mini { font-size: 0.9em; background: #dcfce7; padding: 10px; border-radius: 6px; border: 1px solid #86efac; color: #166534; display: none; margin-top: 10px; max-height: 200px; overflow-y: auto; }
-        .progress-step { font-size: 0.8em; color:#94a3b8; margin-right: 10px; }
-      </style>
-      <div class="hw-layout">
-        <div id="hw-list" class="hw-list-view"><p style="text-align:center; color:#666;">Chargement des devoirs...</p></div>
-        <div id="hw-workspace" class="hw-work-view">
-            
-            <div id="doc-viewer" class="doc-viewer-container">
-                <p id="no-doc-msg" style="color:white; opacity:0.5; pointer-events:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">Aucun document</p>
-                
-                <!-- ZONE HAUTE -->
-                <div id="zone-top" class="doc-zone-top"></div>
-                
-                <!-- ZONE BASSE (Cachée par défaut par JS) -->
-                <div id="zone-bottom" class="doc-zone-bottom"></div>
-            </div>
-
-            <div id="floating-panel" class="floating-panel">
-                <div class="resizer n"></div><div class="resizer s"></div><div class="resizer e"></div><div class="resizer w"></div>
-                <div class="resizer ne"></div><div class="resizer nw"></div><div class="resizer se"></div><div class="resizer sw"></div>
-                <div id="panel-header" class="panel-header">
-                    <span>📝 <span id="question-step" class="progress-step">1/1</span> Ma Réponse</span>
-                    <button id="btn-close-work" class="btn-back">Quitter</button>
-                </div>
-                <div class="panel-body">
-                    <div id="panel-title" style="font-weight:bold; color:#1e293b;"></div>
-                    <div id="panel-desc" class="panel-consigne"></div>
-                    <textarea id="hw-text" class="hw-textarea" placeholder="Rédige ta réponse ici..."></textarea>
-                    <div style="text-align:left;">
-                        <label class="hw-upload-mini">📎 Joindre une photo<input type="file" id="hw-file" accept="image/*" style="display:none;"></label>
-                        <div id="file-name" style="font-size:0.8em; color:#64748b;"></div>
-                    </div>
-                    <div id="hw-loading" style="display:none; text-align:center; color:#2563eb; font-weight:bold;">🔍 Analyse...</div>
-                    <div id="hw-result" class="ai-feedback-mini"></div>
-                </div>
-                <div class="panel-footer">
-                    <button id="hw-submit" class="btn-send">Envoyer à l'IA 🤖</button>
-                    <button id="hw-next" class="btn-next">Question Suivante ➔</button>
-                </div>
-            </div>
-        </div>
-      </div>
-  </template>
-
-  <!-- ======================== SCRIPTS CLASSES ======================== -->
-  <script>/* ZombieGame */ class ZombieGame{constructor(c,t){this.c=c;this.ctrl=t;this.hero=c.querySelector("#hero");this.zombie=c.querySelector("#zombie");this.projectile=c.querySelector("#projectile");this.arena=c.querySelector("#arena");this.qEl=c.querySelector("#question");this.fbBubble=c.querySelector("#feedback-bubble");this.aiZone=c.querySelector("#ai-input-zone");this.input=c.querySelector("#answer");this.subBtn=c.querySelector("#submit");this.qcmZone=c.querySelector("#options-grid");this.optBtns=c.querySelectorAll(".option-btn");this.zInt=null;this.pInt=null;this.zPos=20;this.zPaused=!1;this.resetting=!1;this.subBtn.onclick=()=>this.askAI();this.input.onkeydown=e=>{if("Enter"===e.key&&!e.shiftKey){e.preventDefault();this.askAI()}};this.input.addEventListener("input",()=>{this.zPaused=this.input.value.length>0});this.optBtns.forEach((e,t)=>{e.onclick=()=>this.checkOption(t)})}loadQuestion(e){this.currentQ=e;this.resetting=!1;this.qEl.textContent=e.q;this.fbBubble.style.display="none";this.zPos=20;this.zombie.style.right="20px";this.zombie.style.display="block";this.zombie.style.opacity="1";this.zPaused=!1;if(e.options&&e.options.length>0){this.aiZone.style.display="none";this.qcmZone.style.display="grid";this.optBtns.forEach((t,s)=>{t.textContent=e.options[s];t.className="option-btn";t.disabled=!1})}else{this.qcmZone.style.display="none";this.aiZone.style.display="flex";this.input.value="";this.input.disabled=!1;this.subBtn.disabled=!1;this.subBtn.textContent="Envoyer à l'IA 🤖";setTimeout(()=>{if(!window.isGlobalPaused)this.input.focus()},100)}}checkOption(e){if(this.ctrl.getState().isLocked||window.isGlobalPaused)return;const t=this.currentQ.options[e],s=this.currentQ.a;let i=!1;i="number"==typeof s?e===s:t===s;if(i){this.optBtns[e].classList.add("opt-correct");this.win();setTimeout(()=>this.ctrl.notifyCorrectAnswer(),1e3)}else{this.optBtns[e].classList.add("opt-wrong");this.ctrl.notifyWrongAnswer(null)}}async askAI(){if(window.isGlobalPaused||this.ctrl.getState().isLocked||""===this.input.value.trim())return;this.zPaused=!0;this.input.disabled=!0;this.subBtn.disabled=!0;this.showFeedback("🧠 Analyse...","loading");const e=JSON.parse(localStorage.getItem("player")||"{}");try{const t=await fetch("/api/verify-answer-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:this.currentQ.q,userAnswer:this.input.value,expectedAnswer:this.currentQ.a,playerId:e.id||e._id})});const s=await t.json();this.handleResponse(s)}catch(e){this.input.disabled=!1;this.subBtn.disabled=!1;this.showFeedback("Erreur connexion.","error")}}handleResponse(e){const t=e.status||(e.correct?"correct":"incorrect");let s="";if(e.corrections&&e.corrections.length>0){s+=`<ul class="spelling-list">`+e.corrections.map(e=>`<li class="spelling-item"><span class="wrong-word">${e.wrong}</span> <span class="right-word">${e.correct}</span></li>`).join("")+`</ul>`}if("correct"===t){this.showFeedback(`<strong>🎉 ${e.feedback||"Bravo !"}</strong>`+s,"success",!0);this.win();setTimeout(()=>this.ctrl.notifyCorrectAnswer(),3e3)}else if("close"===t){this.showFeedback(`💡 <strong>Indice :</strong> ${e.feedback}`+s,"hint",!0);setTimeout(()=>{if(!window.isGlobalPaused){this.input.disabled=!1;this.subBtn.disabled=!1;this.input.focus()}},3e3)}else{this.showFeedback(`❌ ${e.feedback||"Incorrect."}`,"error");this.ctrl.notifyWrongAnswer(null);setTimeout(()=>{this.zPaused=!1;if(!window.isGlobalPaused){this.input.disabled=!1;this.subBtn.disabled=!1;this.input.focus()}this.fbBubble.style.display="none"},2500)}}showFeedback(e,t,s=!1){if(!this.fbBubble)return;this.fbBubble.className="";this.fbBubble.classList.add(`fb-${t}`);if(s)this.fbBubble.innerHTML=e;else this.fbBubble.textContent=e;this.fbBubble.style.display="block"}startAnimation(){this.moveZ()}resetAnimation(){this.stop()}moveZ(){if(this.zInt)return;this.zombie.style.display="block";this.zombie.style.opacity="1";const e=this.arena.offsetWidth-this.zombie.offsetWidth-this.hero.offsetWidth-30;this.zInt=setInterval(()=>{if(window.isGlobalPaused||this.resetting||this.ctrl.getState().isLocked||this.zPaused)return;this.zPos+=e/5e4*20;this.zombie.style.right=this.zPos+"px";if(this.zPos>=e){this.ctrl.notifyWrongAnswer(null)}},20)}stop(){this.resetting=!0;if(this.zInt){clearInterval(this.zInt);this.zInt=null}if(this.pInt){clearInterval(this.pInt);this.pInt=null}this.zPos=20;this.zPaused=!1;this.zombie.style.right="20px";this.zombie.style.display="block";this.projectile.style.display="none";this.projectile.style.left="0px";this.aiZone.style.display="none";this.qcmZone.style.display="none";this.fbBubble.style.display="none"}win(){this.shoot()}shoot(){if(this.pInt)return;this.projectile.style.display="block";let e=this.hero.offsetWidth;const t=parseFloat(this.zombie.style.right)||20,s=this.arena.offsetWidth-t-this.zombie.offsetWidth/2;this.pInt=setInterval(()=>{if(this.resetting){clearInterval(this.pInt);this.pInt=null;return}e+=25;this.projectile.style.left=e+"px";if(e>=s){clearInterval(this.pInt);this.pInt=null;this.projectile.style.display="none";this.projectile.style.left="0px";if(!this.resetting)this.zombie.style.display="none"}},20)}}window.ZombieGame=ZombieGame;</script>
+  <template id="template-redaction-game"><div id="redac-q"></div><textarea id="redac-answer"></textarea><button id="redac-submit">Envoyer</button><div id="redac-loading"></div><div id="analysis-area"><div id="text-good"></div><button id="redac-continue">Continuer</button></div></template>
   
-  <script>/* RedactionGame */ class RedactionGame{constructor(e,t){this.container=e;this.controller=t;this.qEl=e.querySelector("#redac-q");this.contextBox=e.querySelector("#redac-context");this.contextText=e.querySelector("#redac-context-text");this.contextLabel=e.querySelector(".context-label");this.input=e.querySelector("#redac-answer");this.submitBtn=e.querySelector("#redac-submit");this.continueBtn=e.querySelector("#redac-continue");this.loadingEl=e.querySelector("#redac-loading");this.gradeEl=e.querySelector("#grade-display");this.analysisArea=e.querySelector("#analysis-area");this.boxGood=e.querySelector("#box-good");this.textGood=e.querySelector("#text-good");this.boxMissing=e.querySelector("#box-missing");this.textMissing=e.querySelector("#text-missing");this.boxAdvice=e.querySelector("#box-advice");this.boxSpelling=e.querySelector("#box-spelling");this.listSpelling=e.querySelector("#list-spelling");this.currentQuestion=null;this.isProcessing=!1;this.submitBtn.addEventListener("click",()=>this.submit());this.continueBtn.addEventListener("click",()=>{this.controller.notifyCorrectAnswer()})}loadQuestion(e){this.currentQuestion=e;this.qEl.innerHTML=e.q.replace(/\n/g,"<br>");if(e.context){this.contextBox.style.display="block";this.contextText.innerHTML=e.context.replace(/\n/g,"<br>");if("argument"===e.mode)this.contextLabel.textContent="Partie à soutenir :";else if("exemple"===e.mode)this.contextLabel.textContent="Argument à illustrer :";else if("conclusion"===e.mode)this.contextLabel.textContent="Introduction de départ :";else this.contextLabel.textContent="Contexte :"}else{this.contextBox.style.display="none"}if("intro"===e.mode)this.input.placeholder="Définition, Bornes, Problématique, Plan...";else if("argument"===e.mode)this.input.placeholder="D'une part... D'autre part...";else this.input.placeholder="Rédige ici...";this.input.value="";this.input.disabled=!1;this.submitBtn.style.display="inline-block";this.submitBtn.disabled=!1;this.submitBtn.textContent="Envoyer à l'IA 🤖";this.submitBtn.style.backgroundColor="#2563eb";this.continueBtn.style.display="none";this.analysisArea.style.display="none";this.gradeEl.style.display="none";this.isProcessing=!1;setTimeout(()=>{if(!window.isGlobalPaused)this.input.focus()},100)}async submit(){if(this.controller.getState().isLocked||this.isProcessing)return;const e=this.input.value.trim();if(!e)return alert("Écris quelque chose !");this.isProcessing=!0;this.input.disabled=!0;this.submitBtn.disabled=!0;this.submitBtn.style.display="none";this.loadingEl.style.display="block";this.analysisArea.style.display="none";const t=JSON.parse(localStorage.getItem("player")||"{}");try{const s=await fetch("/api/verify-answer-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:this.currentQuestion.q,userAnswer:e,expectedAnswer:this.currentQuestion.a,playerId:t.id||t._id,redactionMode:this.currentQuestion.mode || "generic",context:this.currentQuestion.context})});const o=await s.json();const i=o.status||"incorrect";this.loadingEl.style.display="none";const n=e=>{if(!e)return null;if(Array.isArray(e))return e.map(e=>`• ${e}`).join("<br>");return e.replace(/\n/g,"<br>")};this.analysisArea.style.display="flex";if(o.grade){this.gradeEl.textContent=`Note : ${o.grade}`;this.gradeEl.style.display="block"}const r=n(o.good_points);if(r){this.textGood.innerHTML=r;this.boxGood.style.display="block"}else{this.boxGood.style.display="none"}const a=n(o.missing_points);if(a){this.textMissing.innerHTML=a;this.boxMissing.style.display="block"}else{this.boxMissing.style.display="none"}if(o.corrections&&o.corrections.length>0){let e="";o.corrections.forEach(t=>e+=`<li><s>${t.wrong}</s> ➔ <b>${t.correct}</b></li>`);this.listSpelling.innerHTML=e;this.boxSpelling.style.display="block"}else{this.boxSpelling.style.display="none"}if("correct"===i){this.continueBtn.style.display="inline-block";this.input.disabled=!0}else{this.isProcessing=!1;this.input.disabled=!1;this.submitBtn.style.display="inline-block";this.submitBtn.disabled=!1;this.submitBtn.textContent="Améliorer et Renvoyer 📝";this.submitBtn.style.backgroundColor="#ea580c";if("incorrect"===i){this.controller.notifyWrongAnswer(null)}}}catch(e){this.loadingEl.textContent="Erreur technique.";this.isProcessing=!1;this.input.disabled=!1;this.submitBtn.style.display="inline-block";this.submitBtn.disabled=!1}}startAnimation(){}resetAnimation(){}}window.RedactionGame=RedactionGame;</script>
+  <template id="template-homework-game"><div id="hw-list"></div><div id="hw-workspace"><button id="btn-close-work">Fermer</button><div id="panel-title"></div><div id="panel-desc"></div><div id="zone-top"></div><div id="zone-bottom"></div><textarea id="hw-text"></textarea><input id="hw-file"><button id="hw-submit">Envoyer</button><button id="hw-next">Suivant</button><div id="hw-result"></div></div></template>
+  
+  <template id="template-starship-game"><div id="starship-game-area"><div id="ship"></div><div id="question"></div></div></template>
+  
+  <template id="template-jumper-game"><div id="jumper-area"><div id="player"></div><div id="q-text"></div><div id="options-grid"></div></div></template>
 
-  <!-- SCRIPT HOMEWORK GAME (MULTI-IMAGE VIEWER SPLIT INTELLIGENT) -->
-  <script>
-  class HomeworkGame {
-    constructor(container, controller) {
-      this.container = container; this.controller = controller;
-      this.listView = container.querySelector("#hw-list"); this.workView = container.querySelector("#hw-workspace");
-      this.zoneTop = container.querySelector("#zone-top");
-      this.zoneBottom = container.querySelector("#zone-bottom");
-      this.noDocMsg = container.querySelector("#no-doc-msg");
-      
-      this.panel = container.querySelector("#floating-panel"); this.header = container.querySelector("#panel-header"); 
-      this.closeBtn = container.querySelector("#btn-close-work"); this.stepIndicator = container.querySelector("#question-step");
-      this.titleEl = container.querySelector("#panel-title"); this.descEl = container.querySelector("#panel-desc"); 
-      this.textInput = container.querySelector("#hw-text"); this.fileInput = container.querySelector("#hw-file"); 
-      this.fileNameDisplay = container.querySelector("#file-name"); this.submitBtn = container.querySelector("#hw-submit"); 
-      this.nextBtn = container.querySelector("#hw-next"); this.loadingEl = container.querySelector("#hw-loading"); 
-      this.resultEl = container.querySelector("#hw-result");
-
-      this.currentHw = null; this.currentLevelIndex = 0;
-      this.initEvents(); this.initPanelDrag(); this.initPanelResize();
-    }
-    initEvents() {
-        this.closeBtn.onclick = () => this.showList();
-        this.submitBtn.onclick = () => this.submit(); this.nextBtn.onclick = () => this.nextQuestion();
-        this.fileInput.onchange = () => { if(this.fileInput.files.length) this.fileNameDisplay.textContent = "📸 " + this.fileInput.files[0].name; };
-    }
-    initPanelDrag() {
-        this.header.addEventListener('mousedown', (e) => { this.isDraggingPanel = true; this.dragOffsetX = e.clientX - this.panel.offsetLeft; this.dragOffsetY = e.clientY - this.panel.offsetTop; this.panel.style.opacity = "0.9"; });
-        window.addEventListener('mousemove', (e) => { if (!this.isDraggingPanel) return; this.panel.style.left = `${e.clientX - this.dragOffsetX}px`; this.panel.style.top = `${e.clientY - this.dragOffsetY}px`; });
-        window.addEventListener('mouseup', () => { this.isDraggingPanel = false; this.panel.style.opacity = "1"; });
-    }
-    initPanelResize() {
-        const resizers = this.container.querySelectorAll('.resizer'); let currentResizer = null;
-        resizers.forEach(r => {
-            r.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); currentResizer = r;
-                this.original_width = parseFloat(getComputedStyle(this.panel, null).getPropertyValue('width').replace('px', ''));
-                this.original_height = parseFloat(getComputedStyle(this.panel, null).getPropertyValue('height').replace('px', ''));
-                this.original_x = this.panel.getBoundingClientRect().left; this.original_y = this.panel.getBoundingClientRect().top;
-                this.original_mouse_x = e.pageX; this.original_mouse_y = e.pageY;
-                const parentRect = this.workView.getBoundingClientRect(); this.parent_offset_x = parentRect.left; this.parent_offset_y = parentRect.top;
-                window.addEventListener('mousemove', resize); window.addEventListener('mouseup', stopResize);
-            });
-        });
-        const resize = (e) => {
-            const cls = currentResizer.className; let width = this.original_width; let height = this.original_height; let top = this.original_y - this.parent_offset_y; let left = this.original_x - this.parent_offset_x;
-            if (cls.includes('e')) width = this.original_width + (e.pageX - this.original_mouse_x);
-            if (cls.includes('s')) height = this.original_height + (e.pageY - this.original_mouse_y);
-            if (cls.includes('w')) { width = this.original_width - (e.pageX - this.original_mouse_x); left = (this.original_x - this.parent_offset_x) + (e.pageX - this.original_mouse_x); }
-            if (cls.includes('n')) { height = this.original_height - (e.pageY - this.original_mouse_y); top = (this.original_y - this.parent_offset_y) + (e.pageY - this.original_mouse_y); }
-            if (width > 200) { this.panel.style.width = width + 'px'; this.panel.style.left = left + 'px'; }
-            if (height > 200) { this.panel.style.height = height + 'px'; this.panel.style.top = top + 'px'; }
-        };
-        const stopResize = () => { window.removeEventListener('mousemove', resize); window.removeEventListener('mouseup', stopResize); };
-    }
-
-    async loadHomeworks() {
-      this.listView.innerHTML = "Chargement..."; this.showList();
-      const player = JSON.parse(localStorage.getItem('player') || '{}'); const cls = player.classroom || "All";
-      try {
-          const res = await fetch(`/api/homework/${cls}`); const list = await res.json();
-          this.listView.innerHTML = ""; if (list.length === 0) { this.listView.innerHTML = "<p style='text-align:center'>Aucun devoir à faire.</p>"; return; }
-          list.forEach(hw => {
-              const div = document.createElement("div"); div.className = "hw-list-item";
-              const qCount = hw.levels ? hw.levels.length : 1;
-              div.innerHTML = `<strong>${hw.title}</strong> (${qCount} Q)<br><small>${new Date(hw.date).toLocaleDateString()}</small>`;
-              div.onclick = () => this.startHomework(hw);
-              this.listView.appendChild(div);
-          });
-      } catch(e) { this.listView.innerHTML = "Erreur chargement."; }
-    }
-    startHomework(hw) { this.currentHw = hw; this.currentLevelIndex = 0; this.listView.style.display = "none"; this.workView.style.display = "block"; this.loadLevel(); }
-    
-    // CHARGEMENT DU NIVEAU (SPLIT VIEW INTELLIGENT)
-    loadLevel() {
-      const levels = this.currentHw.levels || [{ instruction: this.currentHw.description, attachmentUrls: this.currentHw.attachmentUrl ? [this.currentHw.attachmentUrl] : [] }];
-      const currentLevel = levels[this.currentLevelIndex];
-      
-      this.titleEl.textContent = this.currentHw.title;
-      this.descEl.textContent = currentLevel.instruction;
-      this.stepIndicator.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
-      this.textInput.value = ""; this.fileInput.value = ""; this.fileNameDisplay.textContent = ""; this.resultEl.style.display = "none";
-      this.submitBtn.style.display = "block"; this.nextBtn.style.display = "none";
-
-      this.zoneTop.innerHTML = "";
-      this.zoneBottom.innerHTML = "";
-      
-      const urls = currentLevel.attachmentUrls || [];
-      this.noDocMsg.style.display = (urls.length > 0) ? "none" : "block";
-
-      // 1. DÉTECTION DU CONTENU DE LA LIGNE 2
-      const breakIndex = urls.indexOf("BREAK");
-      const hasBottomContent = (breakIndex !== -1 && breakIndex < urls.length - 1); // Si BREAK existe et n'est pas le dernier élément
-
-      // 2. ADAPTATION DU LAYOUT
-      if (hasBottomContent) {
-          // Mode Split (2 Lignes)
-          this.zoneBottom.style.display = "flex";
-          this.zoneTop.style.flex = "3"; // 75%
-          this.zoneTop.style.borderBottom = "4px solid #f59e0b"; // Séparateur visible
-      } else {
-          // Mode Plein Écran (1 Ligne)
-          this.zoneBottom.style.display = "none";
-          this.zoneTop.style.flex = "1"; // 100%
-          this.zoneTop.style.borderBottom = "none";
-      }
-
-      // 3. REMPLISSAGE DES ZONES
-      let currentZone = this.zoneTop;
-      urls.forEach(url => {
-          if (url === "BREAK") {
-              currentZone = this.zoneBottom; // Bascule vers le bas
-              return;
-          }
-          if(!url) return;
-          
-          let el;
-          if (url.endsWith(".pdf")) {
-              el = document.createElement("iframe"); el.src = url; el.className = "doc-item-student";
-              el.style.width="500px"; 
-          } else {
-              el = document.createElement("img"); el.src = url; el.className = "doc-item-student";
-          }
-          currentZone.appendChild(el);
-      });
-    }
-    
-    showList() { this.workView.style.display = "none"; this.listView.style.display = "block"; }
-    
-    async submit() {
-        const file = this.fileInput.files[0]; const text = this.textInput.value;
-        if (!file && !text) return alert("Remplis au moins le texte ou ajoute une image !");
-        this.submitBtn.disabled = true; this.loadingEl.style.display = "block"; this.resultEl.style.display = "none";
-        try {
-            let imageUrl = null;
-            if (file) {
-                const formData = new FormData(); formData.append('file', file);
-                const upRes = await fetch('/api/upload', { method: 'POST', body: formData });
-                const upData = await upRes.json();
-                if (upData.ok) imageUrl = upData.imageUrl; else throw new Error("Erreur upload image");
-            }
-            const levels = this.currentHw.levels || [{ instruction: this.currentHw.description, attachmentUrls: [this.currentHw.attachmentUrl] }];
-            const currentLevel = levels[this.currentLevelIndex];
-            const player = JSON.parse(localStorage.getItem('player') || '{}');
-
-            const res = await fetch('/api/analyze-homework', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    imageUrl, 
-                    userText: text, 
-                    homeworkInstruction: currentLevel.instruction, 
-                    teacherDocUrls: currentLevel.attachmentUrls, 
-                    classroom: player.classroom,
-                    playerId: player.id || player._id 
-                })
-            });
-            const data = await res.json();
-            this.resultEl.innerHTML = data.feedback; // HTML Direct
-            this.resultEl.style.display = "block";
-            this.submitBtn.style.display = "none"; this.nextBtn.style.display = "block";
-            
-            if (this.currentLevelIndex >= levels.length - 1) { this.nextBtn.textContent = "Terminer le devoir 🎉"; this.nextBtn.style.backgroundColor = "#eab308"; } 
-            else { this.nextBtn.textContent = "Question Suivante ➔"; this.nextBtn.style.backgroundColor = "#16a34a"; }
-        } catch (e) { alert("Erreur : " + e.message); }
-        this.submitBtn.disabled = false; this.loadingEl.style.display = "none";
-    }
-    nextQuestion() {
-        const levels = this.currentHw.levels || [{}];
-        if (this.currentLevelIndex < levels.length - 1) { this.currentLevelIndex++; this.loadLevel(); } 
-        else { alert("Devoir terminé ! Bravo !"); this.showList(); }
-    }
-  }
-  window.HomeworkGame = HomeworkGame;
-  </script>
-
-<script src="common.js"></script>
-<script src="prof.js"></script>
-<script src="eleve.js"></script>
+  <!-- SCRIPT UNIQUE QUI CHARGE LE RESTE -->
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

@@ -1,12 +1,11 @@
 import { state } from '../state.js';
-import { uploadFile, verifyWithAI } from '../api.js';
 
 export class HomeworkGame {
     constructor(container, controller) {
         this.c = container; 
         this.controller = controller;
 
-        console.log("📚 HomeworkGame V-FIX + Dual Zoom Loaded");
+        console.log("📚 HomeworkGame V-Saves Loaded");
 
         // --- UI LISEUSE (HAUT) ---
         this.listView = this.c.querySelector("#hw-list"); 
@@ -17,25 +16,22 @@ export class HomeworkGame {
         this.pdfEl = this.c.querySelector("#current-doc-pdf");
         this.noDocMsg = this.c.querySelector("#no-doc-msg");
         this.counterEl = this.c.querySelector("#page-counter");
-        this.btnPrev = this.c.querySelector("#btn-prev-doc");
-        this.btnNext = this.c.querySelector("#btn-next-doc");
-        this.btnZoomIn = this.c.querySelector("#btn-zoom-in");
-        this.btnZoomOut = this.c.querySelector("#btn-zoom-out");
         
-        // --- UI QUESTION (BAS) ---
+        // --- UI QUESTION (BAS GAUCHE) ---
         this.qIndexEl = this.c.querySelector("#q-index");
         this.qTextEl = this.c.querySelector("#q-text");
-        this.qImgZone = this.c.querySelector("#q-image-container"); // Le conteneur (doc-viewer-container)
-        this.qPanZoomContent = this.c.querySelector("#pan-zoom-question-content"); // La cible
+        this.qImgZone = this.c.querySelector("#q-image-container"); 
+        this.qPanZoomContent = this.c.querySelector("#pan-zoom-question-content"); 
         this.btnZoomInQ = this.c.querySelector("#btn-zoom-in-q");
         this.btnZoomOutQ = this.c.querySelector("#btn-zoom-out-q");
 
-        // --- FORM & MODALE ---
+        // --- FORM & MODALE (BAS DROITE) ---
         this.input = this.c.querySelector("#hw-text");
         this.fileInput = this.c.querySelector("#hw-file");
         this.fileName = this.c.querySelector("#file-name");
         this.btnSubmit = this.c.querySelector("#hw-submit");
         this.btnQuit = this.c.querySelector("#btn-close-work");
+        
         this.aiModal = document.getElementById("ai-feedback-modal");
         this.aiContent = document.getElementById("ai-content");
         this.btnModify = document.getElementById("btn-modify");
@@ -48,14 +44,12 @@ export class HomeworkGame {
         this.docs = []; 
         this.docIndex = 0;
         
-        // Position & Zoom Liseuse (Haut)
         this.view = { x: 0, y: 0, scale: 1.3 }; 
-        // Position & Zoom Question (Bas)
         this.viewQ = { x: 0, y: 0, scale: 1.0 }; 
 
         this.initEvents();
-        this.setupPanZoom(this.viewerContainer, 'doc'); // Setup Haut
-        this.setupPanZoom(this.qImgZone, 'q');         // Setup Bas
+        this.setupPanZoom(this.viewerContainer, 'doc');
+        this.setupPanZoom(this.qImgZone, 'q');
         this.loadHomeworks();
     }
 
@@ -63,13 +57,13 @@ export class HomeworkGame {
         if(this.btnQuit) this.btnQuit.onclick = () => this.showList();
         if(this.btnSubmit) this.btnSubmit.onclick = (e) => { e.preventDefault(); this.submit(); };
         
-        // Nav Liseuse
-        if(this.btnPrev) this.btnPrev.onclick = () => this.changeDoc(-1);
-        if(this.btnNext) this.btnNext.onclick = () => this.changeDoc(1);
-        if(this.btnZoomIn) this.btnZoomIn.onclick = () => this.zoom(0.2, 'doc');
-        if(this.btnZoomOut) this.btnZoomOut.onclick = () => this.zoom(-0.2, 'doc');
+        // Navigation liseuse
+        this.c.querySelector("#btn-prev-doc").onclick = () => this.changeDoc(-1);
+        this.c.querySelector("#btn-next-doc").onclick = () => this.changeDoc(1);
+        this.c.querySelector("#btn-zoom-in").onclick = () => this.zoom(0.2, 'doc');
+        this.c.querySelector("#btn-zoom-out").onclick = () => this.zoom(-0.2, 'doc');
         
-        // Zoom Question
+        // Zoom question
         if(this.btnZoomInQ) this.btnZoomInQ.onclick = () => this.zoom(0.2, 'q');
         if(this.btnZoomOutQ) this.btnZoomOutQ.onclick = () => this.zoom(-0.2, 'q');
 
@@ -83,11 +77,9 @@ export class HomeworkGame {
         }
     }
 
-    // --- MOTEUR PAN & ZOOM GÉNÉRIQUE ---
     setupPanZoom(container, type) {
         if(!container) return;
-        let isDown = false;
-        let startX, startY;
+        let isDown = false, startX, startY;
 
         container.addEventListener('mousedown', (e) => {
             if(e.target.tagName === 'BUTTON') return;
@@ -110,12 +102,6 @@ export class HomeworkGame {
             isDown = false;
             container.style.cursor = 'grab';
         });
-
-        container.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            this.zoom(delta, type);
-        });
     }
 
     zoom(delta, type) {
@@ -124,34 +110,28 @@ export class HomeworkGame {
         this.updateTransform(type);
     }
 
-updateTransform(type) {
-    if(type === 'doc' && this.panZoomContent) {
-        this.panZoomContent.style.transform = `translate(-50%, -50%) translate(${this.view.x}px, ${this.view.y}px) scale(${this.view.scale})`;
-    } else if(type === 'q' && this.qPanZoomContent) {
-        this.qPanZoomContent.style.transform = `translate(-50%, -50%) translate(${this.viewQ.x}px, ${this.viewQ.y}px) scale(${this.viewQ.scale})`;
-    }
-}
-
-resetView(type) {
-        if(type === 'doc') { 
-            this.view = { x: 0, y: 0, scale: 1.3 }; 
-            this.updateTransform('doc'); 
-        } else { 
-            // Pour la question, on commence à scale 1, loadLevel l'ajustera après l'onload
-            this.viewQ = { x: 0, y: 0, scale: 1.0 }; 
-            this.updateTransform('q'); 
+    updateTransform(type) {
+        const v = (type === 'doc') ? this.view : this.viewQ;
+        const target = (type === 'doc') ? this.panZoomContent : this.qPanZoomContent;
+        if(target) {
+            target.style.transform = `translate(-50%, -50%) translate(${v.x}px, ${v.y}px) scale(${v.scale})`;
         }
     }
 
-    // --- LOGIQUE DE JEU ---
+    resetView(type) {
+        if(type === 'doc') this.view = { x: 0, y: 0, scale: 1.3 };
+        else this.viewQ = { x: 0, y: 0, scale: 1.0 };
+        this.updateTransform(type);
+    }
+
     async loadHomeworks() {
-        if(this.listView) this.listView.innerHTML = "<p>Chargement des devoirs...</p>";
+        if(this.listView) this.listView.innerHTML = "<p>Chargement...</p>";
         try {
             const res = await fetch(`/api/homework/${state.currentPlayerData.classroom}`);
             const list = await res.json();
             if(this.listView) {
                 this.listView.innerHTML = ""; 
-                if (list.length === 0) { this.listView.innerHTML = "<p>Aucun devoir pour ta classe.</p>"; return; }
+                if (list.length === 0) { this.listView.innerHTML = "<p>Rien à faire.</p>"; return; }
                 list.forEach((hw) => {
                     const div = document.createElement("div"); div.className = "hw-list-item";
                     div.innerHTML = `<b>${hw.title}</b><br><small>${new Date(hw.date).toLocaleDateString()}</small>`;
@@ -170,73 +150,57 @@ resetView(type) {
         this.loadLevel();
     }
 
-loadLevel() {
-    const levels = this.currentHw.levels || [];
-    const currentLevel = levels[this.currentLevelIndex];
-    
-    if(this.qIndexEl) this.qIndexEl.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
-    
-    // --- 1. LOGIQUE DU TEXTE (CONSIGNE) ---
-    if(this.qTextEl) {
-        if (currentLevel.instruction && currentLevel.instruction.trim() !== "") {
-            this.qTextEl.textContent = currentLevel.instruction;
-            this.qTextEl.style.display = "block";
-            // On lui donne un peu plus de style si c'est le seul élément
-            this.qTextEl.style.padding = "15px";
-            this.qTextEl.style.fontSize = "1.1em";
-        } else {
-            this.qTextEl.style.display = "none";
-        }
-    }
-    
-    // --- 2. LOGIQUE DE L'IMAGE (CADRE NOIR) ---
-    if(this.qImgZone && this.qPanZoomContent) {
-        this.qPanZoomContent.innerHTML = "";
+    loadLevel() {
+        const levels = this.currentHw.levels || [];
+        const currentLevel = levels[this.currentLevelIndex];
         
-        if (currentLevel.questionImage) {
-            // IMAGE PRÉSENTE : On affiche le cadre
-            this.qImgZone.style.display = "block";
-            
-            const img = document.createElement('img');
-            img.src = currentLevel.questionImage;
-            img.style.display = "block";
-            img.style.webkitUserDrag = "none";
-
-            img.onload = () => {
-                const containerW = this.qImgZone.offsetWidth;
-                const containerH = this.qImgZone.offsetHeight;
-                const imgW = img.naturalWidth;
-                const imgH = img.naturalHeight;
-
-                // Zoom largeur 100%
-                const scale = containerW / imgW;
-                this.viewQ.scale = scale;
-
-                // Calcul pour coller EN HAUT
-                const scaledImgHeight = imgH * scale;
-                this.viewQ.x = 0;
-                this.viewQ.y = (scaledImgHeight - containerH) / 2;
-
-                this.updateTransform('q');
-            };
-            this.qPanZoomContent.appendChild(img);
-        } else {
-            // IMAGE ABSENTE : On cache le cadre noir totalement
-            this.qImgZone.style.display = "none";
+        if(this.qIndexEl) this.qIndexEl.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
+        
+        // 1. Texte Consigne
+        if(this.qTextEl) {
+            if (currentLevel.instruction && currentLevel.instruction.trim() !== "") {
+                this.qTextEl.innerHTML = currentLevel.instruction.replace(/\n/g, '<br>');
+                this.qTextEl.style.display = "block";
+            } else {
+                this.qTextEl.style.display = "none";
+            }
         }
+        
+        // 2. Image Question (Calée en haut)
+        if(this.qImgZone && this.qPanZoomContent) {
+            this.qPanZoomContent.innerHTML = "";
+            if (currentLevel.questionImage) {
+                this.qImgZone.style.display = "block";
+                const img = document.createElement('img');
+                img.src = currentLevel.questionImage;
+                img.style.display = "block";
+                img.style.webkitUserDrag = "none";
+
+                img.onload = () => {
+                    const scale = this.qImgZone.offsetWidth / img.naturalWidth;
+                    this.viewQ.scale = scale;
+                    // Formule pour caler en HAUT (compense le translate -50% du CSS)
+                    this.viewQ.y = (img.naturalHeight * scale - this.qImgZone.offsetHeight) / 2;
+                    this.viewQ.x = 0;
+                    this.updateTransform('q');
+                };
+                this.qPanZoomContent.appendChild(img);
+            } else {
+                this.qImgZone.style.display = "none";
+            }
+        }
+
+        // 3. Documents Liseuse
+        this.docs = (currentLevel.attachmentUrls || []).filter(u => u !== "BREAK");
+        this.docIndex = 0;
+        this.renderCurrentDoc();
+
+        // Reset inputs
+        if(this.input) this.input.value = "";
+        if(this.fileInput) this.fileInput.value = "";
+        if(this.fileName) this.fileName.textContent = "";
+        if(this.btnSubmit) this.btnSubmit.disabled = false;
     }
-
-    // --- 3. DOCUMENTS LISEUSE (HAUT) ---
-    this.docs = (currentLevel.attachmentUrls || []).filter(u => u !== "BREAK");
-    this.docIndex = 0;
-    this.renderCurrentDoc();
-
-    // --- 4. RESET FORMULAIRE ---
-    if(this.input) this.input.value = "";
-    if(this.fileInput) this.fileInput.value = "";
-    if(this.fileName) this.fileName.textContent = "";
-    if(this.btnSubmit) this.btnSubmit.disabled = false;
-}
 
     renderCurrentDoc() {
         this.resetView('doc'); 
@@ -257,8 +221,6 @@ loadLevel() {
             if(this.imgEl) { this.imgEl.style.display = "block"; this.imgEl.src = url; }
         }
         if(this.counterEl) this.counterEl.textContent = `${this.docIndex + 1} / ${this.docs.length}`;
-        if(this.btnPrev) this.btnPrev.style.display = this.docIndex > 0 ? "flex" : "none";
-        if(this.btnNext) this.btnNext.style.display = this.docIndex < this.docs.length - 1 ? "flex" : "none";
     }
 
     changeDoc(dir) {
@@ -275,7 +237,7 @@ loadLevel() {
         if(this.aiModal) {
             this.aiModal.style.display = "flex";
             if(this.overlay) this.overlay.style.display = "block";
-            if(this.aiContent) this.aiContent.innerHTML = "<p style='text-align:center;'>🧠 L'IA analyse tous tes documents...</p>";
+            if(this.aiContent) this.aiContent.innerHTML = "<p style='text-align:center;'>🧠 L'IA analyse ton travail et sauvegarde ta copie...</p>";
         }
 
         try {
@@ -295,10 +257,12 @@ loadLevel() {
                     userText: txt, 
                     homeworkInstruction: lvl.instruction,
                     homeworkContext: lvl.aiPrompt,
-                    questionImage: lvl.questionImage, // L'image de la question
-                    teacherDocUrls: this.docs,         // Les docs de la ligne 1
+                    questionImage: lvl.questionImage,
+                    teacherDocUrls: this.docs,
                     classroom: state.currentPlayerData.classroom, 
-                    playerId: state.currentPlayerId 
+                    playerId: state.currentPlayerId,
+                    homeworkId: this.currentHw._id, // IMPORTANT pour la sauvegarde
+                    levelIndex: this.currentLevelIndex // IMPORTANT pour la sauvegarde
                 })
             });
             const data = await res.json();
@@ -326,7 +290,7 @@ loadLevel() {
             this.currentLevelIndex++;
             this.loadLevel();
         } else {
-            alert("Bravo, devoir terminé !");
+            alert("Devoir terminé ! Ta copie a été transmise.");
             this.showList();
         }
     }

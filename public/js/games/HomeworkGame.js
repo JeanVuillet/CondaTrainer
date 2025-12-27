@@ -241,18 +241,20 @@ export class HomeworkGame {
         this.renderCurrentDoc();
     }
 
-    async submit() {
+async submit() {
         const txt = this.input ? this.input.value : "";
         const file = (this.fileInput && this.fileInput.files) ? this.fileInput.files[0] : null;
         
         if(!txt && !file) return alert("Réponse vide !");
         
-        this.submitBtn.disabled = true;
+        // Utilise this.btnSubmit (et pas submitBtn)
+        if(this.btnSubmit) this.btnSubmit.disabled = true;
         
         if(this.aiModal) {
             this.aiModal.style.display = "flex";
             if(this.overlay) this.overlay.style.display = "block";
-            if(this.modalContent) this.modalContent.innerHTML = "<p style='text-align:center;'>🧠 Analyse...</p>";
+            // Utilise this.aiContent (et pas modalContent)
+            if(this.aiContent) this.aiContent.innerHTML = "<p style='text-align:center;'>🧠 L'IA analyse ton travail...</p>";
             if(this.btnModify) this.btnModify.style.display = "none";
             if(this.btnNextQ) this.btnNextQ.style.display = "none";
         }
@@ -270,17 +272,19 @@ export class HomeworkGame {
             const res = await fetch('/api/analyze-homework', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    imageUrl: imgUrl, userText: txt, 
+                    imageUrl: imgUrl, 
+                    userText: txt, 
                     homeworkInstruction: lvl.instruction,
                     homeworkContext: lvl.aiPrompt,
-                    classroom: state.currentPlayerData.classroom, playerId: state.currentPlayerId, homeworkId: this.currentHw._id 
+                    classroom: state.currentPlayerData.classroom, 
+                    playerId: state.currentPlayerId, 
+                    homeworkId: this.currentHw._id 
                 })
             });
             const data = await res.json();
             
-            if (this.modalContent) this.modalContent.innerHTML = data.feedback;
+            if (this.aiContent) this.aiContent.innerHTML = data.feedback;
             if (this.btnModify) this.btnModify.style.display = "inline-block";
-            
             if (this.btnNextQ) {
                 this.btnNextQ.style.display = "inline-block";
                 const isLast = (this.currentLevelIndex >= this.currentHw.levels.length - 1);
@@ -289,13 +293,10 @@ export class HomeworkGame {
 
         } catch(e) {
             console.error(e);
-            if(this.modalContent) this.modalContent.innerHTML = "Erreur technique.";
-            if(this.btnModify) {
-                this.btnModify.style.display = "inline-block";
-                this.btnModify.textContent = "Fermer";
-            }
+            if(this.aiContent) this.aiContent.innerHTML = "Erreur technique.";
         }
-        if(this.submitBtn) this.submitBtn.disabled = false;
+        
+        if(this.btnSubmit) this.btnSubmit.disabled = false;
     }
 
     closeModal() {

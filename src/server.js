@@ -66,7 +66,9 @@ const HomeworkSchema = new mongoose.Schema({
   classroom: String,
   levels: [{
       instruction: String,
-      attachmentUrls: [String]
+      aiPrompt: String,      // <--- AJOUTÉ
+      attachmentUrls: [String],
+      questionImage: String  // <--- AJOUTÉ
   }],
   date: { type: Date, default: Date.now }
 });

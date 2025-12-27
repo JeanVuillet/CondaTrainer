@@ -71,31 +71,37 @@ window.dropDoc = function(ev, destLvlIdx, destZoneId, destIndex) {
 window.uploadFileToZone = async function(inputEl, lvlIdx, zoneId) {
     if (!inputEl.files || inputEl.files.length === 0) return;
     
-    const label = inputEl.parentElement;
-    const originalText = label.innerText;
-    label.innerHTML = "⏳ Upload..."; // Feedback
+    // On affiche un petit message de chargement
+    const originalLabel = inputEl.parentElement.innerHTML;
+    inputEl.parentElement.innerText = "⏳ Upload...";
 
-    // Boucle sur TOUS les fichiers (Multi-upload)
-    for (let i = 0; i < inputEl.files.length; i++) {
-        const file = inputEl.files[i];
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        try {
+    try {
+        // Si c'est la zone 'bottom', on ne prend que le premier fichier
+        const filesToUpload = (zoneId === 'bottom') ? [inputEl.files[0]] : inputEl.files;
+
+        for (let file of filesToUpload) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
             const res = await fetch('/api/upload', { method: 'POST', body: formData });
             const data = await res.json();
             
             if (data.ok && data.imageUrl) {
-                pushDocToState(lvlIdx, zoneId, data.imageUrl);
-            } else {
-                console.error("Erreur upload fichier", file.name);
+                const lvl = state.tempHwLevels[lvlIdx];
+                if (zoneId === 'top') {
+                    lvl.attachmentUrls.push(data.imageUrl);
+                } else {
+                    lvl.questionImage = data.imageUrl; // On enregistre l'image de la question
+                }
             }
-        } catch (e) {
-            console.error(e);
-            alert("Erreur réseau upload");
         }
+        // On redessine toute la modale pour voir l'image apparaître
+        renderLevelsInputs();
+    } catch (e) {
+        console.error(e);
+        alert("Erreur lors de l'upload");
+        renderLevelsInputs();
     }
-    // Pas besoin de reset manuel, le render le fera
 };
 
 window.addDocToZone = function(lvlIdx, zoneId) {

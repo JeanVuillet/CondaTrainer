@@ -120,75 +120,69 @@
 
   <!-- TEMPLATE HOMEWORK (LISEUSE + SPLIT BAS) -->
 <template id="template-homework-game">
-      <div class="hw-layout">
-        <!-- VUE LISTE -->
-        <div id="hw-list" class="hw-list-view">Chargement...</div>
+  <div class="hw-layout">
+    <!-- VUE LISTE -->
+    <div id="hw-list" class="hw-list-view">Chargement...</div>
+    
+    <!-- VUE TRAVAIL -->
+    <div id="hw-workspace" class="hw-work-view" style="display:none; flex-direction: column; height: 100%;">
         
-        <!-- VUE TRAVAIL -->
-        <div id="hw-workspace" class="hw-work-view">
-            
-            <!-- HAUT : TOILE -->
-            <div id="doc-viewer" class="doc-viewer-container">
-                
-                <!-- LE CONTENU QUI BOUGE -->
-                <div id="pan-zoom-content">
-                    <img id="current-doc-img" src="" alt="" style="display:none;">
-                    <iframe id="current-doc-pdf" src="" style="display:none;"></iframe>
-                </div>
-
-                <p id="no-doc-msg" style="color:white; pointer-events:none; position:relative; z-index:10;">Aucun document</p>
-
-                <!-- NAVIGATION -->
-                <button id="btn-prev-doc" class="nav-arrow" style="left:15px;">❮</button>
-                <button id="btn-next-doc" class="nav-arrow" style="right:15px;">❯</button>
-                <div id="page-counter" class="page-counter">1/1</div>
-
-                <!-- BOUTONS ZOOM -->
-                <div class="doc-controls">
-                    <button class="zoom-btn" id="btn-zoom-out">➖</button>
-                    <button class="zoom-btn" id="btn-zoom-in">➕</button>
-                </div>
-                
-                <button id="btn-close-work" style="position:absolute; top:15px; left:15px; background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; z-index:30; font-weight:bold;">Quitter</button>
+        <!-- HAUT : LISEUSE DOCS (Ligne 1) -->
+        <div id="doc-viewer" class="doc-viewer-container" style="flex: 1.2; position: relative; background: #0f172a; overflow: hidden;">
+            <div id="pan-zoom-content" style="position: absolute; top: 50%; left: 50%; transform-origin: center center;">
+                <img id="current-doc-img" src="" style="display:none;">
+                <iframe id="current-doc-pdf" src="" style="display:none; width:800px; height:600px;"></iframe>
             </div>
+            <button id="btn-prev-doc" class="nav-arrow" style="left:10px;">❮</button>
+            <button id="btn-next-doc" class="nav-arrow" style="right:10px;">❯</button>
+            <div class="doc-controls"><button class="zoom-btn" id="btn-zoom-out">➖</button><button class="zoom-btn" id="btn-zoom-in">➕</button></div>
+            <button id="btn-close-work" style="position:absolute; top:10px; left:10px; background:red; color:white; border:none; padding:5px; border-radius:4px; z-index:100;">Quitter</button>
+        </div>
 
-            <!-- BAS : INTERACTION -->
-            <div class="interaction-zone">
-                <!-- Question -->
-                <div class="question-part">
-                    <h4 style="margin:0 0 10px 0; color:#2563eb;">Question <span id="q-index">1</span></h4>
-                    <div id="q-text" class="question-text">...</div>
-                    <div id="q-image-container" style="text-align:center;"></div>
-                </div>
-
-                <!-- Réponse -->
-                <div class="answer-part">
-                    <textarea id="hw-text" class="hw-textarea" placeholder="Écris ta réponse ici..."></textarea>
-                    
-                    <div class="action-bar">
-                        <label style="color:#2563eb; cursor:pointer; font-size:0.9em; display:flex; align-items:center; gap:5px;">
-                            📎 Photo <input type="file" id="hw-file" style="display:none;" accept="image/*">
-                            <span id="file-name" style="color:#64748b;"></span>
-                        </label>
-                        <button id="hw-submit" style="background:#2563eb; color:white; padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Envoyer à l'IA 🤖</button>
+        <!-- BAS : ZONE INTERACTIVE (Question à gauche / Réponse à droite) -->
+        <div class="interaction-zone" style="flex: 1; display: flex; flex-direction: row; background: white; border-top: 4px solid #f59e0b;">
+            
+            <!-- GAUCHE : LA QUESTION -->
+            <div class="question-part" style="flex: 1; border-right: 2px solid #e2e8f0; display: flex; flex-direction: column; position: relative;">
+                <h4 style="margin: 5px 10px; color: #2563eb;">Question <span id="q-index">1</span></h4>
+                <div id="q-text" style="padding: 0 10px; font-size: 0.9em; font-weight: bold; margin-bottom: 5px;"></div>
+                
+                <div id="q-image-container" style="flex: 1; position: relative; overflow: hidden; background: #0f172a;">
+                    <div id="pan-zoom-question-content" style="position: absolute; top: 50%; left: 50%; transform-origin: center center;">
+                        <!-- Image injectée ici -->
+                    </div>
+                    <div class="doc-controls" style="scale: 0.7; bottom: 5px; right: 5px;">
+                        <button class="zoom-btn" id="btn-zoom-out-q">➖</button>
+                        <button class="zoom-btn" id="btn-zoom-in-q">➕</button>
                     </div>
                 </div>
             </div>
-            
-            <!-- MODALE FEEDBACK -->
-            <div id="ai-feedback-modal" class="ai-modal-center">
-                <h3 style="margin-top:0;">🤖 Résultat</h3>
-                <div id="ai-content" class="ai-content-box">Chargement...</div>
-                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
-                    <button id="btn-modify" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Modifier</button>
-                    <button id="btn-next" style="background:#16a34a; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Continuer ➔</button>
+
+            <!-- DROITE : LA RÉPONSE -->
+            <div class="answer-part" style="flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <textarea id="hw-text" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; resize: none;" placeholder="Écris ta réponse ici..."></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="color: #2563eb; cursor: pointer; font-size: 0.9em;">
+                        📎 Photo <input type="file" id="hw-file" style="display:none;">
+                        <span id="file-name" style="font-size: 0.8em; color: #64748b;"></span>
+                    </label>
+                    <button id="hw-submit" style="background: #2563eb; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold;">Envoyer à l'IA 🤖</button>
                 </div>
             </div>
-            <div id="ai-overlay" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:1500;"></div>
-
         </div>
-      </div>
-  </template>
+
+        <!-- MODALE IA -->
+        <div id="ai-feedback-modal" class="ai-modal-center" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; z-index: 2000; width: 80%; border: 2px solid #2563eb;">
+            <div id="ai-content"></div>
+            <div style="text-align: right; margin-top: 10px;">
+                <button id="btn-modify" style="background: #f59e0b; color: white; border: none; padding: 8px; border-radius: 4px;">Modifier</button>
+                <button id="btn-next" style="background: #16a34a; color: white; border: none; padding: 8px; border-radius: 4px;">Suivant</button>
+            </div>
+        </div>
+        <div id="ai-overlay" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1500;"></div>
+    </div>
+  </div>
+</template>
 
   <!-- AUTRES TEMPLATES -->
  <template id="template-zombie-game">

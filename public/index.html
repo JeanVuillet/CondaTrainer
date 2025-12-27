@@ -119,26 +119,31 @@
   <!-- ======================== TEMPLATES JEUX ======================== -->
 
   <!-- TEMPLATE HOMEWORK (LISEUSE + SPLIT BAS) -->
-  <template id="template-homework-game">
+<template id="template-homework-game">
       <div class="hw-layout">
-        
         <!-- VUE LISTE -->
         <div id="hw-list" class="hw-list-view">Chargement...</div>
         
         <!-- VUE TRAVAIL -->
         <div id="hw-workspace" class="hw-work-view">
             
-            <!-- HAUT : LISEUSE -->
+            <!-- HAUT : TOILE -->
             <div id="doc-viewer" class="doc-viewer-container">
-                <button id="btn-prev-doc" class="nav-arrow">❮</button>
-                <button id="btn-next-doc" class="nav-arrow">❯</button>
+                
+                <!-- LE CONTENU QUI BOUGE -->
+                <div id="pan-zoom-content">
+                    <img id="current-doc-img" src="" alt="" style="display:none;">
+                    <iframe id="current-doc-pdf" src="" style="display:none;"></iframe>
+                </div>
+
+                <p id="no-doc-msg" style="color:white; pointer-events:none; position:relative; z-index:10;">Aucun document</p>
+
+                <!-- NAVIGATION -->
+                <button id="btn-prev-doc" class="nav-arrow" style="left:15px;">❮</button>
+                <button id="btn-next-doc" class="nav-arrow" style="right:15px;">❯</button>
                 <div id="page-counter" class="page-counter">1/1</div>
 
-                <img id="current-doc-img" src="" alt="" style="display:none;">
-                <iframe id="current-doc-pdf" style="display:none;"></iframe>
-                
-                <p id="no-doc-msg" style="color:white; display:none;">Aucun document</p>
-
+                <!-- BOUTONS ZOOM -->
                 <div class="doc-controls">
                     <button class="zoom-btn" id="btn-zoom-out">➖</button>
                     <button class="zoom-btn" id="btn-zoom-in">➕</button>
@@ -173,8 +178,8 @@
             <!-- MODALE FEEDBACK -->
             <div id="ai-feedback-modal" class="ai-modal-center">
                 <h3 style="margin-top:0;">🤖 Résultat</h3>
-                <div id="ai-content" class="ai-content-box">...</div>
-                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <div id="ai-content" class="ai-content-box">Chargement...</div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                     <button id="btn-modify" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Modifier</button>
                     <button id="btn-next" style="background:#16a34a; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Continuer ➔</button>
                 </div>

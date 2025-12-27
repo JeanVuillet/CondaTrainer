@@ -128,26 +128,35 @@ export class ZombieGame {
         setTimeout(() => this.start(), 1000);
     }
 
-    shootProjectile() {
+ shootProjectile() {
         if(this.feedback) this.feedback.style.display = "none";
+        // Sécurité si l'élément projectile a disparu du DOM
         if(!this.projectile) { this.handleZombieHit(); return; }
         
         let projX = 60; 
         this.projectile.style.left = projX + "px";
-        this.projectile.style.bottom = "45px"; // Ajusté selon template
+        this.projectile.style.bottom = "45px"; 
         this.projectile.style.display = "block";
 
         if(this.projInterval) clearInterval(this.projInterval);
         this.projInterval = setInterval(() => {
             projX += 15; 
             this.projectile.style.left = projX + "px";
-            const zombieLeftX = this.arena.offsetWidth - this.zPos - 60;
+            
+            // Calcul de la position du zombie depuis la gauche
+            const arenaWidth = this.arena.offsetWidth;
+            const zombieLeftX = arenaWidth - this.zPos - 60;
+
             if (projX >= zombieLeftX) {
                 clearInterval(this.projInterval);
                 this.projectile.style.display = "none";
-                this.handleZombieHit();
+                this.handleZombieHit(); // C'est ici que notifyCorrectAnswer est appelé
             }
-            if (projX > this.arena.offsetWidth) clearInterval(this.projInterval);
+            
+            if (projX > arenaWidth) {
+                clearInterval(this.projInterval);
+                this.projectile.style.display = "none";
+            }
         }, 20);
     }
 

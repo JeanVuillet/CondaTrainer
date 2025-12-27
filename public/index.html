@@ -191,7 +191,31 @@
   </template>
 
   <!-- AUTRES TEMPLATES -->
-  <template id="template-zombie-game"><div style="text-align:center;"><div id="zombie-arena"><img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;"><img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;"><div id="z-projectile"></div><div id="feedback-bubble"></div></div><div id="z-question" class="question-zone"></div><div id="ai-input-zone"><input id="z-answer"><button id="z-submit">Valider</button></div><div id="options-grid"></div></div></template>
+ <template id="template-zombie-game">
+  <div style="text-align:center;">
+    <div id="zombie-arena">
+      <img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;">
+      <img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;">
+      <div id="z-projectile"></div>
+      <div id="feedback-bubble"></div>
+    </div>
+    <div id="z-question" class="question-zone"></div>
+    
+    <!-- Zone pour l'IA (cachée si QCM) -->
+    <div id="ai-input-zone" style="display:none; gap:10px; justify-content:center; margin-top:10px;">
+      <input id="z-answer" placeholder="Ta réponse..." style="padding:10px; flex:1; max-width:300px;">
+      <button id="z-submit" style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">Valider</button>
+    </div>
+
+    <!-- Zone pour les boutons QCM (affichée si options) -->
+    <div id="options-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+      <button class="option-btn"></button>
+      <button class="option-btn"></button>
+      <button class="option-btn"></button>
+      <button class="option-btn"></button>
+    </div>
+  </div>
+</template>
   <template id="template-redaction-game"><div id="redac-q"></div><textarea id="redac-answer"></textarea><button id="redac-submit">Envoyer</button><div id="redac-loading"></div><div id="analysis-area"><div id="text-good"></div><button id="redac-continue">Continuer</button></div></template>
   <template id="template-starship-game"><div id="starship-game-area"><div id="ship"></div><div id="question"></div></div></template>
   <template id="template-jumper-game"><div id="jumper-area"><div id="player"></div><div id="q-text"></div><div id="options-grid"></div></div></template>

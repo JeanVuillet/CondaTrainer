@@ -234,15 +234,23 @@ function loadActiveQuestion() {
 
 function incrementProgress(val) {
     const req = state.levels[state.currentLevel].requiredPerQuestion || 3;
+    // On met à jour le score local de la question actuelle (ex: 1/3, 2/3...)
     state.localScores[state.currentIndex] = Math.max(0, Math.min(req, state.localScores[state.currentIndex] + val));
     
+    updateBars();
+
+    // SI LA QUESTION EST FINIE (ex: 3/3)
     if (state.localScores[state.currentIndex] >= req) { 
         state.general++; 
+        // On attend la fin de l'animation de victoire avant de passer à une AUTRE question
         setTimeout(() => nextQuestion(false), 1200); 
-    } else {
+    } 
+    // SI ON A JUSTE MAIS QU'IL RESTE DES PALIERS (ex: passage de 1/3 à 2/3)
+    else if (val > 0) {
+        // On recharge la MÊME question (ce qui permet de passer en mode TEXTE si score >= 2)
         setTimeout(() => loadActiveQuestion(), 1000);
     }
-    updateBars();
+    // SI ON A FAUX : On ne fait rien ici, wrongAnswerFlow s'en occupe
 }
 
 function updateBars() {
@@ -261,14 +269,24 @@ function updateBars() {
 function renderLives() { document.getElementById("lives").innerHTML = "❤️❤️❤️❤️".substring(0, state.lives*2); }
 
 function wrongAnswerFlow(msg) {
-    state.lives--; renderLives();
-    incrementProgress(-1); // Recul
-    if(state.lives <= 0) document.getElementById("overlay").style.display = "flex";
-    else { 
+    state.lives--; 
+    renderLives();
+    
+    // On recule le score de la question actuelle (pénalité)
+    const req = state.levels[state.currentLevel].requiredPerQuestion || 3;
+    state.localScores[state.currentIndex] = Math.max(0, state.localScores[state.currentIndex] - 1);
+    updateBars();
+
+    if(state.lives <= 0) {
+        document.getElementById("overlay").style.display = "flex";
+    } else { 
         if(msg) { 
             document.getElementById("correctionText").textContent = msg; 
             document.getElementById("correctionOverlay").style.display = "flex"; 
         }
+        // IMPORTANT : On recharge la question actuelle pour que l'élève réessaie
+        // sans appeler nextQuestion() !
+        setTimeout(() => loadActiveQuestion(), 1500);
     }
 }
 

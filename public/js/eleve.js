@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { reportBug } from './api.js';
 
+// IMPORTS JEUX
 import { ZombieGame } from './games/ZombieGame.js';
 import { RedactionGame } from './games/RedactionGame.js';
 import { HomeworkGame } from './games/HomeworkGame.js';
@@ -29,6 +30,7 @@ export async function initStudentInterface() {
         try {
             const res = await fetch(`questions/questions-${classKey}.json`);
             if(res.ok) state.allQuestionsData[classKey] = await res.json();
+            // Optionnel : updateChapterUI()
         } catch(e) { console.log("Info: Pas de JSON questions"); }
         document.querySelectorAll(".chapter-action-btn").forEach(b => b.disabled = false);
     }
@@ -104,7 +106,8 @@ document.body.addEventListener('click', async (e) => {
         document.getElementById("chapterSelection").style.display = 'none';
         document.getElementById("game").style.display = 'block';
         document.getElementById("backToMenuBtn").style.display = 'inline-block';
-        if(document.getElementById("myMistakesBtn")) document.getElementById("myMistakesBtn").style.display = 'none';
+        const btnMistakes = document.getElementById("myMistakesBtn");
+        if(btnMistakes) btnMistakes.style.display = 'none';
 
         const container = document.getElementById("gameModuleContainer");
         container.innerHTML = "";
@@ -188,12 +191,9 @@ function setupLevel(idx) {
     nextQuestion(false);
 }
 
-// --- NOUVELLE LOGIQUE SÉQUENTIELLE ---
 function nextQuestion(keep) {
     state.locked = false;
     const lvl = state.levels[state.currentLevel];
-    
-    // Vérification Fin de Niveau
     if(state.general >= lvl.questions.length) {
         saveProgress("level", lvl.id, "A");
         if(state.currentLevel < state.levels.length - 1) setTimeout(() => setupLevel(state.currentLevel + 1), 1500);
@@ -201,28 +201,18 @@ function nextQuestion(keep) {
         return;
     }
     
+    let nextIdx = -1;
     const req = lvl.requiredPerQuestion || 3;
-    let found = false;
-
-    // On parcourt les questions suivantes (Boucle circulaire)
-    // On commence à currentIndex + 1
-    for (let i = 1; i <= lvl.questions.length; i++) {
-        // Modulo pour revenir au début si on dépasse la fin
-        let checkIdx = (state.currentIndex + i) % lvl.questions.length;
-        
-        // Si cette question n'est pas finie, on la prend
-        if (state.localScores[checkIdx] < req) {
-            state.currentIndex = checkIdx;
-            found = true;
-            break;
-        }
-    }
+    for(let i=state.currentIndex+1; i<lvl.questions.length; i++) if(state.localScores[i] < req) { nextIdx = i; break; }
+    if(nextIdx === -1) for(let i=0; i<=state.currentIndex; i++) if(state.localScores[i] < req) { nextIdx = i; break; }
     
-    if(found) {
+    if(nextIdx !== -1) {
+        state.currentIndex = nextIdx;
         loadActiveQuestion();
     }
 }
 
+// FONCTION CLÉ : CHOIX MODE
 function loadActiveQuestion() {
     if(!state.currentGameModuleInstance || !state.currentGameModuleInstance.loadQuestion) return;
     
@@ -233,8 +223,9 @@ function loadActiveQuestion() {
     
     const qToSend = JSON.parse(JSON.stringify(q));
     
-    // Si dernier palier (ex: 2/3), on force le texte
+    // RÈGLE D'OR : Dernier palier = Texte
     if (score >= req - 1) {
+        console.log("🔥 DERNIER PALIER -> MODE TEXTE");
         delete qToSend.options; 
     }
     
@@ -247,11 +238,11 @@ function incrementProgress(val) {
     
     if (state.localScores[state.currentIndex] >= req) { 
         state.general++; 
+        setTimeout(() => nextQuestion(false), 1200); 
+    } else {
+        setTimeout(() => loadActiveQuestion(), 1000);
     }
     updateBars();
-
-    // DANS TOUS LES CAS : On passe à la suivante
-    setTimeout(() => nextQuestion(false), 1200); 
 }
 
 function updateBars() {

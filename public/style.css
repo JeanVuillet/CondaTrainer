@@ -45,165 +45,168 @@ button { cursor: pointer; transition: 0.2s; }
 .subBar { height: 100%; width: 0%; background: var(--success); }
 .completed { background: var(--success) !important; width: 100% !important; }
 
-/* --- STYLE JEU DEVOIRS (HOMEWORK - INFINITE CANVAS) --- */
+/* --- STYLE JEU DEVOIRS (HOMEWORK - FINAL) --- */
 
 .hw-layout {
     position: relative;
     width: 100%;
     height: 650px;
-    background-color: #1e293b;
+    background-color: #1e293b; /* Fond sombre */
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
+/* VUE LISTE (DOIT COUVRIR TOUT LE FOND SOMBRE) */
 .hw-list-view {
     padding: 20px;
     background: white;
     height: 100%;
+    width: 100%;
     overflow-y: auto;
-    display: block;
+    position: absolute; /* Force la superposition */
+    top: 0; left: 0;
+    z-index: 10;
 }
 .hw-list-item {
     background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;
     cursor: pointer; margin-bottom: 10px; transition: 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.hw-list-item:hover { border-color: var(--primary); transform: translateX(5px); }
+.hw-list-item:hover { border-color: var(--primary); transform: translateX(5px); background-color: #f8fafc; }
 
+/* VUE TRAVAIL (CACHÉE PAR DÉFAUT) */
 .hw-work-view {
     position: relative;
     width: 100%;
     height: 100%;
-    display: none;
+    display: none; /* JS bascule en flex */
+    flex-direction: column;
     overflow: hidden;
+    background-color: #0f172a;
 }
 
-/* La fenêtre de vision (Le cadre) */
+/* Conteneur global de la zone de travail */
 .doc-viewer-container {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #0f172a;
     background-image: 
         linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 50px 50px;
-    overflow: hidden;
-    position: relative;
+    background-size: 40px 40px;
 }
 
-/* ZONE HAUTE (Sujets) - 75% */
+/* ZONE HAUTE (DOCUMENTS) - 75% */
 .doc-zone-top {
     flex: 3;
     position: relative;
     overflow: hidden;
     cursor: grab;
     border-bottom: 4px solid #f59e0b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+.doc-zone-top:active { cursor: grabbing; }
 
-/* ZONE BASSE (Aides) - 25% */
-.doc-zone-bottom {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    cursor: grab;
-    background: rgba(0, 0, 0, 0.3);
-    display: none;
-}
-
-.doc-zone-top:active, .doc-zone-bottom:active {
-    cursor: grabbing;
-}
-
-/* LA TOILE INTERNE (C'est elle qu'on bouge/zoom) */
-/* LA TOILE INTERNE (C'est elle qu'on bouge/zoom) */
+/* LA TOILE (Images) */
 .canvas-layer {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    /* Le JS applique translate(-50%, -50%) pour centrer parfaitement */
-    
+    top: 50%; left: 50%;
+    /* Transform géré par JS */
     display: flex;
-    flex-direction: row; /* Côte à côte */
-    align-items: center; /* Centré verticalement */
+    flex-direction: row;
+    gap: 40px;
+    align-items: center;
     justify-content: center;
-    
-    gap: 20px; /* Espace entre les pages */
-    
-    /* On retire les padding/margin géants qui cassaient tout */
-    width: max-content; 
     pointer-events: none;
 }
 
-/* Les Images/PDF sur la toile */
-.doc-item-student {
-    pointer-events: auto; /* Réactive le clic */
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-    border: 4px solid white;
-    background: #1e293b;
-    
-    /* Taille fixe pour éviter que ce soit trop petit ou trop gros */
-    width: 500px; 
-    height: auto;
-    
-    flex-shrink: 0;
-}
-/* Les Images/PDF sur la toile */
 .doc-item-student {
     pointer-events: auto;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.6);
-    border: 4px solid white;
-    background: white;
-    width: 600px; /* Taille de base confortable */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    border: 3px solid white;
+    background: #1e293b;
+    width: 600px; /* Taille de base */
     height: auto;
     flex-shrink: 0;
 }
 
-/* Contrôles Zoom */
+/* ZONE BASSE (SPLIT) - 25% */
+.doc-zone-bottom {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    background-color: #f1f5f9;
+    border-top: 2px solid #e2e8f0;
+    overflow: hidden;
+}
+
+/* Bas Gauche : Question */
+.hw-question-part {
+    flex: 1;
+    padding: 15px;
+    border-right: 1px solid #cbd5e1;
+    overflow-y: auto;
+    background: #ffffff;
+}
+.hw-question-text { font-size: 1.1em; color: #1e293b; font-weight: 600; }
+.hw-question-image { max-width: 100%; max-height: 120px; border: 1px solid #ccc; margin-top: 10px; }
+
+/* Bas Droite : Réponse */
+.hw-answer-part {
+    flex: 1;
+    padding: 15px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hw-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    resize: none;
+}
+
+/* Boutons Zoom */
 .doc-controls {
     position: absolute; bottom: 20px; right: 20px; z-index: 50;
-    display: flex; gap: 10px;
+    display: flex; gap: 5px;
 }
 .zoom-btn {
-    width: 40px; height: 40px; border-radius: 50%;
+    width: 36px; height: 36px; border-radius: 50%;
     background: rgba(0,0,0,0.6); color: white; border: 2px solid rgba(255,255,255,0.2);
-    font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: 0.2s;
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .zoom-btn:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); }
 
-/* FENÊTRE FLOTTANTE (Réponse) */
-.floating-panel {
-    position: absolute; top: 20px; left: 20px;
-    width: 350px; height: 450px;
-    background: white; border-radius: 12px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    display: flex; flex-direction: column;
-    z-index: 100; border: 1px solid #cbd5e1;
-    min-width: 250px; min-height: 300px;
+/* --- MODALE FEEDBACK CENTRALE --- */
+.ai-modal-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    width: 90%; max-width: 650px;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 25px 100px rgba(0,0,0,0.7);
+    z-index: 500;
+    display: none; /* JS */
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid #e2e8f0;
 }
-.panel-header { background: #f1f5f9; padding: 12px 15px; border-bottom: 1px solid #e2e8f0; cursor: move; font-weight: 700; display: flex; justify-content: space-between; align-items: center; user-select: none; }
-.panel-body { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-.panel-consigne { font-size: 0.95em; color: #475569; background: #fff7ed; padding: 10px; border-radius: 6px; border-left: 4px solid #f97316; }
-.hw-textarea { width: 100%; flex: 1; min-height: 100px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; resize: none; font-size: 1rem; }
-.hw-upload-mini { font-size: 0.9em; color: #2563eb; cursor: pointer; text-decoration: underline; display: inline-flex; align-items: center; gap: 5px; }
-.panel-footer { padding: 15px; border-top: 1px solid #e2e8f0; background: #fff; }
-.btn-send { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; }
-.btn-next { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; display: none; }
-.btn-back { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; }
-.resizer { position: absolute; background: transparent; z-index: 101; }
-.resizer.se { bottom: 0; right: 0; width: 15px; height: 15px; cursor: se-resize; }
+.ai-buttons-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
 
-/* MODALES GLOBALES */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; }
-.modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 600px; }
-.ai-modal-content { max-width: 600px; text-align: left; }
-.ai-feedback-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 15px 0; max-height: 300px; overflow-y: auto; }
-
-/* Dashboard Prof */
+/* --- DASHBOARD PROF --- */
 .tabs-container { display: flex; gap: 15px; border-bottom: 2px solid #e2e8f0; margin-bottom: 25px; }
 .tab-btn { background: none; border: none; padding: 12px 20px; font-weight: 600; color: var(--text-light); border-bottom: 3px solid transparent; }
 .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
@@ -211,7 +214,7 @@ table { width: 100%; border-collapse: collapse; margin-top: 15px; background: wh
 th { background: #f8fafc; color: var(--text-light); font-weight: 600; text-align: left; padding: 12px 15px; }
 td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
 
-/* Jeux Spécifiques */
+/* --- JEUX SPECIFIQUES --- */
 #zombie-arena { position: relative; height: 250px; background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; border: 4px solid #60a5fa; overflow: hidden; margin-bottom: 20px; }
 .game-character { position: absolute; bottom: 10px; height: 120px; transition: right 0.1s linear; }
 #z-projectile { position: absolute; width: 24px; height: 24px; background: radial-gradient(circle, #facc15, #ca8a04); border-radius: 50%; box-shadow: 0 0 10px #facc15; z-index: 20; display: none; }
@@ -223,4 +226,289 @@ td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-mai
 .opt-correct { background: #dcfce7 !important; border-color: #22c55e !important; }
 .opt-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; }
 
-#starship-game-area, #jumper-area { position: relative; height: 350px; border-radius: 12px; overflow: hidden; border: 4px solid #334155; }
+/* MODALES */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; }
+.modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 600px; text-align: center; }
+
+/* --- DESIGN DEVOIRS (LISEUSE & SPLIT SCREEN) --- */
+
+.hw-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 650px;
+    background-color: #1e293b;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* LISTE DES DEVOIRS */
+.hw-list-view {
+    padding: 20px;
+    background: white;
+    height: 100%;
+    overflow-y: auto;
+    position: absolute; top: 0; left: 0; width: 100%; z-index: 50;
+}
+.hw-list-item {
+    padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; cursor: pointer;
+}
+.hw-list-item:hover { background: #f0f9ff; border-color: #2563eb; }
+
+/* ESPACE DE TRAVAIL */
+.hw-work-view {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: none; /* JS active flex */
+    flex-direction: column;
+}
+
+/* --- ZONE HAUTE : LA LISEUSE (70%) --- */
+.doc-viewer-container {
+    flex: 7; /* 70% de la hauteur */
+    background-color: #0f172a;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 4px solid #f59e0b;
+    overflow: hidden;
+}
+
+/* L'image courante */
+#current-doc-img {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain; /* S'assure que l'image rentre toujours en entier */
+    transition: transform 0.2s ease; /* Pour le zoom */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 2px solid white;
+}
+
+/* Flèches de navigation */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    font-size: 30px;
+    padding: 15px;
+    cursor: pointer;
+    z-index: 20;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    display: flex; align-items: center; justify-content: center;
+}
+.nav-arrow:hover { background: rgba(255,255,255,0.2); }
+#btn-prev-doc { left: 20px; }
+#btn-next-doc { right: 20px; }
+
+/* Compteur de pages */
+.page-counter {
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.6); color: white;
+    padding: 5px 15px; border-radius: 20px; font-weight: bold;
+}
+
+/* Contrôles Zoom */
+.doc-controls {
+    position: absolute; bottom: 20px; right: 20px;
+    display: flex; gap: 10px; z-index: 20;
+}
+.zoom-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); color: white; border: 1px solid white;
+    font-size: 20px; cursor: pointer;
+}
+
+/* --- ZONE BASSE : INTERACTION (30%) --- */
+.interaction-zone {
+    flex: 3; /* 30% de la hauteur */
+    background: white;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+/* Gauche : Question */
+.question-part {
+    flex: 1;
+    padding: 15px;
+    border-right: 2px solid #e2e8f0;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+.question-text { font-size: 1.1em; color: #1e293b; font-weight: bold; }
+.question-img { max-height: 100px; margin-top: 10px; border: 1px solid #ccc; }
+
+/* Droite : Réponse */
+.answer-part {
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hw-textarea {
+    flex: 1;
+    width: 100%;
+    resize: none;
+    padding: 10px;
+    border: 1px solid #94a3b8;
+    border-radius: 6px;
+}
+.action-bar { display: flex; justify-content: space-between; align-items: center; }
+
+/* Modale IA Centrée */
+.ai-modal-center {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: white; width: 600px; max-width: 90%; padding: 25px;
+    border-radius: 12px; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    z-index: 2000; border: 2px solid #2563eb; display: none; flex-direction: column;
+}
+.ai-content-box {
+    background: #f1f5f9; padding: 15px; border-radius: 6px; 
+    margin: 15px 0; max-height: 300px; overflow-y: auto; text-align: left;
+
+}
+
+/* --- DESIGN DEVOIRS (LISEUSE + TOILE) --- */
+
+.hw-layout {
+    width: 100%;
+    height: 650px; /* Hauteur fixe pour stabilité */
+    background-color: #1e293b;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* LISTE (Au-dessus) */
+.hw-list-view {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    background: white; z-index: 50; padding: 20px; overflow-y: auto;
+}
+.hw-list-item { padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+.hw-list-item:hover { background: #f0f9ff; border-color: #2563eb; }
+
+/* ESPACE TRAVAIL (Flex Column) */
+.hw-work-view {
+    display: none; /* JS active flex */
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+/* --- HAUT : VISIONNEUSE (75%) --- */
+.doc-viewer-container {
+    flex: 3; /* 3 parts = 75% */
+    background-color: #0f172a;
+    background-image: radial-gradient(#334155 1px, transparent 1px);
+    background-size: 30px 30px;
+    position: relative;
+    overflow: hidden; /* Masque ce qui sort */
+    border-bottom: 4px solid #f59e0b;
+    cursor: grab; /* Curseur main ouverte */
+}
+
+.doc-viewer-container:active {
+    cursor: grabbing; /* Main fermée au clic */
+}
+
+/* L'élément qui bouge (La "Toile" d'une seule image) */
+.pan-zoom-content {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform-origin: center center;
+    /* Le JS gère le translate et le scale */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none; /* Laisse le clic passer au container */
+}
+
+.doc-image {
+    max-width: none; /* Pas de limite pour le zoom */
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    border: 2px solid white;
+    pointer-events: auto; /* On peut cliquer dessus */
+}
+
+/* Contrôles Navigation (Flèches) */
+.nav-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.5); color: white;
+    width: 50px; height: 50px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    cursor: pointer; z-index: 20; font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.nav-arrow:hover { background: rgba(255,255,255,0.8); color: black; }
+#btn-prev-doc { left: 20px; }
+#btn-next-doc { right: 20px; }
+
+/* Contrôles Zoom */
+.doc-controls {
+    position: absolute; bottom: 20px; right: 20px; z-index: 20;
+    display: flex; gap: 10px;
+}
+.zoom-btn {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: rgba(0,0,0,0.7); color: white; border: 1px solid white;
+    font-size: 20px; cursor: pointer;
+}
+
+.page-counter {
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.7); color: white; padding: 5px 15px;
+    border-radius: 20px; font-weight: bold; pointer-events: none;
+}
+
+/* --- BAS : INTERACTION (25%) --- */
+.interaction-zone {
+    flex: 1; /* 1 part = 25% */
+    background: white;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    position: relative;
+    z-index: 30; /* Au-dessus si jamais */
+}
+
+.question-part {
+    flex: 1;
+    padding: 15px;
+    border-right: 2px solid #e2e8f0;
+    background: #f8fafc;
+    overflow-y: auto;
+}
+.question-text { font-size: 1.1em; color: #1e293b; font-weight: bold; }
+
+.answer-part {
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hw-textarea {
+    flex: 1; width: 100%; resize: none; padding: 10px;
+    border: 1px solid #94a3b8; border-radius: 6px; font-family: inherit;
+}
+.action-bar { display: flex; justify-content: space-between; align-items: center; }
+
+/* Bouton Quitter */
+#btn-close-work {
+    position: absolute; top: 20px; left: 20px;
+    background: #ef4444; color: white; border: none;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    z-index: 30; font-weight: bold;
+}

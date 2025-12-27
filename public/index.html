@@ -120,47 +120,74 @@
   <!-- TEMPLATES -->
   
   <!-- HOMEWORK (FINAL) -->
-  <template id="template-homework-game">
+<template id="template-homework-game">
       <div class="hw-layout">
+        
+        <!-- VUE LISTE -->
         <div id="hw-list" class="hw-list-view">Chargement...</div>
+        
+        <!-- VUE TRAVAIL -->
         <div id="hw-workspace" class="hw-work-view">
             
+            <!-- HAUT : TOILE DE VISUALISATION -->
             <div id="doc-viewer" class="doc-viewer-container">
-                <p id="no-doc-msg" style="color:white; opacity:0.5; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);">Aucun document</p>
+                <button id="btn-close-work">Quitter</button>
+
+                <!-- Navigation Carousel -->
+                <button id="btn-prev-doc" class="nav-arrow">❮</button>
+                <button id="btn-next-doc" class="nav-arrow">❯</button>
+                <div id="page-counter" class="page-counter">1/1</div>
+
+                <!-- LA TOILE QUI BOUGE -->
+                <div id="pan-zoom-content" class="pan-zoom-content">
+                    <img id="current-doc-img" class="doc-image" src="" alt="Document">
+                    <!-- Iframe pour PDF si besoin -->
+                    <iframe id="current-doc-pdf" class="doc-image" style="display:none; width:600px; height:800px; border:none;"></iframe>
+                </div>
                 
-                <!-- ZONE HAUTE -->
-                <div id="zone-top" class="doc-zone-top">
-                    <!-- TOILE HORIZONTALE -->
-                    <div id="canvas-top" class="canvas-layer"></div>
-                </div>
+                <p id="no-doc-msg" style="color:white; display:none;">Aucun document</p>
 
-                <!-- ZONE BASSE -->
-                <div id="zone-bottom" class="doc-zone-bottom">
-                    <!-- TOILE HORIZONTALE -->
-                    <div id="canvas-bottom" class="canvas-layer"></div>
-                </div>
-
+                <!-- Zoom -->
                 <div class="doc-controls">
                     <button class="zoom-btn" id="btn-zoom-out">➖</button>
                     <button class="zoom-btn" id="btn-zoom-in">➕</button>
                 </div>
             </div>
 
-            <div id="floating-panel" class="floating-panel">
-                <div class="resizer se"></div>
-                <div id="panel-header" class="panel-header"><span>📝 <span id="question-step">1/1</span> Ma Réponse</span><button id="btn-close-work" class="btn-back">Quitter</button></div>
-                <div class="panel-body">
-                    <div id="panel-title" style="font-weight:bold;"></div>
-                    <div id="panel-desc" class="panel-consigne"></div>
-                    <textarea id="hw-text" class="hw-textarea" placeholder="Réponse..."></textarea>
-                    <div style="text-align:left;"><label class="hw-upload-mini">📎 Photo<input type="file" id="hw-file" style="display:none;" accept="image/*"></label><div id="file-name"></div></div>
-                    <div id="hw-loading" style="display:none;">Analyse...</div>
+            <!-- BAS : INTERACTION -->
+            <div class="interaction-zone">
+                <!-- Question -->
+                <div class="question-part">
+                    <h4 style="margin-top:0; color:#2563eb;">Question <span id="q-index">1</span></h4>
+                    <div id="q-text" class="question-text">...</div>
+                    <div id="q-image-container" style="margin-top:10px;"></div>
                 </div>
-                <div class="panel-footer">
-                    <button id="hw-submit" class="btn-send">Envoyer à l'IA 🤖</button>
-                    <button id="hw-next" class="btn-next">Suivant ➔</button>
+
+                <!-- Réponse -->
+                <div class="answer-part">
+                    <textarea id="hw-text" class="hw-textarea" placeholder="Écris ta réponse ici..."></textarea>
+                    
+                    <div class="action-bar">
+                        <label style="color:#2563eb; cursor:pointer; font-size:0.9em;">
+                            📎 Photo <input type="file" id="hw-file" style="display:none;" accept="image/*">
+                            <span id="file-name" style="color:#64748b;"></span>
+                        </label>
+                        <button id="hw-submit" style="background:#2563eb; color:white; padding:10px 20px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Envoyer à l'IA 🤖</button>
+                    </div>
                 </div>
             </div>
+            
+            <!-- MODALE FEEDBACK (Reste inchangée) -->
+            <div id="ai-feedback-modal" class="ai-modal-center" style="display:none;">
+                <h3 style="margin-top:0;">🤖 Résultat</h3>
+                <div id="ai-content" class="ai-content-box">Chargement...</div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+                    <button id="btn-modify" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Modifier</button>
+                    <button id="btn-next" style="background:#16a34a; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Continuer ➔</button>
+                </div>
+            </div>
+            <div id="ai-overlay" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.7); z-index:1500;"></div>
+
         </div>
       </div>
   </template>

@@ -50,7 +50,7 @@ export class HomeworkGame {
         this.docIndex = 0;
         
         // ETAT VUE (Position & Zoom)
-        this.view = { x: 0, y: 0, scale: 0.8 }; 
+        this.view = { x: 0, y: 0, scale: 1.3 }; 
 
         this.initEvents();
         this.initPanZoom(); 
@@ -134,7 +134,7 @@ export class HomeworkGame {
 
     resetView() {
         // Reset à 0,0 (Centre)
-        this.view = { x: 0, y: 0, scale: 0.8 }; 
+        this.view = { x: 0, y: 0, scale: 1.3 }; 
         this.updateTransform();
     }
 

@@ -176,53 +176,62 @@ loadLevel() {
     
     if(this.qIndexEl) this.qIndexEl.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
     
-    // 1. Texte consigne (seulement si présent)
+    // --- 1. LOGIQUE DU TEXTE (CONSIGNE) ---
     if(this.qTextEl) {
         if (currentLevel.instruction && currentLevel.instruction.trim() !== "") {
             this.qTextEl.textContent = currentLevel.instruction;
             this.qTextEl.style.display = "block";
+            // On lui donne un peu plus de style si c'est le seul élément
+            this.qTextEl.style.padding = "15px";
+            this.qTextEl.style.fontSize = "1.1em";
         } else {
             this.qTextEl.style.display = "none";
         }
     }
     
-    // 2. Image Question (Ligne 2)
-    if(this.qPanZoomContent && this.qImgZone) {
+    // --- 2. LOGIQUE DE L'IMAGE (CADRE NOIR) ---
+    if(this.qImgZone && this.qPanZoomContent) {
         this.qPanZoomContent.innerHTML = "";
+        
         if (currentLevel.questionImage) {
+            // IMAGE PRÉSENTE : On affiche le cadre
+            this.qImgZone.style.display = "block";
+            
             const img = document.createElement('img');
             img.src = currentLevel.questionImage;
             img.style.display = "block";
             img.style.webkitUserDrag = "none";
-img.onload = () => {
+
+            img.onload = () => {
                 const containerW = this.qImgZone.offsetWidth;
                 const containerH = this.qImgZone.offsetHeight;
                 const imgW = img.naturalWidth;
                 const imgH = img.naturalHeight;
 
-                // 1. Zoom pour que l'image fasse toute la largeur du cadre
+                // Zoom largeur 100%
                 const scale = containerW / imgW;
                 this.viewQ.scale = scale;
 
-                // 2. CALCUL POUR COLLER EN HAUT
-                // On calcule la différence de hauteur et on divise par 2 
-                // pour compenser le centrage automatique du transform
+                // Calcul pour coller EN HAUT
                 const scaledImgHeight = imgH * scale;
                 this.viewQ.x = 0;
-                this.viewQ.y = (scaledImgHeight - containerH) / 2; // <--- LA FORMULE POUR LE HAUT
+                this.viewQ.y = (scaledImgHeight - containerH) / 2;
 
                 this.updateTransform('q');
             };
             this.qPanZoomContent.appendChild(img);
+        } else {
+            // IMAGE ABSENTE : On cache le cadre noir totalement
+            this.qImgZone.style.display = "none";
         }
     }
 
-    // 3. Documents (Ligne 1)
+    // --- 3. DOCUMENTS LISEUSE (HAUT) ---
     this.docs = (currentLevel.attachmentUrls || []).filter(u => u !== "BREAK");
     this.docIndex = 0;
     this.renderCurrentDoc();
 
-    // 4. Reset Formulaire
+    // --- 4. RESET FORMULAIRE ---
     if(this.input) this.input.value = "";
     if(this.fileInput) this.fileInput.value = "";
     if(this.fileName) this.fileName.textContent = "";

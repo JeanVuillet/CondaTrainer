@@ -95,25 +95,42 @@ const SubmissionSchema = new mongoose.Schema({
 const Submission = mongoose.model('Submission', SubmissionSchema, 'submissions');
 
 // 4. Bugs
-const BugSchema = new mongoose.Schema({
-  reporterName: String, classroom: String, description: String, gameChapter: String, date: { type: Date, default: Date.now },
-});
-const Bug = mongoose.model('Bug', BugSchema, 'bugs');
 
-// --- 4. UTILITAIRES ---
-function normalizeBase(str) { return (str || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').trim().toLowerCase(); }
-function nameTokens(str) { return normalizeBase(str).split(/[\s-']+/).filter(t => t.length >= 2); }
-function normalizeClassroom(c) { return normalizeBase(c).replace(/(?<=\d)(e|de|d)/, '').toUpperCase(); }
+// --- GESTION DES BUGS (RÉPARÉ) ---
+    const btnPause = document.getElementById("pauseReportBtn");
+    if(btnPause) {
+        btnPause.onclick = () => {
+            state.isGlobalPaused = true;
+            document.getElementById("bugModal").style.display = "flex";
+        };
+    }
 
-async function fileToPart(url) {
-    if(!url) return null;
-    try {
-        const resp = await fetch(url);
-        const buffer = await resp.arrayBuffer();
-        const mimeType = url.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg';
-        return { inlineData: { data: Buffer.from(buffer).toString('base64'), mimeType } };
-    } catch(e) { return null; }
-}
+    const btnResume = document.getElementById("resumeGameBtn");
+    if(btnResume) {
+        btnResume.onclick = () => {
+            state.isGlobalPaused = false;
+            document.getElementById("bugModal").style.display = "none";
+        };
+    }
+
+    const btnSendBug = document.getElementById("sendBugBtn");
+    if(btnSendBug) {
+        btnSendBug.onclick = async () => {
+            const desc = document.getElementById("bugDescription").value;
+            if(!desc) return alert("Décris le problème !");
+            
+            await reportBug({ 
+                reporterName: state.currentPlayerData.firstName + " " + state.currentPlayerData.lastName, 
+                description: desc,
+                classroom: state.currentPlayerData.classroom
+            });
+            
+            alert("Envoyé ! Merci."); 
+            document.getElementById("bugModal").style.display = "none"; 
+            state.isGlobalPaused = false;
+        };
+    }
+
 
 // --- 5. ROUTES ---
 

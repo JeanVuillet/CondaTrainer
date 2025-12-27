@@ -1,307 +1,210 @@
-import { state } from './state.js';
-import { reportBug } from './api.js';
-
-// IMPORTS JEUX
+import { state, api } from './app.js';
 import { ZombieGame } from './games/ZombieGame.js';
-import { RedactionGame } from './games/RedactionGame.js';
 import { HomeworkGame } from './games/HomeworkGame.js';
-import { StarshipGame } from './games/StarshipGame.js';
-import { JumperGame } from './games/JumperGame.js';
 
-const GameClasses = {
-    "ZombieGame": ZombieGame,
-    "RedactionGame": RedactionGame,
-    "HomeworkGame": HomeworkGame,
-    "StarshipGame": StarshipGame,
-    "JumperGame": JumperGame
+// Registre des jeux
+const GameClasses = { 
+    "ZombieGame": ZombieGame, 
+    "HomeworkGame": HomeworkGame 
 };
 
+// Variables de progression (locales à l'interface élève)
+let currentInstance = null;
+let currentChapterLevels = [];
+let levelIdx = 0;
+let questionIdx = 0;
+let localScores = []; 
+let lives = 4;
+let generalProgress = 0;
+
 export async function initStudentInterface() {
-    console.log("🚀 Init Élève");
-    
-    // UI
+    console.log("🚀 Interface Élève Init");
     document.getElementById("chapterSelection").style.display = "block";
-    const logoutBtn = document.getElementById("logoutBtn");
-    if(logoutBtn) logoutBtn.style.display = "block";
-
-    // CHARGER QUESTIONS
-    if(state.currentPlayerData && state.currentPlayerData.classroom) {
-        const classKey = state.getClassKey(state.currentPlayerData.classroom);
-        try {
-            const res = await fetch(`questions/questions-${classKey}.json`);
-            if(res.ok) state.allQuestionsData[classKey] = await res.json();
-            // Optionnel : updateChapterUI()
-        } catch(e) { console.log("Info: Pas de JSON questions"); }
-        document.querySelectorAll(".chapter-action-btn").forEach(b => b.disabled = false);
-    }
     
-    // NAVIGATION
-    document.getElementById("backToMenuBtn").onclick = () => window.location.reload();
+    // 1. Chargement des questions
+    const classKey = state.getClassKey(state.user.classroom);
+    try {
+        state.questionsData = await api.get(`questions/questions-${classKey}.json`);
+    } catch(e) { console.warn("Fichier questions introuvable"); }
 
-    // RETOUR PROF
-    if(state.currentPlayerData.firstName === "Eleve" && state.currentPlayerData.lastName === "Test") {
+    // 2. RETOUR AU MENU PROF (Le bouton perdu)
+    // Il s'affiche uniquement si on est l'élève de test
+    if(state.user.firstName === "Eleve" && state.user.lastName === "Test") {
         const btnProf = document.getElementById("backToProfBtn");
         if(btnProf) {
             btnProf.style.display = "block";
             btnProf.onclick = () => {
-                localStorage.setItem("player", JSON.stringify({ id: "prof", firstName: "Jean", lastName: "Vuillet", classroom: "Professeur" }));
+                // On remet l'identité du prof dans le stockage
+                localStorage.setItem("player", JSON.stringify({ 
+                    id: "prof", 
+                    firstName: "Jean", 
+                    lastName: "Vuillet", 
+                    classroom: "Professeur" 
+                }));
                 window.location.reload();
             };
         }
     }
-    
-    // MES FAUTES
-    const btnMistakes = document.getElementById("myMistakesBtn");
-    if(btnMistakes && state.currentPlayerData.id !== "prof") {
-        btnMistakes.style.display = "block";
-        btnMistakes.onclick = loadMistakes;
-        document.getElementById("closeMistakesBtn").onclick = () => document.getElementById("mistakesModal").style.display = "none";
-    }
 
-    // BUGS
-    document.getElementById("pauseReportBtn").onclick = () => { state.isGlobalPaused = true; document.getElementById("bugModal").style.display="flex"; };
-    document.getElementById("resumeGameBtn").onclick = () => { state.isGlobalPaused = false; document.getElementById("bugModal").style.display="none"; };
-    document.getElementById("sendBugBtn").onclick = async () => {
-        await reportBug({ reporterName: state.currentPlayerData.firstName, description: document.getElementById("bugDescription").value });
-        alert("Envoyé !"); document.getElementById("bugModal").style.display="none"; state.isGlobalPaused = false;
+    // 3. GESTION DU BOUTON BUG
+    document.getElementById("pauseReportBtn").onclick = () => {
+        document.getElementById("bugModal").style.display = "flex";
     };
-    
-    // CHEAT BARRE
-    const mainBar = document.getElementById("mainProgress");
-    if (mainBar) {
-        mainBar.onclick = () => {
-            if (state.isGameActive && state.isRKeyDown && state.isTKeyDown) {
-                state.general = state.levels[state.currentLevel].questions.length;
-                updateBars();
-                nextQuestion(false);
-            }
-        };
-    }
-}
+    document.getElementById("resumeGameBtn").onclick = () => {
+        document.getElementById("bugModal").style.display = "none";
+    };
+    document.getElementById("sendBugBtn").onclick = async () => {
+        const desc = document.getElementById("bugDescription").value;
+        if(!desc) return alert("Décris le bug !");
+        await api.post('/api/report-bug', { 
+            reporterName: state.user.firstName + " " + state.user.lastName, 
+            classroom: state.user.classroom, 
+            description: desc 
+        });
+        alert("Bug envoyé au professeur !");
+        document.getElementById("bugModal").style.display = "none";
+    };
 
-async function loadMistakes() {
-    const list = document.getElementById("mistakesList");
-    const modal = document.getElementById("mistakesModal");
-    list.innerHTML = "Chargement...";
-    modal.style.display = "flex";
-    try {
-        const res = await fetch(`/api/player-progress/${state.currentPlayerId}`);
-        const data = await res.json();
-        const mistakes = data.spellingMistakes || [];
-        if(mistakes.length === 0) list.innerHTML = "<p>Aucune faute !</p>";
-        else {
-            list.innerHTML = `<ul class='spelling-list'>` + mistakes.map(m => `<li class='spelling-item'><span class='wrong-word'>${m.wrong}</span> 👉 <span class='right-word'>${m.correct}</span></li>`).join('') + `</ul>`;
+    // 4. NAVIGATION & AUTRES
+    document.getElementById("backToMenuBtn").onclick = () => window.location.reload();
+
+    // 5. CHEAT CODE (R+T) SUR LA BARRE
+    document.getElementById("mainProgress").onclick = () => {
+        if(state.isRKeyDown && state.isTKeyDown && currentInstance) {
+            const req = currentChapterLevels[levelIdx].requiredPerQuestion || 3;
+            localScores = localScores.map(() => req);
+            generalProgress = localScores.length;
+            updateUI(); 
+            nextQuestion();
         }
-    } catch(e) { list.innerHTML = "Erreur."; }
+    };
 }
 
-// LANCEUR
-document.body.addEventListener('click', async (e) => {
+// LANCEUR DE CHAPITRES
+document.body.addEventListener('click', (e) => {
     if (e.target.matches('.chapter-action-btn')) {
-        const parent = e.target.closest('.chapter-box');
-        const tmplId = parent.dataset.templateId;
-        const gameClassStr = parent.dataset.gameClass;
-        const chapterId = parent.dataset.chapter;
-
+        const box = e.target.closest('.chapter-box');
+        const gameClassStr = box.dataset.gameClass;
+        
         document.getElementById("chapterSelection").style.display = 'none';
         document.getElementById("game").style.display = 'block';
         document.getElementById("backToMenuBtn").style.display = 'inline-block';
-        const btnMistakes = document.getElementById("myMistakesBtn");
-        if(btnMistakes) btnMistakes.style.display = 'none';
-
+        
         const container = document.getElementById("gameModuleContainer");
         container.innerHTML = "";
-        const tmpl = document.getElementById(tmplId);
+        const tmpl = document.getElementById(box.dataset.templateId);
         if(tmpl) container.appendChild(tmpl.content.cloneNode(true));
 
-        state.isGameActive = true;
-        state.locked = false;
-        
-        const controller = {
-            notifyCorrectAnswer: () => { incrementProgress(1); },
-            notifyWrongAnswer: (msg) => { wrongAnswerFlow(msg); },
-            getState: () => ({ isLocked: state.locked })
-        };
-
-        const GameClass = GameClasses[gameClassStr];
-        if(GameClass) {
-            state.currentGameModuleInstance = new GameClass(container, controller);
-            
-            if (gameClassStr === "HomeworkGame") {
-                document.getElementById("levelTitle").textContent = "Devoirs Maison";
-                toggleUI(false);
-                if(state.currentGameModuleInstance.loadHomeworks) state.currentGameModuleInstance.loadHomeworks();
-            } else {
-                toggleUI(true);
-                const classKey = state.getClassKey(state.currentPlayerData.classroom);
-                const allLevels = state.allQuestionsData[classKey] || [];
-                state.levels = allLevels.filter(l => l.chapterId === chapterId);
-                
-                const validatedIds = (state.currentPlayerData.validatedLevels || []).map(v => (typeof v === 'string' ? v : v.levelId));
-                let startLvl = state.levels.findIndex(l => !validatedIds.includes(l.id));
-                if (startLvl === -1) startLvl = 0; 
-
-                if(state.levels.length > 0) setupLevel(startLvl);
-                else container.innerHTML = "<h3 style='text-align:center; margin-top:50px'>Pas de niveaux.</h3>";
-            }
+        if(gameClassStr === "HomeworkGame") {
+            toggleUIVisibility(false);
+            currentInstance = new HomeworkGame(container);
+            currentInstance.init();
+        } else {
+            toggleUIVisibility(true);
+            currentChapterLevels = (state.questionsData || []).filter(l => l.chapterId === box.dataset.chapter);
+            startLevel(0, gameClassStr, container);
         }
     }
 });
 
-function toggleUI(show) {
-    const disp = show ? "block" : "none";
-    const flex = show ? "flex" : "none";
-    document.getElementById("mainProgress").style.display = disp;
-    document.getElementById("subBars").style.display = flex;
-    document.getElementById("lives").style.display = flex;
-}
+// LOGIQUE DE PROGRESSION (MOTEUR)
+function startLevel(idx, gameClassStr, container) {
+    levelIdx = idx;
+    lives = 4;
+    const lvl = currentChapterLevels[levelIdx];
+    if(!lvl) return;
 
-// MOTEUR
-function setupLevel(idx) {
-    if(!state.levels[idx]) { document.getElementById("gameModuleContainer").innerHTML = "<h1>Terminé ! 🏆</h1>"; return; }
-    state.currentLevel = idx;
-    const lvl = state.levels[idx];
     document.getElementById("levelTitle").textContent = lvl.title;
+    localScores = new Array(lvl.questions.length).fill(0);
+    generalProgress = 0;
+    questionIdx = 0;
     
-    // Leçon
-    const btnL = document.getElementById("openLessonBtn");
-    const txtL = document.getElementById("lessonText");
-    if(lvl.lesson) { btnL.style.display = "block"; txtL.innerHTML = lvl.lesson; } 
-    else { btnL.style.display = "none"; }
-
-    state.localScores = new Array(lvl.questions.length).fill(0);
-    state.general = 0; state.currentIndex = -1; state.lives = 4;
-    renderLives();
-    
-    const sub = document.getElementById("subBars"); sub.innerHTML = "";
+    // Création des barres de progression bleues
+    const sub = document.getElementById("subBars"); 
+    sub.innerHTML = "";
     lvl.questions.forEach((_, i) => {
-        const d = document.createElement("div"); d.className = "subProgress";
-        d.innerHTML = `<div class="subBar" id="subBar${i}"></div>`;
-        d.onclick = () => {
-            if (state.isGameActive && state.isRKeyDown && state.isTKeyDown) {
-                state.currentIndex = i; 
-                incrementProgress(1); // +1/3
-                loadActiveQuestion();
-            }
-        };
-        sub.appendChild(d);
+        sub.innerHTML += `<div class="subProgress"><div class="subBar" id="subBar${i}"></div></div>`;
     });
-    
-    updateBars();
-    nextQuestion(false);
+
+    // Instanciation du jeu
+    const controller = {
+        addPoint: () => changeScore(1),
+        removePoint: (msg) => { 
+            lives--; 
+            changeScore(-1); 
+            if(msg) showCorrection(msg); 
+            if(lives <= 0) showGameOver(); 
+            updateUI(); 
+        },
+        getScore: () => localScores[questionIdx]
+    };
+
+    currentInstance = new GameClasses[gameClassStr](container, controller);
+    loadActiveQuestion();
 }
 
-function nextQuestion(keep) {
-    state.locked = false;
-    const lvl = state.levels[state.currentLevel];
-    if(state.general >= lvl.questions.length) {
-        saveProgress("level", lvl.id, "A");
-        if(state.currentLevel < state.levels.length - 1) setTimeout(() => setupLevel(state.currentLevel + 1), 1500);
-        else document.getElementById("gameModuleContainer").innerHTML = "<h1 style='text-align:center'>Bravo ! 👑</h1>";
+function changeScore(val) {
+    const req = currentChapterLevels[levelIdx].requiredPerQuestion || 3;
+    const old = localScores[questionIdx];
+    const next = Math.max(0, Math.min(req, old + val));
+    
+    if(old < req && next >= req) generalProgress++;
+    else if(old >= req && next < req) generalProgress--;
+    
+    localScores[questionIdx] = next;
+    updateUI();
+    
+    if(next >= req) setTimeout(nextQuestion, 1200);
+    else setTimeout(loadActiveQuestion, 1000);
+}
+
+function nextQuestion() {
+    const lvl = currentChapterLevels[levelIdx];
+    if(generalProgress >= lvl.questions.length) {
+        if(levelIdx < currentChapterLevels.length - 1) {
+            alert("Niveau terminé ! Passage au suivant.");
+            startLevel(levelIdx + 1, currentInstance.constructor.name, currentInstance.c);
+        } else {
+            document.getElementById("gameModuleContainer").innerHTML = "<h1 style='text-align:center; margin-top:50px;'>Félicitations ! Chapitre Terminé ! 👑</h1>";
+        }
         return;
     }
+    // Chercher la suivante non finie
+    do { questionIdx = (questionIdx + 1) % lvl.questions.length; } 
+    while(localScores[questionIdx] >= (lvl.requiredPerQuestion || 3));
     
-    let nextIdx = -1;
-    const req = lvl.requiredPerQuestion || 3;
-    for(let i=state.currentIndex+1; i<lvl.questions.length; i++) if(state.localScores[i] < req) { nextIdx = i; break; }
-    if(nextIdx === -1) for(let i=0; i<=state.currentIndex; i++) if(state.localScores[i] < req) { nextIdx = i; break; }
-    
-    if(nextIdx !== -1) {
-        state.currentIndex = nextIdx;
-        loadActiveQuestion();
-    }
+    loadActiveQuestion();
 }
 
-// FONCTION CLÉ : CHOIX MODE
 function loadActiveQuestion() {
-    if(!state.currentGameModuleInstance || !state.currentGameModuleInstance.loadQuestion) return;
-    
-    const lvl = state.levels[state.currentLevel];
-    const q = lvl.questions[state.currentIndex];
-    const score = state.localScores[state.currentIndex];
-    const req = lvl.requiredPerQuestion || 3;
-    
-    const qToSend = JSON.parse(JSON.stringify(q));
-    
-    // RÈGLE D'OR : Dernier palier = Texte
-    if (score >= req - 1) {
-        console.log("🔥 DERNIER PALIER -> MODE TEXTE");
-        delete qToSend.options; 
-    }
-    
-    state.currentGameModuleInstance.loadQuestion(qToSend);
+    const q = currentChapterLevels[levelIdx].questions[questionIdx];
+    const qCopy = JSON.parse(JSON.stringify(q));
+    // Règle : dernier palier = saisie texte (plus d'options)
+    const req = currentChapterLevels[levelIdx].requiredPerQuestion || 3;
+    if(localScores[questionIdx] >= req - 1) delete qCopy.options;
+    currentInstance.loadQuestion(qCopy);
 }
 
-function incrementProgress(val) {
-    const req = state.levels[state.currentLevel].requiredPerQuestion || 3;
-    // On met à jour le score local de la question actuelle (ex: 1/3, 2/3...)
-    state.localScores[state.currentIndex] = Math.max(0, Math.min(req, state.localScores[state.currentIndex] + val));
-    
-    updateBars();
-
-    // SI LA QUESTION EST FINIE (ex: 3/3)
-    if (state.localScores[state.currentIndex] >= req) { 
-        state.general++; 
-        // On attend la fin de l'animation de victoire avant de passer à une AUTRE question
-        setTimeout(() => nextQuestion(false), 1200); 
-    } 
-    // SI ON A JUSTE MAIS QU'IL RESTE DES PALIERS (ex: passage de 1/3 à 2/3)
-    else if (val > 0) {
-        // On recharge la MÊME question (ce qui permet de passer en mode TEXTE si score >= 2)
-        setTimeout(() => loadActiveQuestion(), 1000);
-    }
-    // SI ON A FAUX : On ne fait rien ici, wrongAnswerFlow s'en occupe
-}
-
-function updateBars() {
-    const req = state.levels[state.currentLevel].requiredPerQuestion || 3;
-    state.localScores.forEach((score, i) => {
-        const bar = document.getElementById(`subBar${i}`);
-        if(bar) { 
-            const pct = (score / req) * 100;
-            bar.style.width = pct + "%"; 
-            if(score >= req) bar.parentElement.classList.add("completed"); 
-        }
+function updateUI() {
+    const req = currentChapterLevels[levelIdx].requiredPerQuestion || 3;
+    localScores.forEach((s, i) => { 
+        const b = document.getElementById(`subBar${i}`); 
+        if(b) b.style.width = (s/req*100) + "%"; 
     });
-    document.getElementById("mainBar").style.width = (state.general / state.levels[state.currentLevel].questions.length * 100) + "%";
+    document.getElementById("mainBar").style.width = (generalProgress / currentChapterLevels[levelIdx].questions.length * 100) + "%";
+    document.getElementById("lives").innerHTML = "❤️❤️❤️❤️".substring(0, lives*2);
 }
 
-function renderLives() { document.getElementById("lives").innerHTML = "❤️❤️❤️❤️".substring(0, state.lives*2); }
-
-function wrongAnswerFlow(msg) {
-    state.lives--; 
-    renderLives();
-    
-    // On recule le score de la question actuelle (pénalité)
-    const req = state.levels[state.currentLevel].requiredPerQuestion || 3;
-    state.localScores[state.currentIndex] = Math.max(0, state.localScores[state.currentIndex] - 1);
-    updateBars();
-
-    if(state.lives <= 0) {
-        document.getElementById("overlay").style.display = "flex";
-    } else { 
-        if(msg) { 
-            document.getElementById("correctionText").textContent = msg; 
-            document.getElementById("correctionOverlay").style.display = "flex"; 
-        }
-        // IMPORTANT : On recharge la question actuelle pour que l'élève réessaie
-        // sans appeler nextQuestion() !
-        setTimeout(() => loadActiveQuestion(), 1500);
-    }
+function toggleUIVisibility(show) {
+    document.getElementById("mainProgress").style.display = show ? "block" : "none";
+    document.getElementById("subBars").style.display = show ? "flex" : "none";
+    document.getElementById("lives").style.display = show ? "flex" : "none";
 }
 
-async function saveProgress(type, val, grade) {
-    if(state.currentPlayerId && state.currentPlayerId !== "prof") {
-        try {
-            await fetch("/api/save-progress", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ playerId: state.currentPlayerId, progressType: type, value: val, grade: grade }) });
-            if(type === "level") {
-                if(!state.currentPlayerData.validatedLevels) state.currentPlayerData.validatedLevels = [];
-                state.currentPlayerData.validatedLevels.push(val);
-                localStorage.setItem("player", JSON.stringify(state.currentPlayerData));
-            }
-        } catch(e) {}
-    }
+function showCorrection(msg) { 
+    document.getElementById("correctionText").textContent = msg; 
+    document.getElementById("correctionOverlay").style.display = "flex"; 
 }
-
-document.getElementById("closeCorrectionBtn").onclick = () => { document.getElementById("correctionOverlay").style.display="none"; };
-document.getElementById("restartBtn").onclick = () => { document.getElementById("overlay").style.display="none"; setupLevel(state.currentLevel); };
+document.getElementById("closeCorrectionBtn").onclick = () => document.getElementById("correctionOverlay").style.display = "none";
+function showGameOver() { document.getElementById("overlay").style.display = "flex"; }
+document.getElementById("restartBtn").onclick = () => window.location.reload();

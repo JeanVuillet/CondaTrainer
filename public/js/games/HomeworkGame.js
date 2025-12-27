@@ -6,27 +6,19 @@ export class HomeworkGame {
         this.c = container; 
         this.controller = controller;
 
-        // UI Principale
+        // UI
         this.listView = this.c.querySelector("#hw-list"); 
         this.workView = this.c.querySelector("#hw-workspace");
         
-        // --- LISEUSE / TOILE ---
-        this.viewerContainer = this.c.querySelector("#doc-viewer"); // Le cadre
-        this.panZoomContent = this.c.querySelector("#pan-zoom-content"); // La toile
+        // LISEUSE
         this.imgEl = this.c.querySelector("#current-doc-img");
         this.pdfEl = this.c.querySelector("#current-doc-pdf");
         this.noDocMsg = this.c.querySelector("#no-doc-msg");
-        
-        // Navigation Docs
+        this.counterEl = this.c.querySelector("#page-counter");
         this.btnPrev = this.c.querySelector("#btn-prev-doc");
         this.btnNext = this.c.querySelector("#btn-next-doc");
-        this.counterEl = this.c.querySelector("#page-counter");
         
-        // Zoom
-        this.btnZoomIn = this.c.querySelector("#btn-zoom-in");
-        this.btnZoomOut = this.c.querySelector("#btn-zoom-out");
-
-        // --- QUESTION / REPONSE ---
+        // INTERACTION
         this.qIndexEl = this.c.querySelector("#q-index");
         this.qTextEl = this.c.querySelector("#q-text");
         this.qImgZone = this.c.querySelector("#q-image-container");
@@ -36,189 +28,150 @@ export class HomeworkGame {
         this.btnSubmit = this.c.querySelector("#hw-submit");
         this.btnQuit = this.c.querySelector("#btn-close-work");
 
-        // --- MODALE ---
+        // MODALE & ZOOM
         this.modal = this.c.querySelector("#ai-feedback-modal");
         this.overlay = this.c.querySelector("#ai-overlay");
         this.modalContent = this.c.querySelector("#ai-content");
         this.btnModify = this.c.querySelector("#btn-modify");
         this.btnNextQ = this.c.querySelector("#btn-next");
+        
+        this.btnZoomIn = this.c.querySelector("#btn-zoom-in");
+        this.btnZoomOut = this.c.querySelector("#btn-zoom-out");
 
-        // --- ETAT ---
+        // ETAT
         this.currentHw = null; 
         this.currentLevelIndex = 0;
-        this.docs = []; // Liste des docs de la question
+        this.docs = []; 
         this.docIndex = 0;
-        
-        // Etat View (Pan & Zoom)
-        this.viewState = { x: 0, y: 0, scale: 1 };
+        this.zoom = 1;
 
         this.initEvents();
-        this.initPanZoom(); // Active le Drag
         this.loadHomeworks();
+        
+        console.log("📚 HomeworkGame Initialisé");
     }
 
     initEvents() {
-        this.btnQuit.onclick = () => this.showList();
+        if(this.btnQuit) this.btnQuit.onclick = () => this.showList();
+        if(this.btnSubmit) this.btnSubmit.onclick = () => this.submit();
         
-        // Le bouton Envoyer était cassé, voici la correction :
-        this.btnSubmit.onclick = (e) => {
-            e.preventDefault(); // Sécurité
-            this.submit();
-        };
+        if(this.btnPrev) this.btnPrev.onclick = () => this.changeDoc(-1);
+        if(this.btnNext) this.btnNext.onclick = () => this.changeDoc(1);
         
-        this.btnPrev.onclick = () => this.changeDoc(-1);
-        this.btnNext.onclick = () => this.changeDoc(1);
+        if(this.btnZoomIn) this.btnZoomIn.onclick = () => this.applyZoom(0.2);
+        if(this.btnZoomOut) this.btnZoomOut.onclick = () => this.applyZoom(-0.2);
         
-        this.btnZoomIn.onclick = () => this.zoom(0.2);
-        this.btnZoomOut.onclick = () => this.zoom(-0.2);
+        if(this.btnModify) this.btnModify.onclick = () => this.closeModal();
+        if(this.btnNextQ) this.btnNextQ.onclick = () => { this.closeModal(); this.nextQuestion(); };
         
-        this.btnModify.onclick = () => this.closeModal();
-        this.btnNextQ.onclick = () => { this.closeModal(); this.nextQuestion(); };
-        
-        this.fileInput.onchange = () => { 
-            if(this.fileInput.files.length) this.fileName.textContent = "📸 Image OK"; 
-        };
+        if(this.fileInput) {
+            this.fileInput.onchange = () => { 
+                if(this.fileInput.files.length && this.fileName) {
+                    this.fileName.textContent = "📸 " + this.fileInput.files[0].name;
+                }
+            };
+        }
     }
 
-    // --- MOTEUR PAN & ZOOM ---
-    initPanZoom() {
-        let isDown = false;
-        let startX, startY;
-
-        // Mouse Down
-        this.viewerContainer.addEventListener('mousedown', (e) => {
-            if(e.target.tagName === 'BUTTON') return;
-            e.preventDefault();
-            isDown = true;
-            this.viewerContainer.style.cursor = 'grabbing';
-            // Position de la souris relative au décalage actuel
-            startX = e.clientX - this.viewState.x;
-            startY = e.clientY - this.viewState.y;
-        });
-
-        // Mouse Move
-        window.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            this.viewState.x = e.clientX - startX;
-            this.viewState.y = e.clientY - startY;
-            this.updateTransform();
-        });
-
-        // Mouse Up
-        window.addEventListener('mouseup', () => {
-            isDown = false;
-            this.viewerContainer.style.cursor = 'grab';
-        });
-
-        // Molette
-        this.viewerContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            this.zoom(delta);
-        });
-    }
-
-    zoom(delta) {
-        this.viewState.scale = Math.min(Math.max(0.2, this.viewState.scale + delta), 5);
-        this.updateTransform();
-    }
-
-    updateTransform() {
-        // Centre + Pan + Scale
-        this.panZoomContent.style.transform = `translate(calc(-50% + ${this.viewState.x}px), calc(-50% + ${this.viewState.y}px)) scale(${this.viewState.scale})`;
-    }
-
-    resetView() {
-        this.viewState = { x: 0, y: 0, scale: 0.9 }; // Un peu dézoomé par défaut
-        this.updateTransform();
-    }
-
-    // --- LOGIQUE JEU ---
     async loadHomeworks() {
-        this.listView.innerHTML = "<p>Chargement...</p>";
+        if(this.listView) this.listView.innerHTML = "<p style='padding:20px'>Chargement...</p>";
         try {
             const res = await fetch(`/api/homework/${state.currentPlayerData.classroom}`);
             const list = await res.json();
             
-            if(list.length === 0) { this.listView.innerHTML = "<p style='text-align:center'>Rien à faire.</p>"; return; }
-            
-            this.listView.innerHTML = list.map((hw, i) => `
-                <div class="hw-list-item" data-idx="${i}">
-                    <b>${hw.title}</b><br><small>${new Date(hw.date).toLocaleDateString()}</small>
-                </div>
-            `).join('');
-
-            this.listView.querySelectorAll(".hw-list-item").forEach(item => {
-                item.onclick = () => this.openHw(list[item.dataset.idx]);
-            });
-        } catch(e) { this.listView.innerHTML = "Erreur."; }
+            if(this.listView) {
+                this.listView.innerHTML = ""; 
+                if (list.length === 0) { 
+                    this.listView.innerHTML = "<p style='text-align:center; padding:20px;'>Aucun devoir.</p>"; 
+                    return; 
+                }
+                
+                list.forEach((hw, i) => {
+                    const div = document.createElement("div"); 
+                    div.className = "hw-list-item";
+                    div.innerHTML = `<b>${hw.title}</b><br><small>${new Date(hw.date).toLocaleDateString()}</small>`;
+                    div.onclick = () => this.startHomework(hw);
+                    this.listView.appendChild(div);
+                });
+            }
+        } catch(e) { if(this.listView) this.listView.innerHTML = "Erreur chargement."; }
     }
 
-    openHw(hw) {
+    startHomework(hw) {
         this.currentHw = hw;
         this.currentLevelIndex = 0;
-        this.listView.style.display = "none";
-        this.workView.style.display = "flex"; // Flex pour le layout vertical
+        if(this.listView) this.listView.style.display = "none";
+        if(this.workView) this.workView.style.display = "flex";
         this.loadLevel();
     }
 
     loadLevel() {
-        const lvl = this.currentHw.levels[this.currentLevelIndex];
+        const levels = this.currentHw.levels || [];
+        const currentLevel = levels[this.currentLevelIndex];
         
-        // 1. Textes
-        this.qIndexEl.textContent = `${this.currentLevelIndex + 1}/${this.currentHw.levels.length}`;
-        this.qTextEl.textContent = lvl.instruction;
-        
-        // 2. Image Question (Bas Gauche)
-        this.qImgZone.innerHTML = "";
-        if (lvl.questionImage) {
-            this.qImgZone.innerHTML = `<img src="${lvl.questionImage}" style="max-width:100%; max-height:150px; margin-top:5px; border:1px solid #ccc;">`;
+        // Texte Question
+        if(this.qIndexEl) this.qIndexEl.textContent = `${this.currentLevelIndex + 1}/${levels.length}`;
+        if(this.qTextEl) this.qTextEl.textContent = currentLevel.instruction || "Aucune consigne";
+
+        // Image Question (Bas Gauche)
+        if(this.qImgZone) {
+            this.qImgZone.innerHTML = "";
+            if (currentLevel.questionImage) {
+                this.qImgZone.innerHTML = `<img src="${currentLevel.questionImage}" class="question-img">`;
+            }
         }
 
-        // 3. Documents (Haut)
-        // On filtre BREAK (car ici on a une liseuse simple)
-        this.docs = lvl.attachmentUrls.filter(u => u !== "BREAK");
+        // Documents (Liseuse)
+        this.docs = (currentLevel.attachmentUrls || []).filter(u => u !== "BREAK");
         this.docIndex = 0;
         this.renderCurrentDoc();
 
-        // 4. Reset Inputs
-        this.input.value = "";
-        this.fileInput.value = "";
-        this.fileName.textContent = "";
-        this.submitBtn.style.display = "block";
+        // Reset Champs
+        if(this.input) this.input.value = "";
+        if(this.fileInput) this.fileInput.value = "";
+        if(this.fileName) this.fileName.textContent = "";
+        if(this.submitBtn) this.submitBtn.disabled = false;
     }
 
     renderCurrentDoc() {
-        this.resetView(); // On recentre à chaque changement de page
+        this.zoom = 1;
+        this.applyZoom(0);
 
+        // Si aucun doc
         if (this.docs.length === 0) {
-            this.imgEl.style.display = "none";
-            this.pdfEl.style.display = "none";
-            this.noDocMsg.style.display = "block";
-            this.counterEl.style.display = "none";
+            if(this.imgEl) this.imgEl.style.display = "none";
+            if(this.pdfEl) this.pdfEl.style.display = "none";
+            if(this.noDocMsg) this.noDocMsg.style.display = "block";
+            if(this.counterEl) this.counterEl.style.display = "none";
             return;
         }
 
-        this.noDocMsg.style.display = "none";
-        this.counterEl.style.display = "block";
-        this.counterEl.textContent = `${this.docIndex + 1} / ${this.docs.length}`;
+        if(this.noDocMsg) this.noDocMsg.style.display = "none";
+        if(this.counterEl) {
+            this.counterEl.style.display = "block";
+            this.counterEl.textContent = `${this.docIndex + 1} / ${this.docs.length}`;
+        }
 
         const url = this.docs[this.docIndex];
-        
-        if (url.endsWith('.pdf')) {
-            this.imgEl.style.display = "none";
-            this.pdfEl.style.display = "block";
-            this.pdfEl.src = url;
+        const isPdf = url.toLowerCase().endsWith('.pdf');
+
+        if (isPdf) {
+            if(this.imgEl) this.imgEl.style.display = "none";
+            if(this.pdfEl) {
+                this.pdfEl.style.display = "block";
+                this.pdfEl.src = url;
+            }
         } else {
-            this.pdfEl.style.display = "none";
-            this.imgEl.style.display = "block";
-            this.imgEl.src = url;
+            if(this.pdfEl) this.pdfEl.style.display = "none";
+            if(this.imgEl) {
+                this.imgEl.style.display = "block";
+                this.imgEl.src = url;
+            }
         }
 
         // Flèches
-        this.btnPrev.style.display = this.docIndex > 0 ? "flex" : "none";
-        this.btnNext.style.display = this.docIndex < this.docs.length - 1 ? "flex" : "none";
+        if(this.btnPrev) this.btnPrev.style.display = this.docIndex > 0 ? "flex" : "none";
+        if(this.btnNext) this.btnNext.style.display = this.docIndex < this.docs.length - 1 ? "flex" : "none";
     }
 
     changeDoc(dir) {
@@ -226,18 +179,28 @@ export class HomeworkGame {
         this.renderCurrentDoc();
     }
 
+    applyZoom(delta) {
+        this.zoom = Math.max(0.5, Math.min(3.0, this.zoom + delta));
+        if(this.imgEl && this.imgEl.style.display !== "none") {
+            this.imgEl.style.transform = `scale(${this.zoom})`;
+        }
+    }
+
     async submit() {
-        const txt = this.input.value;
-        const file = this.fileInput.files[0];
+        const txt = this.input ? this.input.value : "";
+        const file = (this.fileInput && this.fileInput.files) ? this.fileInput.files[0] : null;
         
         if(!txt && !file) return alert("Réponse vide !");
         
         this.submitBtn.disabled = true;
-        this.modal.style.display = "flex";
-        this.overlay.style.display = "block";
-        this.modalContent.innerHTML = "🧠 Analyse en cours...";
-        this.btnModify.style.display = "none";
-        this.btnNextQ.style.display = "none";
+        
+        if(this.modal) {
+            this.modal.style.display = "flex";
+            if(this.overlay) this.overlay.style.display = "block";
+            this.modalContent.innerHTML = "<p style='text-align:center; color:#2563eb;'>🧠 Analyse IA...</p>";
+            this.btnModify.style.display = "none";
+            this.btnNextQ.style.display = "none";
+        }
 
         try {
             let imgUrl = null;
@@ -253,31 +216,33 @@ export class HomeworkGame {
                 body: JSON.stringify({ 
                     imageUrl: imgUrl, userText: txt, 
                     homeworkInstruction: this.currentHw.levels[this.currentLevelIndex].instruction,
-                    homeworkContext: this.currentHw.levels[this.currentLevelIndex].aiPrompt,
-                    classroom: state.currentPlayerData.classroom, 
-                    playerId: state.currentPlayerId, homeworkId: this.currentHw._id 
+                    classroom: state.currentPlayerData.classroom, playerId: state.currentPlayerId, homeworkId: this.currentHw._id 
                 })
             });
             const data = await res.json();
             
-            this.modalContent.innerHTML = data.feedback;
-            this.btnModify.style.display = "inline-block";
-            this.btnNextQ.style.display = "inline-block";
+            if(this.modalContent) this.modalContent.innerHTML = data.feedback;
+            if(this.btnModify) this.btnModify.style.display = "inline-block";
             
-            const isLast = (this.currentLevelIndex >= this.currentHw.levels.length - 1);
-            this.btnNextQ.textContent = isLast ? "Terminer 🎉" : "Suivant ➔";
+            if(this.btnNextQ) {
+                this.btnNextQ.style.display = "inline-block";
+                const isLast = (this.currentLevelIndex >= this.currentHw.levels.length - 1);
+                this.btnNextQ.textContent = isLast ? "Terminer 🎉" : "Suivant ➔";
+            }
 
         } catch(e) {
-            this.modalContent.innerHTML = "Erreur technique.";
-            this.btnModify.style.display = "inline-block";
-            this.btnModify.textContent = "Fermer";
+            if(this.modalContent) this.modalContent.innerHTML = "Erreur technique.";
+            if(this.btnModify) {
+                this.btnModify.style.display = "inline-block";
+                this.btnModify.textContent = "Fermer";
+            }
         }
-        this.submitBtn.disabled = false;
+        if(this.submitBtn) this.submitBtn.disabled = false;
     }
 
     closeModal() {
-        this.modal.style.display = "none";
-        this.overlay.style.display = "none";
+        if(this.modal) this.modal.style.display = "none";
+        if(this.overlay) this.overlay.style.display = "none";
     }
 
     nextQuestion() {
@@ -289,6 +254,9 @@ export class HomeworkGame {
             this.showList();
         }
     }
-    
-    showList() { this.workView.style.display="none"; this.listView.style.display="block"; }
+
+    showList() { 
+        if(this.workView) this.workView.style.display = "none"; 
+        if(this.listView) this.listView.style.display = "block"; 
+    }
 }

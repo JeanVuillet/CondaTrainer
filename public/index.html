@@ -14,9 +14,9 @@
       <h1>Plateforme Condamine</h1>
     </div>
     <div class="header-right"> 
-      <button id="myMistakesBtn" style="display:none; background:#f472b6; color:white; border:none; padding:6px 12px; border-radius:5px; font-weight:bold;">📝 Fautes</button>
+      <button id="myMistakesBtn" style="display:none; background:#f472b6; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">📝 Fautes</button>
       <button id="pauseReportBtn" class="pause-btn">🐞 Bug / Pause</button>
-      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none; padding:6px 10px; border-radius:5px; font-weight:bold;">🎓 Prof</button>
+      <button id="backToProfBtn" style="display: none; background-color: #f59e0b; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-weight:bold;">🎓 Prof</button>
       <div id="studentBadge" style="font-weight:bold; color:#334155;"></div>
       <button id="logoutBtn" style="display: none; padding:6px 10px; cursor:pointer; border:1px solid #cbd5e1; background:white; border-radius:5px;">Déconnexion</button>
     </div>
@@ -41,16 +41,17 @@
           <button id="startBtn" type="submit" style="flex:1; background:#2563eb; color:white; border:none; cursor:pointer;">Entrer</button>
         </div>
       </form>
+      <!-- Correction: Modale Prof dans une div simple pour éviter l'avertissement form -->
       <div id="profPasswordModal" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
            <label style="font-size:0.9em; font-weight:bold;">Accès Enseignant :</label>
            <div style="display:flex; gap:10px; margin-top:5px;">
-               <input type="password" id="profPassword" placeholder="Mot de passe" style="padding:10px; flex:1;" autocomplete="current-password">
+               <input type="password" id="profPassword" placeholder="Mot de passe" style="padding:10px; flex:1;">
                <button id="validateProfPasswordBtn" type="button" style="padding:10px; background:#f59e0b; color:white; border:none; cursor:pointer;">Valider</button>
            </div>
       </div>
     </section>
 
-    <!-- 2. MENU -->
+    <!-- 2. MENU CHAPITRES -->
     <section id="chapterSelection" class="card" style="display: none;">
       <h2>Choisis ton chapitre</h2>
       <div class="chapter-grid">
@@ -91,15 +92,13 @@
           <button id="tabHomeworks" class="tab-btn">📚 Devoirs</button>
           <button id="viewBugsBtn" class="tab-btn" style="color:#7c3aed; margin-left:auto;">🐛 Bugs</button>
       </div>
-
       <div id="contentStudents" class="tab-content active">
         <div style="margin-bottom: 15px;"><select id="classFilter" style="width:100%; padding:8px;"><option value="all">Toutes</option><option value="6D">6eD</option><option value="5B">5eB</option><option value="5C">5eC</option><option value="2A">2de A</option><option value="2CD">2de CD</option></select></div>
         <button id="testClassBtn" style="width:100%; padding:12px; background:#3b82f6; color:white; border:none; border-radius:8px; margin-bottom:15px; font-weight:bold;">🎮 Tester classe</button>
         <input id="studentSearch" placeholder="Rechercher..." style="width:100%; padding:10px; margin-bottom:15px;">
         <button id="resetAllBtn" style="width:100%; padding:12px; background:#ef4444; color:white; border:none; border-radius:8px; margin-bottom:25px; font-weight:bold;">⚠️ Tout Réinitialiser</button>
-        <table id="playersTable" style="width:100%; border-collapse:collapse;"><thead style="background:#f8fafc;"><tr><th style="padding:10px;">Prénom et Nom</th><th style="padding:10px;">Classe</th><th style="padding:10px;">Chapitre</th><th style="padding:10px;">Niveau</th><th style="padding:10px;">Progression</th><th style="padding:10px;">Actions</th></tr></thead><tbody id="playersBody"></tbody></table>
+        <table id="playersTable" style="width:100%; border-collapse:collapse;"><thead style="background:#f8fafc;"><tr><th style="padding:10px;">Prénom</th><th style="padding:10px;">Classe</th><th style="padding:10px;">Progression</th><th style="padding:10px;">Actions</th></tr></thead><tbody id="playersBody"></tbody></table>
       </div>
-
       <div id="contentHomeworks" class="tab-content">
           <button id="addHomeworkBtn" class="action-btn" style="margin-bottom:15px;">➕ Nouveau Devoir</button>
           <table style="width:100%; text-align:left;"><tbody id="profHomeworksBody"></tbody></table>
@@ -111,16 +110,16 @@
     <div id="createHomeworkModal" class="modal-overlay" style="display:none;"></div>
     <div id="lessonModal" class="modal-overlay" style="display:none;"><div class="modal-content"><div id="lessonText"></div><button onclick="document.getElementById('lessonModal').style.display='none'">Fermer</button></div></div>
     <div id="bugModal" class="modal-overlay" style="display:none;"><div class="modal-content"><textarea id="bugDescription"></textarea><button id="sendBugBtn">Envoyer</button><button id="resumeGameBtn">Annuler</button></div></div>
+    <div id="mistakesModal" class="modal-overlay" style="display: none;"><div class="modal-content"><button id="closeMistakesBtn">X</button><div id="mistakesList"></div></div></div>
     <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;"><div style="background:white; padding:30px; border-radius:10px; text-align:center;"><h3>Perdu !</h3><button id="restartBtn" style="padding:10px 20px;">Recommencer</button></div></div>
     <div id="correctionOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;"><div style="background:white; padding:30px; border-radius:10px; max-width:400px; text-align:center;"><h3 style="color:#ef4444;">Faux !</h3><p id="correctionText"></p><button id="closeCorrectionBtn" style="padding:10px 20px;">Continuer</button></div></div>
-    <div id="mistakesModal" class="modal-overlay" style="display: none;"><div class="modal-content"><button id="closeMistakesBtn">X</button><div id="mistakesList"></div></div></div>
-    <div id="aiFeedbackModal" class="modal-overlay" style="display:none; z-index: 5000;"><div class="modal-content ai-modal-content"><h3 id="aiModalTitle">🤖 Analyse IA</h3><div id="aiModalContent" class="ai-feedback-box"></div><div style="text-align:right;"><button id="aiModalCloseBtn">J'ai compris</button></div></div></div>
+
   </main>
 
-  <!-- TEMPLATES -->
-  
-  <!-- HOMEWORK (FINAL) -->
-<template id="template-homework-game">
+  <!-- ======================== TEMPLATES JEUX ======================== -->
+
+  <!-- TEMPLATE HOMEWORK (LISEUSE + SPLIT BAS) -->
+  <template id="template-homework-game">
       <div class="hw-layout">
         
         <!-- VUE LISTE -->
@@ -129,38 +128,32 @@
         <!-- VUE TRAVAIL -->
         <div id="hw-workspace" class="hw-work-view">
             
-            <!-- HAUT : TOILE DE VISUALISATION -->
+            <!-- HAUT : LISEUSE -->
             <div id="doc-viewer" class="doc-viewer-container">
-                <button id="btn-close-work">Quitter</button>
-
-                <!-- Navigation Carousel -->
                 <button id="btn-prev-doc" class="nav-arrow">❮</button>
                 <button id="btn-next-doc" class="nav-arrow">❯</button>
                 <div id="page-counter" class="page-counter">1/1</div>
 
-                <!-- LA TOILE QUI BOUGE -->
-                <div id="pan-zoom-content" class="pan-zoom-content">
-                    <img id="current-doc-img" class="doc-image" src="" alt="Document">
-                    <!-- Iframe pour PDF si besoin -->
-                    <iframe id="current-doc-pdf" class="doc-image" style="display:none; width:600px; height:800px; border:none;"></iframe>
-                </div>
+                <img id="current-doc-img" src="" alt="" style="display:none;">
+                <iframe id="current-doc-pdf" style="display:none;"></iframe>
                 
                 <p id="no-doc-msg" style="color:white; display:none;">Aucun document</p>
 
-                <!-- Zoom -->
                 <div class="doc-controls">
                     <button class="zoom-btn" id="btn-zoom-out">➖</button>
                     <button class="zoom-btn" id="btn-zoom-in">➕</button>
                 </div>
+                
+                <button id="btn-close-work" style="position:absolute; top:15px; left:15px; background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; z-index:30; font-weight:bold;">Quitter</button>
             </div>
 
             <!-- BAS : INTERACTION -->
             <div class="interaction-zone">
                 <!-- Question -->
                 <div class="question-part">
-                    <h4 style="margin-top:0; color:#2563eb;">Question <span id="q-index">1</span></h4>
+                    <h4 style="margin:0 0 10px 0; color:#2563eb;">Question <span id="q-index">1</span></h4>
                     <div id="q-text" class="question-text">...</div>
-                    <div id="q-image-container" style="margin-top:10px;"></div>
+                    <div id="q-image-container" style="text-align:center;"></div>
                 </div>
 
                 <!-- Réponse -->
@@ -168,7 +161,7 @@
                     <textarea id="hw-text" class="hw-textarea" placeholder="Écris ta réponse ici..."></textarea>
                     
                     <div class="action-bar">
-                        <label style="color:#2563eb; cursor:pointer; font-size:0.9em;">
+                        <label style="color:#2563eb; cursor:pointer; font-size:0.9em; display:flex; align-items:center; gap:5px;">
                             📎 Photo <input type="file" id="hw-file" style="display:none;" accept="image/*">
                             <span id="file-name" style="color:#64748b;"></span>
                         </label>
@@ -177,11 +170,11 @@
                 </div>
             </div>
             
-            <!-- MODALE FEEDBACK (Reste inchangée) -->
-            <div id="ai-feedback-modal" class="ai-modal-center" style="display:none;">
+            <!-- MODALE FEEDBACK -->
+            <div id="ai-feedback-modal" class="ai-modal-center">
                 <h3 style="margin-top:0;">🤖 Résultat</h3>
-                <div id="ai-content" class="ai-content-box">Chargement...</div>
-                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+                <div id="ai-content" class="ai-content-box">...</div>
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
                     <button id="btn-modify" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Modifier</button>
                     <button id="btn-next" style="background:#16a34a; color:white; padding:8px 15px; border:none; border-radius:4px; cursor:pointer;">Continuer ➔</button>
                 </div>
@@ -192,40 +185,8 @@
       </div>
   </template>
 
-  <!-- AUTRES TEMPLATES (Simplifiés) -->
- <!-- TEMPLATE 1 : ZOMBIE (VERSION ROBUSTE) -->
-  <template id="template-zombie-game">
-    <div style="text-align:center; height: 100%; display: flex; flex-direction: column;">
-      
-      <!-- ZONE JEU -->
-      <div id="zombie-arena" style="height:220px; background:#e0f2fe; position:relative; overflow:hidden; border-radius:10px; border-bottom: 4px solid #7dd3fc; flex-shrink: 0;">
-        <img id="z-hero" src="images/hero.png" class="game-character" style="left:20px; position:absolute; bottom:10px; height:100px;">
-        <img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px; position:absolute; bottom:10px; height:100px;">
-        <div id="z-projectile" style="position:absolute; bottom:45px; left:50px; width:20px; height:20px; background:radial-gradient(circle, #facc15, #ca8a04); border-radius:50%; display:none; z-index:10; box-shadow: 0 0 10px yellow;"></div>
-        <div id="feedback-bubble"></div>
-      </div>
-
-      <!-- QUESTION -->
-      <div id="z-question" class="question-zone" style="font-size:1.4em; font-weight:800; margin:15px 0; color:#1e3a8a; min-height: 3em; display:flex; align-items:center; justify-content:center;">
-          Chargement...
-      </div>
-      
-      <!-- ZONE SAISIE (CACHÉE PAR DÉFAUT) -->
-      <div id="ai-input-zone" style="display:none; justify-content:center; gap:10px; margin-top: auto; margin-bottom: 20px;">
-          <input id="z-answer" placeholder="Ta réponse..." style="padding:12px; width:60%; font-size:16px; border:2px solid #cbd5e1; border-radius:8px;">
-          <button id="z-submit" style="padding:12px 24px; background:#2563eb; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer;">Valider</button>
-      </div>
-
-      <!-- ZONE BOUTONS (CACHÉE PAR DÉFAUT, GRILLE FORCEE PAR JS) -->
-      <div id="options-grid" style="display:none; grid-template-columns: 1fr 1fr; gap:15px; margin-top: auto; margin-bottom: 20px; width: 100%; padding: 0 20px;">
-          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">A</button>
-          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">B</button>
-          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">C</button>
-          <button class="option-btn" style="padding:15px; font-size:16px; background:white; border:2px solid #e2e8f0; border-radius:10px; cursor:pointer; font-weight:600; color:#1e293b;">D</button>
-      </div>
-      
-    </div>
-  </template>
+  <!-- AUTRES TEMPLATES -->
+  <template id="template-zombie-game"><div style="text-align:center;"><div id="zombie-arena"><img id="z-hero" src="images/hero.png" class="game-character" style="left:20px;"><img id="z-zombie" src="images/zombi.png" class="game-character" style="right:20px;"><div id="z-projectile"></div><div id="feedback-bubble"></div></div><div id="z-question" class="question-zone"></div><div id="ai-input-zone"><input id="z-answer"><button id="z-submit">Valider</button></div><div id="options-grid"></div></div></template>
   <template id="template-redaction-game"><div id="redac-q"></div><textarea id="redac-answer"></textarea><button id="redac-submit">Envoyer</button><div id="redac-loading"></div><div id="analysis-area"><div id="text-good"></div><button id="redac-continue">Continuer</button></div></template>
   <template id="template-starship-game"><div id="starship-game-area"><div id="ship"></div><div id="question"></div></div></template>
   <template id="template-jumper-game"><div id="jumper-area"><div id="player"></div><div id="q-text"></div><div id="options-grid"></div></div></template>

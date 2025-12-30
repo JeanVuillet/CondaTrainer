@@ -1,68 +1,107 @@
 const fs = require('fs');
 const path = require('path');
-const inputFile = 'update.txt';
-
-console.log("▶️ DÉMARRAGE DU SCRIPT DE DEBUG...");
+const inputFile = path.join(__dirname, 'update.txt');
 
 function applyUpdate() {
-    // 1. Vérifier où le script cherche le fichier
-    const absolutePath = path.resolve(inputFile);
-    console.log(`🔎 Je cherche le fichier ici : ${absolutePath}`);
-
-    // 2. Vérifier si le fichier existe
-    if (!fs.existsSync(inputFile)) {
-        console.error("❌ ERREUR FATALE : Le fichier update.txt est INTROUVABLE !");
-        console.error("👉 Vérifie qu'il n'est pas dans un sous-dossier ou nommé 'update.txt.txt'");
-        return;
-    }
-
-    // 3. Lire le contenu
+    if (!fs.existsSync(inputFile)) return;
     const content = fs.readFileSync(inputFile, 'utf8');
-    console.log(`📄 Fichier trouvé ! Taille : ${content.length} caractères.`);
-    console.log(`👀 Aperçu du début : "${content.substring(0, 50).replace(/\n/g, ' ')}..."`);
+    if (!content || content.trim().length < 10) return;
 
-    // 4. Vérifier la longueur
-    if (!content || content.trim().length < 5) {
-        console.error("⚠️  STOP : Le fichier est considéré comme VIDE ou trop court.");
-        return;
-    }
+    console.log("🐪 SYSTÈME CHAMEAU V5 : Chirurgie par sections...");
 
-    console.log("---------------------------------------------");
-    console.log("📥 TRAITEMENT EN COURS...");
-
+    // On sépare le texte par les marqueurs de fichiers
     const parts = content.split(/\/\/\s*FILE:\s*/);
-    let count = 0;
+    
+    // On ignore le premier morceau s'il ne contient pas de nom de fichier (déchet au début)
+    if (parts[0] && (parts[0].length < 3 || parts[0].includes('{') || parts[0].includes('('))) {
+        parts.shift();
+    }
 
     parts.forEach(part => {
-        if (!part.trim()) return;
-        const firstLineEnd = part.indexOf('\n');
-        if (firstLineEnd === -1) return;
+        try {
+            const lines = part.split('\n');
+            const filePath = lines[0].trim().replace(/[\r]/g, '');
+            const newContent = lines.slice(1).join('\n').trim();
 
-        let filePath = part.substring(0, firstLineEnd).trim();
-        let fileContent = part.substring(firstLineEnd).trim();
-        
-        filePath = filePath.replace(/\r/g, '');
+            // SÉCURITÉ : Ne pas toucher à ce script et vérifier le nom
+            if (!filePath || filePath.includes('apply.js') || /[\{\}\(\)=>|;]/.test(filePath) || filePath.length > 80) {
+                console.log("⚠️ Bloc ignoré (nom de fichier invalide ou suspect)");
+                return;
+            }
 
-        if (filePath) {
             const fullPath = path.join(__dirname, filePath);
-            const dir = path.dirname(fullPath);
-            try {
+            
+            // CAS 1 : Le fichier n'existe pas -> Création
+            if (!fs.existsSync(fullPath)) {
+                const dir = path.dirname(fullPath);
                 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-                fs.writeFileSync(fullPath, fileContent);
-                console.log(`✅ ÉCRIT : ${filePath}`);
-                count++;
-            } catch (e) { console.error(`❌ Erreur : ${e.message}`); }
+                fs.writeFileSync(fullPath, newContent);
+                console.log(`🆕 CRÉÉ : ${filePath}`);
+                return;
+            }
+
+            // CAS 2 : Le fichier existe -> Chirurgie ou Overwrite
+            const original = fs.readFileSync(fullPath, 'utf8');
+            let patchedContent = original;
+            let hasAppliedAtLeastOnePatch = false;
+
+            // Analyse du nouveau contenu pour trouver des sections [SECTION: NOM]
+            const startMarkerPrefix = "[SECTION: ";
+            let searchIndex = 0;
+
+            while (true) {
+                const startIdx = newContent.indexOf(startMarkerPrefix, searchIndex);
+                if (startIdx === -1) break;
+
+                const nameEndIdx = newContent.indexOf("]", startIdx);
+                if (nameEndIdx === -1) break;
+
+                const sectionName = newContent.substring(startIdx + startMarkerPrefix.length, nameEndIdx).trim();
+                const endTag = "[/SECTION: " + sectionName + "]";
+                const endTagIdx = newContent.indexOf(endTag, nameEndIdx);
+
+                if (endTagIdx !== -1) {
+                    // On a trouvé un bloc complet dans l'update.txt
+                    const fullNewBlock = newContent.substring(startIdx, endTagIdx + endTag.length);
+                    
+                    // On cherche ce même bloc dans le fichier original
+                    const originalStartIdx = patchedContent.indexOf("[SECTION: " + sectionName + "]");
+                    const originalEndIdx = patchedContent.indexOf("[/SECTION: " + sectionName + "]");
+
+                    if (originalStartIdx !== -1 && originalEndIdx !== -1) {
+                        // CHIRURGIE : On remplace le vieux bloc par le nouveau
+                        const before = patchedContent.substring(0, originalStartIdx);
+                        const after = patchedContent.substring(originalEndIdx + endTag.length);
+                        patchedContent = before + fullNewBlock + after;
+                        hasAppliedAtLeastOnePatch = true;
+                        console.log(`  💉 Patch : [${sectionName}] -> ${filePath}`);
+                    } else {
+                        console.log(`  ⚠️ Section [${sectionName}] introuvable dans l'original de ${filePath}`);
+                    }
+                }
+                
+                searchIndex = (endTagIdx !== -1) ? endTagIdx + endTag.length : startIdx + 1;
+                if (searchIndex >= newContent.length) break;
+            }
+
+            // DÉCISION FINALE :
+            // Si on a patché au moins un morceau, on sauve le résultat fusionné.
+            // Sinon, on remplace tout le fichier (Overwrite classique).
+            if (hasAppliedAtLeastOnePatch) {
+                fs.writeFileSync(fullPath, patchedContent);
+                console.log(`✅ CHIRURGIE TERMINÉE : ${filePath}`);
+            } else {
+                fs.writeFileSync(fullPath, newContent);
+                console.log(`📄 REMPLACEMENT COMPLET : ${filePath}`);
+            }
+
+        } catch (e) {
+            console.error(`❌ Erreur critique sur le fichier :`, e.message);
         }
     });
 
-    if (count > 0) {
-        fs.writeFileSync(inputFile, '');
-        console.log(`✨ SUCCÈS : ${count} fichiers générés.`);
-        console.log(`🗑  update.txt a été vidé.`);
-    } else {
-        console.log("⚠️  Aucune balise '// FILE:' trouvée dans le texte.");
-    }
-    console.log("---------------------------------------------");
+    // On vide update.txt après le traitement
+    fs.writeFileSync(inputFile, '');
 }
 
 applyUpdate();

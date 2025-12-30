@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "Plateforme Condamine",
   "main": "src/server.js",
-  "scripts": {
+"scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon --ext js,html,css,txt --watch src --watch public --watch update.txt --ignore PROJET_SNAPSHOT.txt --exec \"(lsof -t -i:3000 | xargs kill -9 2>/dev/null || true) && node apply.js && node snap.js && node src/server.js\""
+    "dev": "nodemon --ext js,html,css --ignore SNAPSHOT_*.txt --ignore update.txt --watch src --watch public --exec \"(lsof -t -i:3000 | xargs kill -9 2>/dev/null || true) && node apply.js && node src/server.js\"",
+    "snap": "node snap"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.0",
